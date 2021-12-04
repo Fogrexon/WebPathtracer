@@ -91,7 +91,7 @@ color rayCast(vec3 ori, vec3 dir) {
 extern "C" {
 #endif
 
-void EMSCRIPTEN_KEEPALIVE mulBy2(int* a, int width, int height)
+void EMSCRIPTEN_KEEPALIVE pathTracing(int* a, int width, int height)
 {
   for(int y=0;y<height;y++) {
     printf("loading... : %d\n", 100 * y / height);
