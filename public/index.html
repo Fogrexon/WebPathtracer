@@ -39,6 +39,13 @@
       // 配列のメモリ解放
       Module._free(buffer);
 
+      fetch("./testmodel.gltf").then((data) => {
+        console.log(data);
+        return data.json();
+      }).then((data) => {
+        console.log(data);
+      });
+
     }));
   </script>
 </body>
