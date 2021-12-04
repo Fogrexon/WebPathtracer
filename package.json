@@ -6,12 +6,13 @@
   "module": "build/es/src/index.js",
   "scripts": {
     "build": "rollup --config",
+    "build:wasm": "emcc src/wasm/main.cpp -s WASM=1 -O2 -s NO_EXIT_RUNTIME=1 -s \"EXPORTED_RUNTIME_METHODS=['getValue', 'setValue']\" -s EXPORTED_FUNCTIONS=\"['_mulBy2', '_main', '_malloc', '_free']\" -s ALLOW_MEMORY_GROWTH=1 -o build/wasm/main.js",
     "start": "rollup --config --watch",
     "start:example": "http-server",
     "lint:prettier": "prettier \"./src/**/*.ts\"",
     "lint:eslint": "eslint \"./src/**/*.ts\"",
     "lint:fix": "prettier \"./src/**/*.ts\" --write & eslint \"./src/**/*.ts\" --fix",
-    "docs": "jsdoc ./src/index.ts -d docs"
+    "docs": "typedoc --out ./docs/ ./src/"
   },
   "repository": {
     "type": "git",
@@ -34,7 +35,6 @@
     "eslint-config-airbnb-base": "^14.2.1",
     "eslint-config-prettier": "^8.3.0",
     "eslint-plugin-import": "^2.24.1",
-    "jsdoc": "^3.6.7",
     "postcss": "^8.3.6",
     "prettier": "^2.3.2",
     "rollup": "^2.56.2",
@@ -42,6 +42,8 @@
     "rollup-plugin-node-resolve": "^5.2.0",
     "rollup-plugin-postcss": "^4.0.1",
     "tslib": "^2.3.1",
+    "typedoc": "^0.22.10",
     "typescript": "^4.3.5"
   }
 }
+

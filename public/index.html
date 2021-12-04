@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang=en-us>
+<head>
+  <meta charset=utf-8>
+  <meta content="text/html; charset=utf-8" http-equiv=Content-Type>
+  <title>Hello WASM World!</title>
+</head>
+<body>
+  <button class=mybutton>Run mulBy2</button><br>
+  <canvas id="cnv" width=1980 height=1080>canvas</canvas>
+  <script src="../build/wasm/main.js"></script>
+  <script>
+    const canvas = document.getElementById('cnv');
+    const ctx = canvas.getContext('2d');
+
+    const imagedata = ctx.createImageData(canvas.width, canvas.height);
+
+    document.querySelector(".mybutton").addEventListener("click", (function () {
+      // 配列のメモリを用意
+      var nByte = 4;
+      var length = imagedata.data.length;
+      var buffer = Module._malloc(length * nByte);
+  
+      // 配列の値を設定 (array=0,1,2...,19)
+      for (var i = 0; i < length; i++) {
+        Module.setValue(buffer + i*nByte, imagedata.data[i], 'i32');
+      }
+  
+      // C言語の関数の呼び出し (各要素2倍)
+      Module._mulBy2(buffer, canvas.width, canvas.height);
+  
+      // 配列の値を取得 (array=0,2,4...,38)
+      for (var i = 0; i < length; i++) {
+        imagedata.data[i] = Module.getValue(buffer + i*nByte, 'i32');
+      }
+
+      ctx.putImageData(imagedata, 0, 0);
+  
+      // 配列のメモリ解放
+      Module._free(buffer);
+
+    }));
+  </script>
+</body>
+</html>

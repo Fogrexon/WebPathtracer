@@ -107,5 +107,7 @@ dist
 build/commonjs/
 build/es/
 
+# Emscripten build files
+src/wasm/build/
 # documents
 docs/
