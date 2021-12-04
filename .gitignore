@@ -111,3 +111,4 @@ build/es/
 src/wasm/build/
 # documents
 docs/
+build/
