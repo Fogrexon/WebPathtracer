@@ -40,7 +40,7 @@
       Module._free(buffer);
 
       fetch("./testmodel.gltf").then((data) => {
-        console.log(data);
+        console.log(data.headers.get('Content-Type'));
         return data.json();
       }).then((data) => {
         console.log(data);

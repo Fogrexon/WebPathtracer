@@ -1,0 +1,23 @@
+<!doctype html>
+<html lang=en-us>
+<head>
+  <meta charset=utf-8>
+  <meta content="text/html; charset=utf-8" http-equiv=Content-Type>
+  <title>Hello WASM World!</title>
+</head>
+<body>
+  <button class=mybutton>Run mulBy2</button><br>
+  <script src="../build/umd/graphim.js"></script>
+  <script>
+
+    document.querySelector(".mybutton").addEventListener("click", (function () {
+
+      const model = new PathTracer.GLTFLoader();
+      model.load("./testmodel.gltf").then(() => {
+          console.log(model.position);
+        });
+
+    }));
+  </script>
+</body>
+</html>
