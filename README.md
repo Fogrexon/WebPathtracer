@@ -1,25 +1,48 @@
-# LibraryTemplate
+# PathTracer
 
 ## Build
 
 ```
 npm install
 
+// ts
+npm run build
+
+// wasm
 npm run build:wasm
 
-npm run start:example
+// docs
+npm run build:docs
 ```
 
-access: localhost:8080
+## Develop
 
-## Install
+```
+// ts with file watching
+npm start
+
+// docs with file watching
+npm docs
+```
 
 ## Use
 
-### Example
+## Example
+
+```
+npm run start:example
+```
+
+[testpage](http://localhost:8080/public/)
 
 ## Demos
 
+```
+npm run start:example
+```
+
+[docs](http://localhost:8080/docs/)
+
 ## Author
 
-Fogrexon
+Fogrexon, kegra, 0214sh7
