@@ -1,5 +1,5 @@
 {
-  "name": "librarytemplate",
+  "name": "pathtracer",
   "version": "0.1.0",
   "description": "",
   "main": "build/commonjs/src/index.js",
@@ -17,14 +17,14 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/Fogrexon/LibraryTemplate.git"
+    "url": "git+https://git.trap.jp/Hackathon21_Winter_10/Pathtracer.git"
   },
-  "author": "Fogrexon",
+  "author": "Fogrexon,kegra,0214sh7",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/Fogrexon/LibraryTemplate/issues"
+    "url": "https://git.trap.jp/Hackathon21_Winter_10/Pathtracer.git"
   },
-  "homepage": "https://github.com/Fogrexon/LibraryTemplate#readme",
+  "homepage": "https://git.trap.jp/Hackathon21_Winter_10/Pathtracer/src/branch/main/README.md",
   "devDependencies": {
     "@babel/core": "^7.15.0",
     "@babel/plugin-transform-runtime": "^7.16.4",

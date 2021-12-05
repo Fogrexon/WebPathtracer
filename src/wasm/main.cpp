@@ -118,6 +118,8 @@ void EMSCRIPTEN_KEEPALIVE pathTracing(int* a, int width, int height)
       a[base+3] = 256;
     }
   }
+
+  
 }
 
 #ifdef __cplusplus
