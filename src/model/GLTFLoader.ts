@@ -1,4 +1,7 @@
+import { Matrix4, Vector3 } from "..";
+import { Quaternion } from "../math/Quaternion";
 import { GLTFJson } from "../types/gltf";
+import { Model } from "./Model";
 
 /**
  * glTF model data
@@ -6,23 +9,11 @@ import { GLTFJson } from "../types/gltf";
  * @export
  * @class GLTFLoader
  */
-export class GLTFLoader {
+export class GLTFLoader extends Model {
   private rawUrl: string | null = null;
 
   private rawJson: GLTFJson | null = null;
 
-  private _position: Float32Array = new Float32Array();
-
-  private _normal: Float32Array = new Float32Array();
-
-  private _texcoord: Float32Array = new Float32Array();
-
-  private _indicies: Int16Array = new Int16Array();
-
-  // private _transformMatrix: Matrix4 = new Matrix4();
-
-
-  
   /**
    * load glTF
    *
@@ -56,9 +47,19 @@ export class GLTFLoader {
     } = this.rawJson;
 
     if (!Array.isArray(nodes) || !Array.isArray(meshes) || !Array.isArray(accessors) || !Array.isArray(bufferViews) || !Array.isArray(buffers)) return;
-
+    
+    const [node] = nodes;
     const [bufPos, bufNorm, bufTex, bufInd] = bufferViews;
     const [{uri}] = buffers;
+
+    if(!node.translation || !node.rotation || !node.scale) return;
+
+    const translate = (new Matrix4()).translateMatrix(new Vector3(node.translation[0], node.translation[1], node.translation[2]));
+    const scale = (new Matrix4()).scaleMatrix(new Vector3(node.scale[0], node.scale[1], node.scale[2]));
+    const rotation = (new Quaternion(new Vector3(node.rotation[0], node.rotation[1], node.rotation[2]), node.rotation[3])).matrix();
+
+    this._matrix = translate.multiply(rotation.multiply(scale)) as Matrix4;
+
 
     const response = await fetch(uri);
     const buffer = await (await response.blob()).arrayBuffer();
