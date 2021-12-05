@@ -7,12 +7,13 @@
   "scripts": {
     "build": "rollup --config",
     "build:wasm": "emcc src/wasm/main.cpp -s WASM=1 -O2 -s NO_EXIT_RUNTIME=1 -s \"EXPORTED_RUNTIME_METHODS=['getValue', 'setValue']\" -s EXPORTED_FUNCTIONS=\"['_pathTracing', '_main', '_malloc', '_free']\" -s ALLOW_MEMORY_GROWTH=1 -o build/wasm/main.js",
+    "build:docs": "typedoc --out ./docs/ ./src/",
     "start": "rollup --config --watch",
     "start:example": "http-server ./",
+    "docs": "typedoc --out ./docs/ ./src/ --watch",
     "lint:prettier": "prettier \"./src/**/*.ts\"",
     "lint:eslint": "eslint \"./src/**/*.ts\"",
-    "lint:fix": "prettier \"./src/**/*.ts\" --write & eslint \"./src/**/*.ts\" --fix",
-    "docs": "typedoc --out ./docs/ ./src/"
+    "lint:fix": "prettier \"./src/**/*.ts\" --write & eslint \"./src/**/*.ts\" --fix"
   },
   "repository": {
     "type": "git",
@@ -26,7 +27,10 @@
   "homepage": "https://github.com/Fogrexon/LibraryTemplate#readme",
   "devDependencies": {
     "@babel/core": "^7.15.0",
+    "@babel/plugin-transform-runtime": "^7.16.4",
+    "@babel/polyfill": "^7.12.1",
     "@babel/preset-env": "^7.15.0",
+    "@babel/runtime": "^7.16.3",
     "@rollup/plugin-babel": "^5.3.0",
     "@rollup/plugin-typescript": "^8.2.5",
     "@typescript-eslint/eslint-plugin": "^4.29.2",
@@ -36,7 +40,7 @@
     "eslint-config-prettier": "^8.3.0",
     "eslint-plugin-import": "^2.24.1",
     "postcss": "^8.3.6",
-    "prettier": "^2.3.2",
+    "prettier": "^2.5.1",
     "rollup": "^2.56.2",
     "rollup-plugin-node-polyfills": "^0.2.1",
     "rollup-plugin-node-resolve": "^5.2.0",
@@ -46,4 +50,3 @@
     "typescript": "^4.3.5"
   }
 }
-

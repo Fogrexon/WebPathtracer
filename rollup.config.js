@@ -64,10 +64,10 @@ export default [
   {
     input: 'src/index.ts',
     output: {
-      file: 'build/umd/graphim.js',
+      file: 'build/umd/pathtracer.js',
       // dir: 'build/umd',
       format: 'umd',
-      name: 'Graphim',
+      name: 'PathTracer',
       sourcemap: true,
     },
     plugins: [
