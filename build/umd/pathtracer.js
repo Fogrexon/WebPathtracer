@@ -4,68 +4,6 @@
     (global = typeof globalThis !== 'undefined' ? globalThis : global || self, factory(global.PathTracer = {}));
 })(this, (function (exports) { 'use strict';
 
-    /**
-     * glTF model data
-     *
-     * @export
-     * @class GLTFLoader
-     */
-    class GLTFLoader {
-      rawUrl = null;
-      rawJson = null;
-      _position = new Float32Array();
-      _normal = new Float32Array();
-      _texcoord = new Float32Array();
-      _indicies = new Int16Array(); // private _transformMatrix: Matrix4 = new Matrix4();
-
-      /**
-       * load glTF
-       *
-       * @param {string} url GLTFのURL
-       * @memberof GLTFLoader
-       */
-
-      async load(url) {
-        this.rawUrl = url;
-        const response = await fetch(url);
-        if (response.headers.get('Content-Type') !== 'model/gltf+json') throw Error(`This data is ${response.headers.get('Content-Type')} ,not model/gltf+json.`);
-        this.rawJson = await response.json();
-        await this.analize();
-      }
-      /**
-       * analyze json data (super simple)
-       *
-       * @private
-       * @return {*}
-       * @memberof GLTFLoader
-       */
-
-
-      async analize() {
-        if (!this.rawJson) return; // first node only
-
-        const {
-          nodes,
-          meshes,
-          accessors,
-          bufferViews,
-          buffers
-        } = this.rawJson;
-        if (!Array.isArray(nodes) || !Array.isArray(meshes) || !Array.isArray(accessors) || !Array.isArray(bufferViews) || !Array.isArray(buffers)) return;
-        const [bufPos, bufNorm, bufTex, bufInd] = bufferViews;
-        const [{
-          uri
-        }] = buffers;
-        const response = await fetch(uri);
-        const buffer = await (await response.blob()).arrayBuffer();
-        this._position = new Float32Array(buffer.slice(bufPos.byteOffset, bufPos.byteOffset + bufPos.byteLength));
-        this._normal = new Float32Array(buffer.slice(bufNorm.byteOffset, bufNorm.byteOffset + bufNorm.byteLength));
-        this._texcoord = new Float32Array(buffer.slice(bufTex.byteOffset, bufTex.byteOffset + bufTex.byteLength));
-        this._indicies = new Int16Array(buffer.slice(bufInd.byteOffset, bufInd.byteOffset + bufInd.byteLength));
-      }
-
-    }
-
     class Vector3 {
       x;
       y;
@@ -500,6 +438,417 @@
 
     }
 
+    /**
+     * abstract class of Model
+     *
+     * @export
+     * @class Model
+     */
+
+    class Model {
+      _position = new Float32Array();
+      _normal = new Float32Array();
+      _texcoord = new Float32Array();
+      _indicies = new Int32Array();
+      _matrix = new Matrix4();
+      /**
+       * Vertex position vector array
+       *
+       * @readonly
+       * @type {Float32Array}
+       * @memberof Model
+       */
+
+      get position() {
+        return this._position;
+      }
+      /**
+       * Vertex normal vector array
+       *
+       * @readonly
+       * @type {Float32Array}
+       * @memberof Model
+       */
+
+
+      get normal() {
+        return this._normal;
+      }
+      /**
+       * Texcoord vector array
+       *
+       * @readonly
+       * @type {Float32Array}
+       * @memberof Model
+       */
+
+
+      get texcoord() {
+        return this._texcoord;
+      }
+      /**
+       * Indicies array
+       *
+       * @readonly
+       * @type {Int32Array}
+       * @memberof Model
+       */
+
+
+      get indicies() {
+        return this._indicies;
+      }
+      /**
+       * Get transform matrix.
+       *
+       * @readonly
+       * @type {Matrix4}
+       * @memberof Model
+       */
+
+
+      get matrix() {
+        return this._matrix;
+      }
+
+    }
+
+    class Quaternion {
+      v;
+      w;
+
+      constructor(v, w) {
+        this.v = v || new Vector3(0, 0, 0);
+        this.w = w || 1;
+      } // 設定
+
+
+      set(v, w) {
+        this.v = v;
+        this.w = w;
+        return this;
+      }
+
+      angleAxis(angle, _axis) {
+        const axis = _axis.normalize();
+
+        this.v = new Vector3(axis.x * Math.sin(angle / 2), axis.y * Math.sin(angle / 2), axis.z * Math.sin(angle / 2));
+        this.w = Math.cos(angle / 2);
+        return this;
+      }
+
+      eularAngle(rot) {
+        const {
+          x,
+          y,
+          z
+        } = rot;
+        const xc = Math.cos(x);
+        const xs = Math.sin(x);
+        const yc = Math.cos(y);
+        const ys = Math.sin(y);
+        const zc = Math.cos(z);
+        const zs = Math.sin(z);
+        this.v = new Vector3(xc * yc * zc + xs * ys * zs, xs * yc * zc - xc * ys * zs, xc * ys * zc + xs * yc * zs);
+        this.w = xc * yc * zs - xs * ys * zc;
+        return this;
+      }
+
+      matrix() {
+        const {
+          x,
+          y,
+          z
+        } = this.v;
+        const {
+          w
+        } = this;
+        return new Matrix4([x ** 2 - y ** 2 - z ** 2 + w ** 2, 2 * (x * y + z * w), 2 * (x * z - y * w), 0, 2 * (x * y - z * w), y ** 2 - x ** 2 - z ** 2 + w ** 2, 2 * (y * z + x * w), 0, 2 * (x * z + y * w), 2 * (y * z - x * w), z ** 2 + w ** 2 - x ** 2 - y ** 2, 0, 0, 0, 0, 1]);
+      }
+
+      fromMatrix(mat) {
+        const m00 = mat.matrix[0];
+        const m10 = mat.matrix[1];
+        const m20 = mat.matrix[2];
+        const m01 = mat.matrix[4];
+        const m11 = mat.matrix[5];
+        const m21 = mat.matrix[6];
+        const m02 = mat.matrix[8];
+        const m12 = mat.matrix[9];
+        const m22 = mat.matrix[10];
+        const element = [m00 - m11 - m22 + 1, -m00 + m11 - m22 + 1, -m00 - m11 + m22 + 1, m00 + m11 + m22 + 1];
+        let maxIndex = 0;
+        maxIndex = element[maxIndex] < element[1] ? 1 : maxIndex;
+        maxIndex = element[maxIndex] < element[2] ? 2 : maxIndex;
+        maxIndex = element[maxIndex] < element[3] ? 3 : maxIndex;
+
+        if (element[maxIndex] < 0) {
+          this.v = new Vector3(0, 0, 0);
+          this.w = 1;
+          console.error('Wrong matrix');
+          return this;
+        }
+
+        const q = [0, 0, 0, 0];
+        let v = Math.sqrt(element[maxIndex]) * 0.5 + 0.00001;
+        q[maxIndex] = v;
+        v = 0.25 / v;
+
+        switch (maxIndex) {
+          case 0:
+            {
+              q[1] = (m10 + m01) * v;
+              q[2] = (m02 + m20) * v;
+              q[3] = (m21 - m12) * v;
+              break;
+            }
+
+          case 1:
+            {
+              q[0] = (m10 + m01) * v;
+              q[2] = (m21 + m12) * v;
+              q[3] = (m02 - m20) * v;
+              break;
+            }
+
+          case 2:
+            {
+              q[0] = (m02 + m20) * v;
+              q[1] = (m21 + m12) * v;
+              q[3] = (m10 - m01) * v;
+              break;
+            }
+
+          case 3:
+            {
+              q[0] = (m21 - m12) * v;
+              q[1] = (m02 - m20) * v;
+              q[2] = (m10 - m01) * v;
+              break;
+            }
+        }
+
+        return new Quaternion(new Vector3(q[0], q[1], q[2]), q[3]).normalize();
+      }
+
+      normalize() {
+        const len = Math.sqrt(this.v.x ** 2 + this.v.y ** 2 + this.v.z ** 2 + this.w ** 2);
+        return new Quaternion(new Vector3(this.v.x / len, this.v.y / len, this.v.z / len), this.w / len);
+      } // 計算
+
+
+      multiply(a) {
+        if (a instanceof Quaternion) {
+          return new Quaternion(this.v.cross(a.v).add(this.v.multiply(a.w)).add(a.v.multiply(this.w)), this.w * a.w - this.v.dot(a.v));
+        }
+
+        return this.matrix().multiply(a);
+      }
+
+      equal(a) {
+        return this.v.equal(a.v) && this.w === a.w;
+      }
+
+      copy() {
+        return new Quaternion(this.v.copy(), this.w);
+      }
+
+    }
+
+    /**
+     * glTF model data
+     *
+     * @export
+     * @class GLTFLoader
+     */
+
+    class GLTFLoader extends Model {
+      rawUrl = null;
+      rawJson = null;
+      /**
+       * load glTF
+       *
+       * @param {string} url GLTFのURL
+       * @memberof GLTFLoader
+       */
+
+      async load(url) {
+        this.rawUrl = url;
+        const response = await fetch(url);
+        if (response.headers.get('Content-Type') !== 'model/gltf+json') throw Error(`This data is ${response.headers.get('Content-Type')} ,not model/gltf+json.`);
+        this.rawJson = await response.json();
+        await this.analize();
+      }
+      /**
+       * analyze json data (super simple)
+       *
+       * @private
+       * @return {*}
+       * @memberof GLTFLoader
+       */
+
+
+      async analize() {
+        if (!this.rawJson) return; // first node only
+
+        const {
+          nodes,
+          meshes,
+          accessors,
+          bufferViews,
+          buffers
+        } = this.rawJson;
+        if (!Array.isArray(nodes) || !Array.isArray(meshes) || !Array.isArray(accessors) || !Array.isArray(bufferViews) || !Array.isArray(buffers)) return;
+        const [node] = nodes;
+        const [bufPos, bufNorm, bufTex, bufInd] = bufferViews;
+        const [{
+          uri
+        }] = buffers;
+        if (!node.translation || !node.rotation || !node.scale) return;
+        const translate = new Matrix4().translateMatrix(new Vector3(node.translation[0], node.translation[1], node.translation[2]));
+        const scale = new Matrix4().scaleMatrix(new Vector3(node.scale[0], node.scale[1], node.scale[2]));
+        const rotation = new Quaternion(new Vector3(node.rotation[0], node.rotation[1], node.rotation[2]), node.rotation[3]).matrix();
+        this._matrix = translate.multiply(rotation.multiply(scale));
+        const response = await fetch(uri);
+        const buffer = await (await response.blob()).arrayBuffer();
+        this._position = new Float32Array(buffer.slice(bufPos.byteOffset, bufPos.byteOffset + bufPos.byteLength));
+        this._normal = new Float32Array(buffer.slice(bufNorm.byteOffset, bufNorm.byteOffset + bufNorm.byteLength));
+        this._texcoord = new Float32Array(buffer.slice(bufTex.byteOffset, bufTex.byteOffset + bufTex.byteLength));
+        this._indicies = Int32Array.from(new Int16Array(buffer.slice(bufInd.byteOffset, bufInd.byteOffset + bufInd.byteLength)));
+      }
+
+    }
+
+    /**
+     * Wrapper of wasm array buffer
+     *
+     * @export
+     * @class WasmBuffer
+     */
+    class WasmBuffer {
+      module;
+      base;
+      type = null;
+      stride = -1;
+
+      constructor(module, array) {
+        if (array instanceof Float32Array) {
+          this.type = 'f32';
+          this.stride = 4;
+        } else if (array instanceof Float64Array) {
+          this.type = 'f64';
+          this.stride = 8;
+        } else if (array instanceof Int32Array) {
+          this.type = 'i32';
+          this.stride = 4;
+        } else if (array instanceof BigInt64Array) {
+          this.type = 'i64';
+          this.stride = 8;
+        }
+
+        if (!this.type) throw Error('Buffer type is invalid.');
+        this.module = module;
+        this.base = this.module._malloc(this.stride * array.length);
+        array.forEach((value, index) => this.set(index, value));
+      }
+      /**
+       * Get array element
+       *
+       * @param {number} index
+       * @return {*}
+       * @memberof WasmBuffer
+       */
+
+
+      get(index) {
+        if (!this.type) return;
+        this.module.getValue(this.base + this.stride * index, this.type);
+      }
+      /**
+       * Set array element
+       *
+       * @param {number} index
+       * @param {(number | bigint)} value
+       * @return {*}
+       * @memberof WasmBuffer
+       */
+
+
+      set(index, value) {
+        if (!this.type) return;
+        this.module.setValue(this.base + this.stride * index, value, this.type);
+      }
+      /**
+       * Get array pointer
+       *
+       * @return {*}
+       * @memberof WasmBuffer
+       */
+
+
+      getPointer() {
+        return this.base;
+      }
+      /**
+       * Release array buffer
+       *
+       * @memberof WasmBuffer
+       */
+
+
+      release() {
+        this.module._free(this.base);
+      }
+
+    }
+
+    /**
+     * Wasm module wrapper
+     *
+     * @export
+     * @class WasmManager
+     */
+
+    class WasmManager {
+      module;
+      /**
+       * Creates an instance of WasmManager.
+       * @memberof WasmManager
+       */
+
+      constructor() {
+        const win = window;
+        if (!win.Module) throw new Error('Wasm module is not loaded.');
+        this.module = win.Module;
+      }
+      /**
+       * Create array argment
+       *
+       * @param {WasmArrayType} array
+       * @return {*}
+       * @memberof WasmManager
+       */
+
+
+      createBuffer(array) {
+        return new WasmBuffer(this.module, array);
+      }
+      /**
+       * Call pathTracer function in wasm
+       *
+       * @param {(...(number | WasmBuffer)[])} args
+       * @return {*}
+       * @memberof WasmManager
+       */
+
+
+      callPathTracer(...args) {
+        const rawArgs = args.map(v => v instanceof WasmBuffer ? v.getPointer() : v);
+        return this.module._pathTracer(...rawArgs);
+      }
+
+    }
+
     class Vector2 {
       x;
       y;
@@ -576,9 +925,12 @@
 
     exports.GLTFLoader = GLTFLoader;
     exports.Matrix4 = Matrix4;
+    exports.Model = Model;
     exports.Vector2 = Vector2;
     exports.Vector3 = Vector3;
     exports.Vector4 = Vector4;
+    exports.WasmBuffer = WasmBuffer;
+    exports.WasmManager = WasmManager;
 
     Object.defineProperty(exports, '__esModule', { value: true });
 

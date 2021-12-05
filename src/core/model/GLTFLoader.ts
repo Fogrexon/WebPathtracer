@@ -1,6 +1,7 @@
-import { Matrix4, Vector3 } from "..";
-import { Quaternion } from "../math/Quaternion";
-import { GLTFJson } from "../types/gltf";
+import { Matrix4 } from "../../math/Matrix4";
+import { Quaternion } from "../../math/Quaternion";
+import { Vector3 } from "../../math/Vector3";
+import { GLTFJson } from "../../types/gltf";
 import { Model } from "./Model";
 
 /**
@@ -60,7 +61,6 @@ export class GLTFLoader extends Model {
 
     this._matrix = translate.multiply(rotation.multiply(scale)) as Matrix4;
 
-
     const response = await fetch(uri);
     const buffer = await (await response.blob()).arrayBuffer();
 
@@ -76,8 +76,8 @@ export class GLTFLoader extends Model {
       buffer.slice(bufTex.byteOffset, bufTex.byteOffset + bufTex.byteLength)
     );
 
-    this._indicies = new Int16Array(
+    this._indicies = Int32Array.from(new Int16Array(
       buffer.slice(bufInd.byteOffset, bufInd.byteOffset + bufInd.byteLength)
-    );
+    ));
   }
 }
