@@ -1,16 +1,17 @@
 #include <stdio.h>
 #include <math.h>
 #include <emscripten/emscripten.h>
+#include "BVH.hpp"
 
 int main(int argc, char **argv) {
   printf("Hello WASM World\n");
 }
 
-typedef struct {
+/*typedef struct {
   float x;
   float y;
   float z;
-} vec3;
+} vec3;*/
 
 typedef struct {
   float r;
