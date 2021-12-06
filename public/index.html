@@ -27,7 +27,9 @@
       }
   
       // C言語の関数の呼び出し (各要素2倍)
-      Module._pathTracing(buffer, canvas.width, canvas.height);
+      // Module._pathTracing(buffer, canvas.width, canvas.height);
+      Module.ccall('pathTracing', null, ['pointer', 'int', 'int'], [buffer, canvas.width, canvas.height]);
+      // Module.ccall('count', null, null, null);
   
       // 配列の値を取得 (array=0,2,4...,38)
       for (var i = 0; i < length; i++) {
@@ -38,13 +40,6 @@
   
       // 配列のメモリ解放
       Module._free(buffer);
-
-      fetch("./testmodel.gltf").then((data) => {
-        console.log(data.headers.get('Content-Type'));
-        return data.json();
-      }).then((data) => {
-        console.log(data);
-      });
 
     }));
   </script>

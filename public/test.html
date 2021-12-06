@@ -7,17 +7,6 @@
 </head>
 <body>
   <button class=mybutton>Run mulBy2</button><br>
-  <script src="../build/umd/graphim.js"></script>
-  <script>
-
-    document.querySelector(".mybutton").addEventListener("click", (function () {
-
-      const model = new PathTracer.GLTFLoader();
-      model.load("./testmodel.gltf").then(() => {
-          console.log(model.position);
-        });
-
-    }));
-  </script>
+  <script src="./main.js"></script>
 </body>
 </html>

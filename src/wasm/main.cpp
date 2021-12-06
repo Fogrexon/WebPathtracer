@@ -87,9 +87,17 @@ color rayCast(vec3 ori, vec3 dir) {
   return res;
 }
 
+int counter = 0;
+
 #ifdef __cplusplus
 extern "C" {
 #endif
+
+int EMSCRIPTEN_KEEPALIVE count() {
+  counter ++;
+  printf("counter: %d\n", counter);
+  return counter;
+}
 
 void EMSCRIPTEN_KEEPALIVE pathTracing(int* a, int width, int height)
 {
