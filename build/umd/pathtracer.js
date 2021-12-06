@@ -513,6 +513,73 @@
 
     }
 
+    class Renderer {
+      wasmManager;
+      model;
+      position = null;
+      indicies = null;
+      pixelData = null;
+
+      constructor(wasmManager, model) {
+        this.model = model;
+        this.wasmManager = wasmManager;
+      }
+
+      createBound() {
+        this.position = this.wasmManager.createBuffer(this.model.position);
+        this.indicies = this.wasmManager.createBuffer(this.model.indicies);
+        return this.wasmManager.callCreateBounding(this.position, this.indicies);
+      }
+
+      render(canvas) {
+        const {
+          width,
+          height
+        } = canvas;
+        const ctx = canvas.getContext('2d');
+
+        if (!ctx) {
+          console.error('canvas is failed');
+          return -1;
+        }
+
+        const imagedata = ctx.createImageData(width, height);
+        const pixels = new Int32Array(imagedata.data);
+        this.pixelData = this.wasmManager.createBuffer(pixels);
+        const result = this.wasmManager.callPathTracer(this.pixelData, width, height);
+
+        if (result < 0) {
+          console.error('Path trace failed.');
+          return -1;
+        }
+
+        for (let i = 0; i < pixels.length; i += 1) {
+          imagedata.data[i] = this.pixelData.get(i);
+        }
+
+        ctx.putImageData(imagedata, 0, 0);
+        return 1;
+      }
+
+      release() {
+        if (this.position) {
+          this.position.release();
+          this.position = null;
+        }
+
+        if (this.indicies) {
+          this.indicies.release();
+          this.indicies = null;
+        }
+
+        if (this.pixelData) {
+          this.pixelData.release();
+          this.pixelData = null;
+        }
+      }
+
+    }
+
     class Quaternion {
       v;
       w;
@@ -761,8 +828,8 @@
 
 
       get(index) {
-        if (!this.type) return;
-        this.module.getValue(this.base + this.stride * index, this.type);
+        if (!this.type) return -1;
+        return this.module.getValue(this.base + this.stride * index, this.type);
       }
       /**
        * Set array element
@@ -847,6 +914,11 @@
         return this.module._pathTracer(...rawArgs);
       }
 
+      callCreateBounding(...args) {
+        const rawArgs = args.map(v => v instanceof WasmBuffer ? v.getPointer() : v);
+        return this.module._createBounding(...rawArgs);
+      }
+
     }
 
     class Vector2 {
@@ -926,6 +998,7 @@
     exports.GLTFLoader = GLTFLoader;
     exports.Matrix4 = Matrix4;
     exports.Model = Model;
+    exports.Renderer = Renderer;
     exports.Vector2 = Vector2;
     exports.Vector3 = Vector3;
     exports.Vector4 = Vector4;

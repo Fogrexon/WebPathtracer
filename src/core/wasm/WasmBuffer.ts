@@ -37,9 +37,9 @@ export class WasmBuffer {
    * @return {*} 
    * @memberof WasmBuffer
    */
-  public get(index: number) {
-    if (!this.type) return;
-    this.module.getValue(this.base + this.stride * index, this.type);
+  public get(index: number): number {
+    if (!this.type) return -1;
+    return this.module.getValue(this.base + this.stride * index, this.type);
   }
 
   /**

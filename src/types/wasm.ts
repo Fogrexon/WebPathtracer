@@ -35,5 +35,17 @@ export interface WasmRawModule {
    */
   getValue: (pointer: number, type: WasmValueType) => number;
 
+  /**
+   * Path tracer function
+   *
+   * @memberof WasmRawModule
+   */
   _pathTracer: (...args: number[]) => number;
+
+  /**
+   * Create Bounding volume
+   *
+   * @memberof WasmRawModule
+   */
+  _createBounding: (...args: number[]) => number;
 }

@@ -7,17 +7,18 @@
 </head>
 <body>
   <button class=mybutton>Run mulBy2</button><br>
-  <script src="../build/umd/graphim.js"></script>
+  <canvas id="cnv" width=500 height=500></canvas>
+  <script src="../build/wasm/main.js"></script>
+  <script src="../build/umd/pathtracer.js"></script>
   <script>
+    Module.onRuntimeInitialized = () => {
+      const gltfModel = new PathTracer.GLTFLoader();
+      gltfModel.load('testmodel.gltf');
+      const wasmManager = new PathTracer.WasmManager(Module);
+      const renderer = new PathTracer.Renderer(wasmManager, gltfModel);
 
-    document.querySelector(".mybutton").addEventListener("click", (function () {
-
-      const model = new PathTracer.GLTFLoader();
-      model.load("./testmodel.gltf").then(() => {
-          console.log(model.position);
-        });
-
-    }));
+      renderer.render(document.getElementById('cnv'));
+    }
   </script>
 </body>
 </html>
