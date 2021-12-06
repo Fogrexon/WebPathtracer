@@ -528,7 +528,7 @@
       createBound() {
         this.position = this.wasmManager.createBuffer(this.model.position);
         this.indicies = this.wasmManager.createBuffer(this.model.indicies);
-        return this.wasmManager.callCreateBounding(this.position, this.indicies);
+        return this.wasmManager.callCreateBounding(this.position, this.model.position.length / 3, this.indicies, this.model.indicies.length / 3);
       }
 
       render(canvas) {

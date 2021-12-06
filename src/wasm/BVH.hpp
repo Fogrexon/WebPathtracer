@@ -226,10 +226,6 @@ class ModelBVH {
         construct_BVH_internal(polygon,0);
     }
 
-    ModelBVH(std::vector<point3> vertex,std::vector<std::array<int,3>> polygon){
-        construct(vertex,polygon);
-    }
-
     private:    
     std::pair<bool,point3> intersectModel_internal(point3 o,vec3 d,int index){
 

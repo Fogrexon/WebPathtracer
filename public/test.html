@@ -17,6 +17,7 @@
       const wasmManager = new PathTracer.WasmManager(Module);
       const renderer = new PathTracer.Renderer(wasmManager, gltfModel);
 
+      renderer.createBound();
       renderer.render(document.getElementById('cnv'));
     }
   </script>
