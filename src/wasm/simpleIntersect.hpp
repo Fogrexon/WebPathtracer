@@ -3,6 +3,7 @@
 #include <tuple>
 #include <cassert>
 #include <algorithm>
+#include <cmath>
 
 #define INF 2305843009213693951
 #define EPS 1e-10
@@ -28,6 +29,35 @@ struct tri3{
 //TODO:誤差にやさしい形式で実装したい
 double determinant(vec3 a, vec3 b, vec3 c){
     return a.x*b.y*c.z + a.y*b.z*c.x + a.z*b.x*c.y - a.z*b.y*c.x - a.y*b.x*c.z - a.x*b.z*c.y; 
+}
+
+//与えられた2つの3次元ベクトルのクロス積を計算する
+vec3 crossProduct(vec3 a,vec3 b){
+    return {
+        a.y*b.z-a.z*b.y,
+        a.z*b.x-a.x*b.z,
+        a.x*b.y-a.y*b.x
+    };
+}
+
+//ベクトルを正規化する
+vec3 normalize(vec3 v) {
+    double len = sqrt(v.x * v.x + v.y * v.y + v.z * v.z);
+    if(len==0)return {0,0,0};
+
+    vec3 norm;
+    norm.x = v.x / len;
+    norm.y = v.y / len;
+    norm.z = v.z / len;
+
+  return norm;
+}
+
+//与えられた三角形の法線ベクトルを求める
+vec3 normalVector(tri3 T) {
+    vec3 u = {T.vertex[1].x-T.vertex[0].x,T.vertex[1].y-T.vertex[0].y,T.vertex[1].z-T.vertex[0].z};
+    vec3 v = {T.vertex[2].x-T.vertex[0].x,T.vertex[2].y-T.vertex[0].y,T.vertex[2].z-T.vertex[0].z};
+    return normalize(crossProduct(u,v));
 }
 
 //rayの始点oと向きd、三角形Tを与えると、Tの内部または境界にrayが
