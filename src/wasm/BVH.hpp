@@ -1,5 +1,12 @@
 #include "simpleIntersect.hpp"
 
+struct rayHit{
+    bool isHit;
+    point3 point;
+    int index;
+    vec3 normal;
+};
+
 //モデルにBVHを与える関数のクラス
 class ModelBVH {
 
@@ -231,12 +238,21 @@ class ModelBVH {
     }
 
     private:    
-    std::pair<bool,point3> intersectModel_internal(point3 o,vec3 d,int index){
+    rayHit intersectModel_internal(point3 o,vec3 d,int index){
 
         if(Node[index].isLeaf){
             tri3 tri;
             tri.vertex[0] = Vertex[Node[index].triangle[0]],tri.vertex[1] = Vertex[Node[index].triangle[1]],tri.vertex[2] = Vertex[Node[index].triangle[2]];
-            return intersectTriangle(o,d,tri);
+            std::pair<bool,point3> P = intersectTriangle(o,d,tri);
+            if(!P.first){
+                return {false,{INFF,INFF,INFF},-1,{0,0,0}};
+            }
+            return {
+                P.first,
+                P.second,
+                index,
+                normalVector({Vertex[Node[index].triangle[0]],Vertex[Node[index].triangle[1]],Vertex[Node[index].triangle[2]]})
+            };
         }
 
         int child1 = Node[index].children[0], child2 = Node[index].children[1];
@@ -244,7 +260,7 @@ class ModelBVH {
         std::pair<bool,point3> inter2 = intersectBox(o,d,Node[child2].Box_m,Node[child2].Box_M);
 
         if(!inter1.first && !inter2.first){
-            return {false,{INFF,INFF,INFF}};
+            return {false,{INFF,INFF,INFF},-1,{0,0,0}};
         }
         if(!inter1.first){
             return intersectModel_internal(o,d,child2);
@@ -252,31 +268,31 @@ class ModelBVH {
         if(!inter2.first){
             return intersectModel_internal(o,d,child1);
         }
-        std::pair<bool,point3> col1 = intersectModel_internal(o,d,child1);
-        std::pair<bool,point3> col2 = intersectModel_internal(o,d,child2);
+        rayHit col1 = intersectModel_internal(o,d,child1);
+        rayHit col2 = intersectModel_internal(o,d,child2);
 
-        if(!col1.first && !col2.first){
-            return {false,{INFF,INFF,INFF}};
+        if(!col1.isHit && !col2.isHit){
+            return {false,{INFF,INFF,INFF},-1,{0,0,0}};
         }
-        if(!col1.first){
+        if(!col1.isHit){
             return col2;
         }
-        if(!col2.first){
+        if(!col2.isHit){
             return col1;
         }
-        if(std::abs(col1.second.x-o.x)<=std::abs(col2.second.x-o.x)){
+        if(std::abs(col1.point.x-o.x)<=std::abs(col2.point.x-o.x)){
             return col1;
         }else{
             return col2;
         }
-        return {false,{INFF,INFF,INFF}};
+        return {false,{INFF,INFF,INFF},-1,{0,0,0}};
     }
     
     public:
     //rayの始点oと向きdを与えると、予め与えたモデルの表面にrayが当たるかを判定し、当たらないならfalseを、当たるならtrueとそのポイントを返す
-    std::pair<bool,point3> intersectModel(point3 o,vec3 d){
+    rayHit intersectModel(point3 o,vec3 d){
         if(!intersectBox(o,d,Node[0].Box_m,Node[0].Box_M).first){
-            return {false,{INFF,INFF,INFF}};
+            return {false,{INFF,INFF,INFF},-1,{0,0,0}};
         }
         return intersectModel_internal(o,d,0);
     }
