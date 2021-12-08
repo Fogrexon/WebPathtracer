@@ -765,13 +765,19 @@
           bufferViews,
           buffers
         } = this.rawJson;
-        if (!Array.isArray(nodes) || !Array.isArray(meshes) || !Array.isArray(accessors) || !Array.isArray(bufferViews) || !Array.isArray(buffers)) return;
+        if (!Array.isArray(nodes) || !Array.isArray(meshes) || !Array.isArray(accessors) || !Array.isArray(bufferViews) || !Array.isArray(buffers)) throw new Error("tttt");
         const [node] = nodes;
         const [bufPos, bufNorm, bufTex, bufInd] = bufferViews;
         const [{
           uri
         }] = buffers;
-        if (!node.translation || !node.rotation || !node.scale) return;
+
+        if (!node.translation || !node.rotation || !node.scale) {
+          node.translation = [1, 0, 0, 0];
+          node.rotation = [0, 0, 0];
+          node.scale = [0, 0, 0];
+        }
+
         const translate = new Matrix4().translateMatrix(new Vector3(node.translation[0], node.translation[1], node.translation[2]));
         const scale = new Matrix4().scaleMatrix(new Vector3(node.scale[0], node.scale[1], node.scale[2]));
         const rotation = new Quaternion(new Vector3(node.rotation[0], node.rotation[1], node.rotation[2]), node.rotation[3]).matrix();
@@ -800,10 +806,10 @@
 
       constructor(module, array) {
         if (array instanceof Float32Array) {
-          this.type = 'f32';
+          this.type = 'float';
           this.stride = 4;
         } else if (array instanceof Float64Array) {
-          this.type = 'f64';
+          this.type = 'double';
           this.stride = 8;
         } else if (array instanceof Int32Array) {
           this.type = 'i32';
