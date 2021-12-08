@@ -513,6 +513,106 @@
 
     }
 
+    /**
+     * Image renderer. pass model and render image.
+     *
+     * @export
+     * @class Renderer
+     */
+    class Renderer {
+      wasmManager;
+      model;
+      position = null;
+      indicies = null;
+      pixelData = null;
+
+      /**
+       * Creates an instance of Renderer.
+       * @param {WasmManager} wasmManager
+       * @param {Model} model
+       * @memberof Renderer
+       */
+      constructor(wasmManager, model) {
+        this.model = model;
+        this.wasmManager = wasmManager;
+      }
+      /**
+       * Create BVH.
+       *
+       * @return {*}
+       * @memberof Renderer
+       */
+
+
+      createBound() {
+        this.position = this.wasmManager.createBuffer(this.model.position);
+        this.indicies = this.wasmManager.createBuffer(this.model.indicies);
+        return this.wasmManager.callCreateBounding(this.position, this.model.position.length / 3, this.indicies, this.model.indicies.length / 3);
+      }
+      /**
+       * Render image to canvas
+       *
+       * @param {HTMLCanvasElement} canvas
+       * @return {*}  {number}
+       * @memberof Renderer
+       */
+
+
+      render(canvas) {
+        const {
+          width,
+          height
+        } = canvas;
+        const ctx = canvas.getContext('2d');
+
+        if (!ctx) {
+          console.error('canvas is failed');
+          return -1;
+        }
+
+        const imagedata = ctx.createImageData(width, height);
+        const pixels = new Int32Array(imagedata.data);
+        this.pixelData = this.wasmManager.createBuffer(pixels);
+        const result = this.wasmManager.callPathTracer(this.pixelData, width, height);
+
+        if (result < 0) {
+          console.error('Path trace failed.');
+          return -1;
+        }
+
+        for (let i = 0; i < pixels.length; i += 1) {
+          imagedata.data[i] = this.pixelData.get(i);
+        }
+
+        ctx.putImageData(imagedata, 0, 0);
+        return 1;
+      }
+      /**
+       * Release buffers.
+       *
+       * @memberof Renderer
+       */
+
+
+      release() {
+        if (this.position) {
+          this.position.release();
+          this.position = null;
+        }
+
+        if (this.indicies) {
+          this.indicies.release();
+          this.indicies = null;
+        }
+
+        if (this.pixelData) {
+          this.pixelData.release();
+          this.pixelData = null;
+        }
+      }
+
+    }
+
     class Quaternion {
       v;
       w;
@@ -698,13 +798,19 @@
           bufferViews,
           buffers
         } = this.rawJson;
-        if (!Array.isArray(nodes) || !Array.isArray(meshes) || !Array.isArray(accessors) || !Array.isArray(bufferViews) || !Array.isArray(buffers)) return;
+        if (!Array.isArray(nodes) || !Array.isArray(meshes) || !Array.isArray(accessors) || !Array.isArray(bufferViews) || !Array.isArray(buffers)) throw new Error("tttt");
         const [node] = nodes;
         const [bufPos, bufNorm, bufTex, bufInd] = bufferViews;
         const [{
           uri
         }] = buffers;
-        if (!node.translation || !node.rotation || !node.scale) return;
+
+        if (!node.translation || !node.rotation || !node.scale) {
+          node.translation = [1, 0, 0, 0];
+          node.rotation = [0, 0, 0];
+          node.scale = [0, 0, 0];
+        }
+
         const translate = new Matrix4().translateMatrix(new Vector3(node.translation[0], node.translation[1], node.translation[2]));
         const scale = new Matrix4().scaleMatrix(new Vector3(node.scale[0], node.scale[1], node.scale[2]));
         const rotation = new Quaternion(new Vector3(node.rotation[0], node.rotation[1], node.rotation[2]), node.rotation[3]).matrix();
@@ -733,10 +839,10 @@
 
       constructor(module, array) {
         if (array instanceof Float32Array) {
-          this.type = 'f32';
+          this.type = 'float';
           this.stride = 4;
         } else if (array instanceof Float64Array) {
-          this.type = 'f64';
+          this.type = 'double';
           this.stride = 8;
         } else if (array instanceof Int32Array) {
           this.type = 'i32';
@@ -761,8 +867,8 @@
 
 
       get(index) {
-        if (!this.type) return;
-        this.module.getValue(this.base + this.stride * index, this.type);
+        if (!this.type) return -1;
+        return this.module.getValue(this.base + this.stride * index, this.type);
       }
       /**
        * Set array element
@@ -847,6 +953,11 @@
         return this.module._pathTracer(...rawArgs);
       }
 
+      callCreateBounding(...args) {
+        const rawArgs = args.map(v => v instanceof WasmBuffer ? v.getPointer() : v);
+        return this.module._createBounding(...rawArgs);
+      }
+
     }
 
     class Vector2 {
@@ -926,6 +1037,7 @@
     exports.GLTFLoader = GLTFLoader;
     exports.Matrix4 = Matrix4;
     exports.Model = Model;
+    exports.Renderer = Renderer;
     exports.Vector2 = Vector2;
     exports.Vector3 = Vector3;
     exports.Vector4 = Vector4;

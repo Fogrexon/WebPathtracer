@@ -1,4 +1,4 @@
-export type WasmValueType = 'i32' | 'i64' | 'f32' | 'f64';
+export type WasmValueType = 'i32' | 'i64' | 'float' | 'double';
 
 export type WasmArrayType = Float32Array | Float64Array | Int32Array | BigInt64Array;
 
@@ -35,5 +35,17 @@ export interface WasmRawModule {
    */
   getValue: (pointer: number, type: WasmValueType) => number;
 
+  /**
+   * Path tracer function
+   *
+   * @memberof WasmRawModule
+   */
   _pathTracer: (...args: number[]) => number;
+
+  /**
+   * Create Bounding volume
+   *
+   * @memberof WasmRawModule
+   */
+  _createBounding: (...args: number[]) => number;
 }

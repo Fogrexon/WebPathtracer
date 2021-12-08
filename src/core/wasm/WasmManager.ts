@@ -31,7 +31,7 @@ export class WasmManager {
    * @return {*} 
    * @memberof WasmManager
    */
-  createBuffer(array: WasmArrayType) {
+  public createBuffer(array: WasmArrayType) {
     return new WasmBuffer(this.module, array);
   }
 
@@ -42,8 +42,13 @@ export class WasmManager {
    * @return {*} 
    * @memberof WasmManager
    */
-  callPathTracer(...args: (number | WasmBuffer)[]) {
+  public callPathTracer(...args: (number | WasmBuffer)[]) {
     const rawArgs = args.map((v) => v instanceof WasmBuffer ? v.getPointer() : v);
     return this.module._pathTracer(...rawArgs);
+  }
+
+  public callCreateBounding(...args: (number | WasmBuffer)[]) {
+    const rawArgs = args.map((v) => v instanceof WasmBuffer ? v.getPointer() : v);
+    return this.module._createBounding(...rawArgs);
   }
 }

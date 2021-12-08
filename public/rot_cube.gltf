@@ -1,0 +1,123 @@
+{
+    "asset" : {
+        "generator" : "Khronos glTF Blender I/O v1.7.33",
+        "version" : "2.0"
+    },
+    "scene" : 0,
+    "scenes" : [
+        {
+            "name" : "Scene",
+            "nodes" : [
+                0
+            ]
+        }
+    ],
+    "nodes" : [
+        {
+            "mesh" : 0,
+            "name" : "Cube",
+            "rotation" : [
+                0.07682166993618011,
+                -0.0009294428746215999,
+                -0.08198238909244537,
+                0.9936681985855103
+            ]
+        }
+    ],
+    "materials" : [
+        {
+            "doubleSided" : true,
+            "name" : "Material",
+            "pbrMetallicRoughness" : {
+                "baseColorFactor" : [
+                    0.800000011920929,
+                    0.800000011920929,
+                    0.800000011920929,
+                    1
+                ],
+                "metallicFactor" : 0,
+                "roughnessFactor" : 0.4000000059604645
+            }
+        }
+    ],
+    "meshes" : [
+        {
+            "name" : "Cube",
+            "primitives" : [
+                {
+                    "attributes" : {
+                        "POSITION" : 0,
+                        "NORMAL" : 1,
+                        "TEXCOORD_0" : 2
+                    },
+                    "indices" : 3,
+                    "material" : 0
+                }
+            ]
+        }
+    ],
+    "accessors" : [
+        {
+            "bufferView" : 0,
+            "componentType" : 5126,
+            "count" : 24,
+            "max" : [
+                1.4999998807907104,
+                1.7071067094802856,
+                1.4999998807907104
+            ],
+            "min" : [
+                -1.4999998807907104,
+                -1.7071067094802856,
+                -1.4999998807907104
+            ],
+            "type" : "VEC3"
+        },
+        {
+            "bufferView" : 1,
+            "componentType" : 5126,
+            "count" : 24,
+            "type" : "VEC3"
+        },
+        {
+            "bufferView" : 2,
+            "componentType" : 5126,
+            "count" : 24,
+            "type" : "VEC2"
+        },
+        {
+            "bufferView" : 3,
+            "componentType" : 5123,
+            "count" : 36,
+            "type" : "SCALAR"
+        }
+    ],
+    "bufferViews" : [
+        {
+            "buffer" : 0,
+            "byteLength" : 288,
+            "byteOffset" : 0
+        },
+        {
+            "buffer" : 0,
+            "byteLength" : 288,
+            "byteOffset" : 288
+        },
+        {
+            "buffer" : 0,
+            "byteLength" : 192,
+            "byteOffset" : 576
+        },
+        {
+            "buffer" : 0,
+            "byteLength" : 72,
+            "byteOffset" : 768
+        }
+    ],
+    "buffers" : [
+        {
+            "byteLength" : 840,
+            "uri" : "data:application/octet-stream;base64,eYKaPxj2lT55gpq/eYKaPxj2lT55gpq/eYKaPxj2lT55gpq/AQAAv/MENb///7+/AQAAv/MENb///7+/AQAAv/MENb///7+///+/P/MENb8AAAA///+/P/MENb8AAAA///+/P/MENb8AAAA/yxNUvnmC2r/KE1Q+yxNUvnmC2r/KE1Q+yxNUvnmC2r/KE1Q+yRNUPnmC2j/KE1S+yRNUPnmC2j/KE1S+yRNUPnmC2j/KE1S+//+/v/MENT8AAAC///+/v/MENT8AAAC///+/v/MENT8AAAC//v//PvMENT///78//v//PvMENT///78//v//PvMENT///78/eYKavxj2lb55gpo/eYKavxj2lb55gpo/eYKavxj2lb55gpo/GfYVvgEAAD96glq/AAAAP/MENb8AAAC/eoJaPwAAAD8Z9hU+eoJavwAAAL8V9hW+GfYVvgEAAD96glq/AAAAP/MENb8AAAC/GfYVPv///756glo/AAAAP/MENb8AAAC/eoJaPwAAAD8Z9hU+eoJavwAAAL8V9hW+GfYVPv///756glo/AAAAP/MENb8AAAC/AAAAv/MENT8AAAA/GfYVvgEAAD96glq/eoJaPwAAAD8Z9hU+eoJavwAAAL8V9hW+AAAAv/MENT8AAAA/GfYVvgEAAD96glq/AAAAv/MENT8AAAA/GfYVPv///756glo/eoJaPwAAAD8Z9hU+eoJavwAAAL8V9hW+AAAAv/MENT8AAAA/GfYVPv///756glo/AAAgPwAAAD8AACA/AAAAPwAAID8AAAA/AADAPgAAAD8AAMA+AAAAPwAAwD4AAAA/AAAgPwAAgD4AACA/AACAPgAAID8AAIA+AADAPgAAgD4AAMA+AACAPgAAwD4AAIA+AAAgPwAAQD8AACA/AABAPwAAYD8AAAA/AAAAPgAAAD8AAMA+AABAPwAAwD4AAEA/AAAgPwAAgD8AACA/AAAAAAAAYD8AAIA+AAAAPgAAgD4AAMA+AACAPwAAwD4AAAAAAgAOABQAAgAUAAgACgAGABMACgATABcAFgASAAwAFgAMABAADwADAAkADwAJABUABQABAAcABQAHAAsAEQANAAAAEQAAAAQA"
+        }
+    ]
+}

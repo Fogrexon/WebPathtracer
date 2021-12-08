@@ -16,8 +16,8 @@ export class WasmBuffer {
   protected stride: number = -1;
 
   constructor(module: WasmRawModule, array: WasmArrayType) {
-    if (array instanceof Float32Array) {this.type = 'f32'; this.stride = 4;}
-    else if (array instanceof Float64Array) {this.type = 'f64'; this.stride = 8;}
+    if (array instanceof Float32Array) {this.type = 'float'; this.stride = 4;}
+    else if (array instanceof Float64Array) {this.type = 'double'; this.stride = 8;}
     else if (array instanceof Int32Array) {this.type = 'i32'; this.stride = 4;}
     else if (array instanceof BigInt64Array) {this.type = 'i64'; this.stride = 8;}
 
@@ -37,9 +37,9 @@ export class WasmBuffer {
    * @return {*} 
    * @memberof WasmBuffer
    */
-  public get(index: number) {
-    if (!this.type) return;
-    this.module.getValue(this.base + this.stride * index, this.type);
+  public get(index: number): number {
+    if (!this.type) return -1;
+    return this.module.getValue(this.base + this.stride * index, this.type);
   }
 
   /**

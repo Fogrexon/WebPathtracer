@@ -1,4 +1,5 @@
 export * from './core/model/Model';
+export * from './core/renderer/Renderer';
 export * from './core/model/GLTFLoader';
 export * from './core/wasm/WasmManager';
 export * from './core/wasm/WasmBuffer';
