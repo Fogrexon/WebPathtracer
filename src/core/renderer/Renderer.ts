@@ -2,6 +2,12 @@ import { Model } from "../model/Model";
 import { WasmBuffer } from "../wasm/WasmBuffer";
 import { WasmManager } from "../wasm/WasmManager";
 
+/**
+ * Image renderer. pass model and render image.
+ *
+ * @export
+ * @class Renderer
+ */
 export class Renderer {
   private wasmManager: WasmManager;
 
@@ -13,11 +19,23 @@ export class Renderer {
 
   private pixelData: WasmBuffer | null = null;;
 
+  /**
+   * Creates an instance of Renderer.
+   * @param {WasmManager} wasmManager
+   * @param {Model} model
+   * @memberof Renderer
+   */
   constructor(wasmManager: WasmManager, model: Model) {
     this.model = model;
     this.wasmManager = wasmManager;
   }
 
+  /**
+   * Create BVH.
+   *
+   * @return {*} 
+   * @memberof Renderer
+   */
   public createBound() {
     this.position = this.wasmManager.createBuffer(this.model.position);
     this.indicies = this.wasmManager.createBuffer(this.model.indicies);
@@ -25,6 +43,13 @@ export class Renderer {
     return this.wasmManager.callCreateBounding(this.position, this.model.position.length / 3, this.indicies, this.model.indicies.length / 3);
   }
 
+  /**
+   * Render image to canvas
+   *
+   * @param {HTMLCanvasElement} canvas
+   * @return {*}  {number}
+   * @memberof Renderer
+   */
   public render(canvas: HTMLCanvasElement): number {
     const {width, height} = canvas;
 
@@ -56,6 +81,11 @@ export class Renderer {
     return 1;
   }
 
+  /**
+   * Release buffers.
+   *
+   * @memberof Renderer
+   */
   public release() {
     if (this.position) {
       this.position.release();

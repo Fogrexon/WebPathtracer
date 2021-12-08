@@ -513,6 +513,12 @@
 
     }
 
+    /**
+     * Image renderer. pass model and render image.
+     *
+     * @export
+     * @class Renderer
+     */
     class Renderer {
       wasmManager;
       model;
@@ -520,16 +526,37 @@
       indicies = null;
       pixelData = null;
 
+      /**
+       * Creates an instance of Renderer.
+       * @param {WasmManager} wasmManager
+       * @param {Model} model
+       * @memberof Renderer
+       */
       constructor(wasmManager, model) {
         this.model = model;
         this.wasmManager = wasmManager;
       }
+      /**
+       * Create BVH.
+       *
+       * @return {*}
+       * @memberof Renderer
+       */
+
 
       createBound() {
         this.position = this.wasmManager.createBuffer(this.model.position);
         this.indicies = this.wasmManager.createBuffer(this.model.indicies);
         return this.wasmManager.callCreateBounding(this.position, this.model.position.length / 3, this.indicies, this.model.indicies.length / 3);
       }
+      /**
+       * Render image to canvas
+       *
+       * @param {HTMLCanvasElement} canvas
+       * @return {*}  {number}
+       * @memberof Renderer
+       */
+
 
       render(canvas) {
         const {
@@ -560,6 +587,12 @@
         ctx.putImageData(imagedata, 0, 0);
         return 1;
       }
+      /**
+       * Release buffers.
+       *
+       * @memberof Renderer
+       */
+
 
       release() {
         if (this.position) {
