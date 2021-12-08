@@ -79,8 +79,8 @@ int EMSCRIPTEN_KEEPALIVE createBounding(float* position, int posCount, int* indi
 
 int EMSCRIPTEN_KEEPALIVE pathTracer(int* a, int width, int height){
     
-    point3 C = {0,-10,0};
-    vec3 d = {0,1,0};
+    point3 C = {0,0,10};
+    vec3 d = {0,0,-1};
 
     int index = 0;
 
@@ -112,15 +112,19 @@ int EMSCRIPTEN_KEEPALIVE pathTracer(int* a, int width, int height){
     for(int j=-height/2;j<height - height/2;j++){
         for(int i=-width/2;i<width - width/2;i++){
             point3 O = C;
-            O.x += (long double)(i) / width * 16.0;
-            O.z += (long double)(j) / height * 16.0;
+            O.x += (long double)(i) / width * 4.0;
+            O.y += (long double)(j) / height * 4.0;
 
-            std::pair<bool,point3> t = bvh.intersectModel(O,d);
-            if(t.first){
-                int dist = (t.second.y + 10.0) * 25.0;
-                a[index * 4 + 0] = dist;
-                a[index * 4 + 1] = dist;
-                a[index * 4 + 2] = dist;
+            rayHit hit = bvh.intersectModel(O,d);
+            if(hit.isHit){
+                // int dist = (hit.point.z + 10.0) * 25.0;
+                // a[index * 4 + 0] = dist;
+                // a[index * 4 + 1] = dist;
+                // a[index * 4 + 2] = dist;
+                // a[index * 4 + 3] = 255;
+                a[index * 4 + 0] = (hit.normal.x + 1.0) * 127;
+                a[index * 4 + 1] = (hit.normal.y + 1.0) * 127;
+                a[index * 4 + 2] = (hit.normal.z + 1.0) * 127;
                 a[index * 4 + 3] = 255;
             }else{
                 a[index * 4 + 0] = 0;
