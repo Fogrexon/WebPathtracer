@@ -7,7 +7,7 @@ export class Vector4 {
 
   public w: number;
 
-  constructor(_x: number, _y: number, _z: number, _w: number) {
+  constructor(_x: number = 0, _y: number = 0, _z: number = 0, _w: number = 0) {
     this.x = _x;
     this.y = _y;
     this.z = _z;
@@ -32,7 +32,7 @@ export class Vector4 {
 
   public distance(a: Vector4): number {
     return Math.sqrt(
-      (this.x - a.x) ** 2 + (this.y - a.y) ** 2 + (this.z - a.z) ** 2 + (this.w - a.w) ** 2,
+      (this.x - a.x) ** 2 + (this.y - a.y) ** 2 + (this.z - a.z) ** 2 + (this.w - a.w) ** 2
     );
   }
 
