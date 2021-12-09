@@ -6,7 +6,7 @@
 #include <cmath>
 
 #define INF 2305843009213693951
-#define EPS 1e-10
+#define EPS 1e-20
 const double INFF = 1e300;
 
 struct point3{

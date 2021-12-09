@@ -1,9 +1,6 @@
-import { WasmArrayType, WasmRawModule } from "../../types/wasm";
-import { WasmBuffer } from "./WasmBuffer";
-
-interface WindowIncludeWasm extends Window {
-  Module? : WasmRawModule;
-}
+import {  WasmValueType } from '../../types/wasm';
+import { WasmBuffer } from './WasmBuffer';
+import { WasmModuleGenerator } from './WasmModule';
 
 /**
  * Wasm module wrapper
@@ -11,44 +8,51 @@ interface WindowIncludeWasm extends Window {
  * @export
  * @class WasmManager
  */
-export class WasmManager {
-  private module: WasmRawModule;
+export class WasmManager extends EventTarget {
+  private module: ReturnType<typeof WasmModuleGenerator>;
 
   /**
    * Creates an instance of WasmManager.
+   * @param {string} url wasm file url
    * @memberof WasmManager
    */
-  constructor() {
-    const win = window as WindowIncludeWasm;
-    if (!win.Module) throw new Error('Wasm module is not loaded.');
-    this.module = win.Module;
+  constructor(url: string) {
+    super();
+    this.module = WasmModuleGenerator(url);
+    this.module.onRuntimeInitialized = () => {
+      this.dispatchEvent(new Event('initialized'));
+    };
   }
 
   /**
    * Create array argment
    *
    * @param {WasmArrayType} array
-   * @return {*} 
+   * @return {*}
    * @memberof WasmManager
    */
-  public createBuffer(array: WasmArrayType) {
-    return new WasmBuffer(this.module, array);
+  public createBuffer(type: WasmValueType, size: number) {
+    return new WasmBuffer(this.module, type, size);
   }
 
   /**
    * Call pathTracer function in wasm
    *
    * @param {(...(number | WasmBuffer)[])} args
-   * @return {*} 
+   * @return {*}
    * @memberof WasmManager
    */
   public callPathTracer(...args: (number | WasmBuffer)[]) {
-    const rawArgs = args.map((v) => v instanceof WasmBuffer ? v.getPointer() : v);
-    return this.module._pathTracer(...rawArgs);
+    return this.callFunction('pathTracer', ...args);
   }
 
   public callCreateBounding(...args: (number | WasmBuffer)[]) {
-    const rawArgs = args.map((v) => v instanceof WasmBuffer ? v.getPointer() : v);
-    return this.module._createBounding(...rawArgs);
+    return this.callFunction('createBounding', ...args);
+  }
+
+  public callFunction(funcname: string, ...args: (number | WasmBuffer)[]) {
+    const rawArgs = args.map((v) => (v instanceof WasmBuffer ? v.getPointer() : v));
+    const argTypes = args.map((v) => (v instanceof WasmBuffer ? 'pointer' : 'number'));
+    return this.module.ccall(funcname, 'number', argTypes, rawArgs);
   }
 }

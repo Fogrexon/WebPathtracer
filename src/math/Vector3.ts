@@ -5,7 +5,7 @@ export class Vector3 {
 
   public z: number;
 
-  constructor(_x: number, _y: number, _z: number) {
+  constructor(_x: number = 0, _y: number = 0, _z: number = 0) {
     this.x = _x;
     this.y = _y;
     this.z = _z;
@@ -27,9 +27,7 @@ export class Vector3 {
   }
 
   public distance(a: Vector3): number {
-    return Math.sqrt(
-      (this.x - a.x) ** 2 + (this.y - a.y) ** 2 + (this.z - a.z) ** 2,
-    );
+    return Math.sqrt((this.x - a.x) ** 2 + (this.y - a.y) ** 2 + (this.z - a.z) ** 2);
   }
 
   public add(a: Vector3 | number): Vector3 {
@@ -69,7 +67,7 @@ export class Vector3 {
     return new Vector3(
       this.y * a.z - this.z * a.y,
       this.z * a.x - this.x * a.z,
-      this.x * a.y - this.y * a.x,
+      this.x * a.y - this.y * a.x
     );
   }
 
@@ -85,4 +83,3 @@ export class Vector3 {
     return new Float32Array([this.x, this.y, this.z]);
   }
 }
-

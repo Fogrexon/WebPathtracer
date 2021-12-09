@@ -27,12 +27,7 @@ int EMSCRIPTEN_KEEPALIVE createBounding(float* position, int posCount, int* indi
     polygon.push_back(p);
   }
 
-      // std::vector<point3> vertex = {
-      //   {-1, 0, 1},
-      //   {1, 0, 1},
-      //   {-1, 0, -1},
-      // };
-    // vertex = {
+    //   std::vector<point3> vertex = {
     //     {0,0,5},
     //     {-2,-2,2},
     //     {2,-2,2},
@@ -46,8 +41,6 @@ int EMSCRIPTEN_KEEPALIVE createBounding(float* position, int posCount, int* indi
     // };
 
     // std::vector<std::array<int,3>> polygon = {
-    //   {0, 1, 2}
-    // }
     //     {0,1,2},
     //     {0,1,3},
     //     {0,3,4},
@@ -77,10 +70,10 @@ int EMSCRIPTEN_KEEPALIVE createBounding(float* position, int posCount, int* indi
   return 0;
 }
 
-int EMSCRIPTEN_KEEPALIVE pathTracer(int* a, int width, int height){
+int EMSCRIPTEN_KEEPALIVE pathTracer(int* a, int width, int height, float rot){
     
-    point3 C = {0,10,0};
-    vec3 d = {0,-1,0};
+    point3 C = {0,-10,0};
+    vec3 d = {0,1,0};
 
     int index = 0;
 
@@ -112,16 +105,16 @@ int EMSCRIPTEN_KEEPALIVE pathTracer(int* a, int width, int height){
     for(int j=-height/2;j<height - height/2;j++){
         for(int i=-width/2;i<width - width/2;i++){
             point3 O = C;
-            O.x += (long double)(i) / width * 4.0;
-            O.z += (long double)(j) / height * 4.0;
+            O.x += (long double)(i) / width * 6.0;
+            O.z += (long double)(j) / height * 6.0;
 
             rayHit hit = bvh.intersectModel(O,d);
             if(hit.isHit){
-                // int dist = (hit.point.z + 10.0) * 25.0;
-                // a[index * 4 + 0] = dist;
-                // a[index * 4 + 1] = dist;
-                // a[index * 4 + 2] = dist;
-                // a[index * 4 + 3] = 255;
+                int dist = (hit.point.y + 10.0) * 25.0;
+                a[index * 4 + 0] = dist;
+                a[index * 4 + 1] = dist;
+                a[index * 4 + 2] = dist;
+                a[index * 4 + 3] = 255;
                 a[index * 4 + 0] = (hit.normal.x + 1.0) * 127;
                 a[index * 4 + 1] = (hit.normal.y + 1.0) * 127;
                 a[index * 4 + 2] = (hit.normal.z + 1.0) * 127;
