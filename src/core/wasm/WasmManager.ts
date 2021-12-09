@@ -1,4 +1,4 @@
-import { WasmArrayType } from '../../types/wasm';
+import {  WasmValueType } from '../../types/wasm';
 import { WasmBuffer } from './WasmBuffer';
 import { WasmModuleGenerator } from './WasmModule';
 
@@ -31,8 +31,8 @@ export class WasmManager extends EventTarget {
    * @return {*}
    * @memberof WasmManager
    */
-  public createBuffer(array: WasmArrayType) {
-    return new WasmBuffer(this.module, array);
+  public createBuffer(type: WasmValueType, size: number) {
+    return new WasmBuffer(this.module, type, size);
   }
 
   /**

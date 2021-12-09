@@ -800,8 +800,10 @@
 
 
       createBound() {
-        if (!this.position) this.position = this.wasmManager.createBuffer(this.model.position);
-        if (!this.indicies) this.indicies = this.wasmManager.createBuffer(this.model.indicies);
+        if (!this.position) this.position = this.wasmManager.createBuffer('float', this.model.position.length);
+        if (!this.indicies) this.indicies = this.wasmManager.createBuffer('i32', this.model.indicies.length);
+        this.position.setArray(this.model.position);
+        this.indicies.setArray(this.model.indicies);
         return this.wasmManager.callCreateBounding(this.position, this.model.position.length / 3, this.indicies, this.model.indicies.length / 3);
       }
       /**
@@ -826,8 +828,14 @@
         }
 
         const imagedata = ctx.createImageData(width, height);
-        const pixels = new Int32Array(imagedata.data);
-        this.pixelData = this.wasmManager.createBuffer(pixels);
+        const pixels = imagedata.data;
+
+        if (this.pixelData && this.pixelData.length < imagedata.data.length) {
+          this.pixelData.release();
+          this.pixelData = null;
+        }
+
+        if (!this.pixelData) this.pixelData = this.wasmManager.createBuffer('i32', imagedata.data.length);
         const result = this.wasmManager.callPathTracer(this.pixelData, width, height);
 
         if (result < 0) {
@@ -944,33 +952,36 @@
      * @class WasmBuffer
      */
     class WasmBuffer {
-      module;
-      base;
-      type = null;
-      stride = -1;
+      _module;
+      _base;
+      _type = null;
+      _stride = -1;
+      _length = 0;
 
-      constructor(module, array) {
-        if (array instanceof Float32Array) {
-          this.type = 'float';
-          this.stride = 4;
-        } else if (array instanceof Float64Array) {
-          this.type = 'double';
-          this.stride = 8;
-        } else if (array instanceof Int32Array) {
-          this.type = 'i32';
-          this.stride = 4;
-        } else if (array instanceof BigInt64Array) {
-          this.type = 'i64';
-          this.stride = 8;
-        }
+      get length() {
+        return this._length;
+      }
 
-        if (!this.type) throw Error('Buffer type is invalid.');
-        this.module = module;
-        this.base = this.module._malloc(this.stride * array.length);
-        array.forEach((value, index) => this.set(index, value));
+      get type() {
+        return this._type;
       }
       /**
-       * Get array element
+       * Creates an instance of WasmBuffer.
+       * @param {WasmModule} module
+       * @param {WasmValueType} type
+       * @param {number} size
+       * @memberof WasmBuffer
+       */
+
+
+      constructor(module, type, size) {
+        if (type === 'i32') this._stride = 4;else if (type === 'i64') this._stride = 8;else if (type === 'float') this._stride = 4;else if (type === 'double') this._stride = 8;else throw Error('Invalid buffer type');
+        this._type = type;
+        this._module = module;
+        this._base = this._module._malloc(this._stride * size);
+      }
+      /**
+       * Get value at index
        *
        * @param {number} index
        * @return {*}
@@ -980,10 +991,10 @@
 
       get(index) {
         if (!this.type) return -1;
-        return this.module.getValue(this.base + this.stride * index, this.type);
+        return this._module.getValue(this._base + this._stride * index, this.type);
       }
       /**
-       * Set array element
+       * Set value to index
        *
        * @param {number} index
        * @param {(number | bigint)} value
@@ -994,7 +1005,19 @@
 
       set(index, value) {
         if (!this.type) return;
-        this.module.setValue(this.base + this.stride * index, value, this.type);
+
+        this._module.setValue(this._base + this._stride * index, value, this.type);
+      }
+      /**
+       * Set array to buffer
+       *
+       * @param {(WasmArrayType | Array<number>)} array
+       * @memberof WasmBuffer
+       */
+
+
+      setArray(array) {
+        array.forEach((value, index) => this.set(index, value));
       }
       /**
        * Get array pointer
@@ -1005,7 +1028,7 @@
 
 
       getPointer() {
-        return this.base;
+        return this._base;
       }
       /**
        * Release array buffer
@@ -1015,7 +1038,7 @@
 
 
       release() {
-        this.module._free(this.base);
+        this._module._free(this._base);
       }
 
     }
@@ -2157,8 +2180,8 @@
        */
 
 
-      createBuffer(array) {
-        return new WasmBuffer(this.module, array);
+      createBuffer(type, size) {
+        return new WasmBuffer(this.module, type, size);
       }
       /**
        * Call pathTracer function in wasm
