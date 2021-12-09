@@ -1,4 +1,7 @@
-import { WasmArrayType, WasmRawModule, WasmValueType } from "../../types/wasm";
+import { WasmArrayType, WasmValueType } from "../../types/wasm";
+import { WasmModuleGenerator } from "./WasmModule";
+
+type WasmModule = ReturnType<typeof WasmModuleGenerator>;
 
 /**
  * Wrapper of wasm array buffer
@@ -7,7 +10,7 @@ import { WasmArrayType, WasmRawModule, WasmValueType } from "../../types/wasm";
  * @class WasmBuffer
  */
 export class WasmBuffer {
-  protected module: WasmRawModule;
+  protected module: WasmModule;
 
   protected base: number;
 
@@ -15,7 +18,7 @@ export class WasmBuffer {
 
   protected stride: number = -1;
 
-  constructor(module: WasmRawModule, array: WasmArrayType) {
+  constructor(module: WasmModule, array: WasmArrayType) {
     if (array instanceof Float32Array) {this.type = 'float'; this.stride = 4;}
     else if (array instanceof Float64Array) {this.type = 'double'; this.stride = 8;}
     else if (array instanceof Int32Array) {this.type = 'i32'; this.stride = 4;}
