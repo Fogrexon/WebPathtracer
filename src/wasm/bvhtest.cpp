@@ -115,10 +115,10 @@ int EMSCRIPTEN_KEEPALIVE pathTracer(int* a, int width, int height, float rot){
                 a[index * 4 + 1] = dist;
                 a[index * 4 + 2] = dist;
                 a[index * 4 + 3] = 255;
-                // a[index * 4 + 0] = (hit.normal.x + 1.0) * 127;
-                // a[index * 4 + 1] = (hit.normal.y + 1.0) * 127;
-                // a[index * 4 + 2] = (hit.normal.z + 1.0) * 127;
-                // a[index * 4 + 3] = 255;
+                a[index * 4 + 0] = (hit.normal.x + 1.0) * 127;
+                a[index * 4 + 1] = (hit.normal.y + 1.0) * 127;
+                a[index * 4 + 2] = (hit.normal.z + 1.0) * 127;
+                a[index * 4 + 3] = 255;
             }else{
                 a[index * 4 + 0] = 0;
                 a[index * 4 + 1] = 0;

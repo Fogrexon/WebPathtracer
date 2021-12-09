@@ -438,215 +438,6 @@
 
     }
 
-    /**
-     * abstract class of Model
-     *
-     * @export
-     * @class Model
-     */
-
-    class Model {
-      _position = new Float32Array();
-      _normal = new Float32Array();
-      _texcoord = new Float32Array();
-      _indicies = new Int32Array();
-      _boundingBox = {
-        min: new Vector3(),
-        max: new Vector3()
-      };
-      _matrix = new Matrix4();
-
-      transformPosition() {
-        const max = new Vector3();
-        const min = new Vector3();
-
-        for (let i = 0; i < this._position.length; i += 3) {
-          const pos = new Vector4(this._position[i + 0], this.position[i + 1], this._position[i + 3], 1.0);
-
-          const newPos = this._matrix.multiply(pos);
-
-          max.set(Math.max(max.x, newPos.x), Math.max(max.y, newPos.y), Math.max(max.z, newPos.z));
-          min.set(Math.min(min.x, newPos.x), Math.min(min.y, newPos.y), Math.min(min.z, newPos.z));
-          this._position[i + 0] = newPos.x;
-          this._position[i + 1] = newPos.y;
-          this._position[i + 2] = newPos.z;
-        }
-      }
-
-      transformNormal() {
-        const rot = this._matrix.getScaleRotationMatrix();
-
-        for (let i = 0; i < this._position.length; i += 3) {
-          const pos = new Vector4(this._position[i + 0], this.position[i + 1], this._position[i + 3], 1.0);
-          const newPos = rot.multiply(pos);
-          this._position[i + 0] = newPos.x;
-          this._position[i + 1] = newPos.y;
-          this._position[i + 2] = newPos.z;
-        }
-      }
-      /**
-       * Vertex position vector array
-       *
-       * @readonly
-       * @type {Float32Array}
-       * @memberof Model
-       */
-
-
-      get position() {
-        return this._position;
-      }
-      /**
-       * Vertex normal vector array
-       *
-       * @readonly
-       * @type {Float32Array}
-       * @memberof Model
-       */
-
-
-      get normal() {
-        return this._normal;
-      }
-      /**
-       * Texcoord vector array
-       *
-       * @readonly
-       * @type {Float32Array}
-       * @memberof Model
-       */
-
-
-      get texcoord() {
-        return this._texcoord;
-      }
-      /**
-       * Indicies array
-       *
-       * @readonly
-       * @type {Int32Array}
-       * @memberof Model
-       */
-
-
-      get indicies() {
-        return this._indicies;
-      }
-      /**
-       * Get transform matrix.
-       *
-       * @readonly
-       * @type {Matrix4}
-       * @memberof Model
-       */
-
-
-      get matrix() {
-        return this._matrix;
-      }
-
-    }
-
-    /**
-     * Image renderer. pass model and render image.
-     *
-     * @export
-     * @class Renderer
-     */
-    class Renderer {
-      wasmManager;
-      model;
-      position = null;
-      indicies = null;
-      pixelData = null;
-      /**
-       * Creates an instance of Renderer.
-       * @param {WasmManager} wasmManager
-       * @param {Model} model
-       * @memberof Renderer
-       */
-
-      constructor(wasmManager, model) {
-        this.model = model;
-        this.wasmManager = wasmManager;
-      }
-      /**
-       * Create BVH.
-       *
-       * @return {*}
-       * @memberof Renderer
-       */
-
-
-      createBound() {
-        this.position = this.wasmManager.createBuffer(this.model.position);
-        this.indicies = this.wasmManager.createBuffer(this.model.indicies);
-        return this.wasmManager.callCreateBounding(this.position, this.model.position.length / 3, this.indicies, this.model.indicies.length / 3);
-      }
-      /**
-       * Render image to canvas
-       *
-       * @param {HTMLCanvasElement} canvas
-       * @return {*}  {number}
-       * @memberof Renderer
-       */
-
-
-      render(canvas) {
-        const {
-          width,
-          height
-        } = canvas;
-        const ctx = canvas.getContext('2d');
-
-        if (!ctx) {
-          console.error('canvas is failed');
-          return -1;
-        }
-
-        const imagedata = ctx.createImageData(width, height);
-        const pixels = new Int32Array(imagedata.data);
-        this.pixelData = this.wasmManager.createBuffer(pixels);
-        const result = this.wasmManager.callPathTracer(this.pixelData, width, height);
-
-        if (result < 0) {
-          console.error('Path trace failed.');
-          return -1;
-        }
-
-        for (let i = 0; i < pixels.length; i += 1) {
-          imagedata.data[i] = this.pixelData.get(i);
-        }
-
-        ctx.putImageData(imagedata, 0, 0);
-        return 1;
-      }
-      /**
-       * Release buffers.
-       *
-       * @memberof Renderer
-       */
-
-
-      release() {
-        if (this.position) {
-          this.position.release();
-          this.position = null;
-        }
-
-        if (this.indicies) {
-          this.indicies.release();
-          this.indicies = null;
-        }
-
-        if (this.pixelData) {
-          this.pixelData.release();
-          this.pixelData = null;
-        }
-      }
-
-    }
-
     class Quaternion {
       v;
       w;
@@ -790,6 +581,294 @@
     }
 
     /**
+     * Define 3D model transform and get matrix;
+     *
+     * @export
+     * @class Transform
+     */
+
+    class Transform {
+      rotation;
+      position;
+      scale;
+      /**
+       * Creates an instance of Transform.
+       * @memberof Transform
+       */
+
+      constructor() {
+        this.rotation = new Quaternion();
+        this.position = new Vector3();
+        this.scale = new Vector3(1, 1, 1);
+      }
+      /**
+       * get transform matrix
+       *
+       * @readonly
+       * @memberof Transform
+       */
+
+
+      get matrix() {
+        const translate = new Matrix4().translateMatrix(this.position);
+        const scale = new Matrix4().scaleMatrix(this.scale);
+        const rotation = this.rotation.matrix();
+        return translate.multiply(rotation.multiply(scale));
+      }
+
+    }
+
+    /**
+     * abstract class of Model
+     *
+     * @export
+     * @class Model
+     */
+
+    class Model {
+      _position = new Float32Array();
+      _normal = new Float32Array();
+      _texcoord = new Float32Array();
+      _indicies = new Int32Array();
+      _boundingBox = {
+        min: new Vector3(),
+        max: new Vector3()
+      };
+      _matrix = new Matrix4();
+      _transform = new Transform();
+      /**
+       * create bounding box from default vertex and matrix
+       *
+       * @protected
+       * @memberof Model
+       */
+
+      createBoundingBox() {
+        const max = new Vector3();
+        const min = new Vector3();
+
+        for (let i = 0; i < this._position.length; i += 3) {
+          const pos = new Vector4(this._position[i + 0], this._position[i + 1], this._position[i + 2], 1.0);
+
+          const newPos = this._matrix.multiply(pos);
+
+          max.set(Math.max(max.x, newPos.x), Math.max(max.y, newPos.y), Math.max(max.z, newPos.z));
+          min.set(Math.min(min.x, newPos.x), Math.min(min.y, newPos.y), Math.min(min.z, newPos.z));
+        }
+
+        this._boundingBox.min = min;
+        this._boundingBox.max = max;
+      }
+      /**
+       * model transform.
+       *
+       * @readonly
+       * @memberof Model
+       */
+
+
+      get transform() {
+        return this._transform;
+      }
+      /**
+       * Vertex position vector array
+       *
+       * @readonly
+       * @type {Float32Array}
+       * @memberof Model
+       */
+
+
+      get position() {
+        const position = new Float32Array(this._position.length);
+        const {
+          matrix
+        } = this;
+
+        for (let i = 0; i < this._position.length; i += 3) {
+          const pos = new Vector4(this._position[i + 0], this._position[i + 1], this._position[i + 2], 1.0);
+          const newPos = matrix.multiply(pos);
+          position[i + 0] = newPos.x;
+          position[i + 1] = newPos.y;
+          position[i + 2] = newPos.z;
+        }
+
+        return position;
+      }
+      /**
+       * Vertex normal vector array
+       *
+       * @readonly
+       * @type {Float32Array}
+       * @memberof Model
+       */
+
+
+      get normal() {
+        const rot = this.matrix.getScaleRotationMatrix();
+        const normal = new Float32Array(this._normal.length);
+
+        for (let i = 0; i < this._normal.length; i += 3) {
+          const pos = new Vector4(this._normal[i + 0], this._normal[i + 1], this._normal[i + 2], 1.0);
+          const newPos = rot.multiply(pos);
+          normal[i + 0] = newPos.x;
+          normal[i + 1] = newPos.y;
+          normal[i + 2] = newPos.z;
+        }
+
+        return normal;
+      }
+      /**
+       * Texcoord vector array
+       *
+       * @readonly
+       * @type {Float32Array}
+       * @memberof Model
+       */
+
+
+      get texcoord() {
+        return this._texcoord;
+      }
+      /**
+       * Indicies array
+       *
+       * @readonly
+       * @type {Int32Array}
+       * @memberof Model
+       */
+
+
+      get indicies() {
+        return this._indicies;
+      }
+      /**
+       * Get transform matrix.
+       *
+       * @readonly
+       * @type {Matrix4}
+       * @memberof Model
+       */
+
+
+      get matrix() {
+        return this._transform.matrix.multiply(this._matrix);
+      }
+      /**
+       * get bounding box(you should use this after get position)
+       *
+       * @readonly
+       * @memberof Model
+       */
+
+
+      get boundingBox() {
+        return this._boundingBox;
+      }
+
+    }
+
+    /**
+     * Image renderer. pass model and render image.
+     *
+     * @export
+     * @class Renderer
+     */
+    class Renderer {
+      wasmManager;
+      model;
+      position = null;
+      indicies = null;
+      pixelData = null;
+      /**
+       * Creates an instance of Renderer.
+       * @param {WasmManager} wasmManager
+       * @param {Model} model
+       * @memberof Renderer
+       */
+
+      constructor(wasmManager, model) {
+        this.model = model;
+        this.wasmManager = wasmManager;
+      }
+      /**
+       * Create BVH.
+       *
+       * @return {*}
+       * @memberof Renderer
+       */
+
+
+      createBound() {
+        this.position = this.wasmManager.createBuffer(this.model.position);
+        this.indicies = this.wasmManager.createBuffer(this.model.indicies);
+        return this.wasmManager.callCreateBounding(this.position, this.model.position.length / 3, this.indicies, this.model.indicies.length / 3);
+      }
+      /**
+       * Render image to canvas
+       *
+       * @param {HTMLCanvasElement} canvas
+       * @return {*}  {number}
+       * @memberof Renderer
+       */
+
+
+      render(canvas) {
+        const {
+          width,
+          height
+        } = canvas;
+        const ctx = canvas.getContext('2d');
+
+        if (!ctx) {
+          console.error('canvas is failed');
+          return -1;
+        }
+
+        const imagedata = ctx.createImageData(width, height);
+        const pixels = new Int32Array(imagedata.data);
+        this.pixelData = this.wasmManager.createBuffer(pixels);
+        const result = this.wasmManager.callPathTracer(this.pixelData, width, height);
+
+        if (result < 0) {
+          console.error('Path trace failed.');
+          return -1;
+        }
+
+        for (let i = 0; i < pixels.length; i += 1) {
+          imagedata.data[i] = this.pixelData.get(i);
+        }
+
+        ctx.putImageData(imagedata, 0, 0);
+        return 1;
+      }
+      /**
+       * Release buffers.
+       *
+       * @memberof Renderer
+       */
+
+
+      release() {
+        if (this.position) {
+          this.position.release();
+          this.position = null;
+        }
+
+        if (this.indicies) {
+          this.indicies.release();
+          this.indicies = null;
+        }
+
+        if (this.pixelData) {
+          this.pixelData.release();
+          this.pixelData = null;
+        }
+      }
+
+    }
+
+    /**
      * glTF model data
      *
      * @export
@@ -797,7 +876,6 @@
      */
 
     class GLTFLoader extends Model {
-      rawUrl = null;
       rawJson = null;
       /**
        * load glTF
@@ -807,7 +885,6 @@
        */
 
       async load(url) {
-        this.rawUrl = url;
         const response = await fetch(url);
         if (response.headers.get('Content-Type') !== 'model/gltf+json') throw Error(`This data is ${response.headers.get('Content-Type')} ,not model/gltf+json.`);
         this.rawJson = await response.json();
@@ -832,26 +909,26 @@
           bufferViews,
           buffers
         } = this.rawJson;
-        if (!Array.isArray(nodes) || !Array.isArray(meshes) || !Array.isArray(accessors) || !Array.isArray(bufferViews) || !Array.isArray(buffers)) throw new Error('tttt');
+        if (!Array.isArray(nodes) || !Array.isArray(meshes) || !Array.isArray(accessors) || !Array.isArray(bufferViews) || !Array.isArray(buffers)) throw new Error('gltf file with array type only');
         const [node] = nodes;
         const [bufPos, bufNorm, bufTex, bufInd] = bufferViews;
         const [{
           uri
-        }] = buffers;
+        }] = buffers; // make default transform matrix
 
-        if (!node.translation || !node.rotation || !node.scale) {
-          node.translation = [1, 0, 0, 0];
-          node.rotation = [0, 0, 0];
-          node.scale = [0, 0, 0];
-        }
-
+        node.translation = node.translation || [0, 0, 0];
+        node.rotation = node.rotation || [0, 0, 0, 1];
+        node.scale = node.scale || [1, 1, 1];
         const translate = new Matrix4().translateMatrix(new Vector3(node.translation[0], node.translation[1], node.translation[2]));
         const scale = new Matrix4().scaleMatrix(new Vector3(node.scale[0], node.scale[1], node.scale[2]));
         const rotation = new Quaternion(new Vector3(node.rotation[0], node.rotation[1], node.rotation[2]), node.rotation[3]).matrix();
-        this._matrix = translate.multiply(rotation.multiply(scale));
+        this._matrix = translate.multiply(rotation.multiply(scale)); // decode or fetch binary file
+
         const response = await fetch(uri);
-        const buffer = await (await response.blob()).arrayBuffer();
+        const buffer = await (await response.blob()).arrayBuffer(); // set default value
+
         this._position = new Float32Array(buffer.slice(bufPos.byteOffset, bufPos.byteOffset + bufPos.byteLength));
+        this.createBoundingBox();
         this._normal = new Float32Array(buffer.slice(bufNorm.byteOffset, bufNorm.byteOffset + bufNorm.byteLength));
         this._texcoord = new Float32Array(buffer.slice(bufTex.byteOffset, bufTex.byteOffset + bufTex.byteLength));
         this._indicies = Int32Array.from(new Int16Array(buffer.slice(bufInd.byteOffset, bufInd.byteOffset + bufInd.byteLength)));
@@ -2184,6 +2261,7 @@
     exports.GLTFLoader = GLTFLoader;
     exports.Matrix4 = Matrix4;
     exports.Model = Model;
+    exports.Quaternion = Quaternion;
     exports.Renderer = Renderer;
     exports.Vector2 = Vector2;
     exports.Vector3 = Vector3;

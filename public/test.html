@@ -6,18 +6,23 @@
   <title>Hello WASM World!</title>
 </head>
 <body>
-  <button class=mybutton>Run mulBy2</button><br>
   <canvas id="cnv" width=500 height=500></canvas>
   <script src="../build/umd/pathtracer.js"></script>
   <script>
     const wasmManager = new PathTracer.WasmManager('../build/wasm/main.wasm');
     wasmManager.addEventListener('initialized', () => {
       const gltfModel = new PathTracer.GLTFLoader();
-      gltfModel.load('rot_cube2.gltf').then(() => {
+      gltfModel.load('monkey.gltf').then(() => {
         const renderer = new PathTracer.Renderer(wasmManager, gltfModel);
+
+        let rotate = 0;
+        // setInterval(() => {
+          rotate += Math.PI * 0.1;
+          gltfModel.transform.rotation = (new PathTracer.Quaternion()).angleAxis(rotate, new PathTracer.Vector3(1, 0, 0));
+          renderer.createBound();
+          renderer.render(document.getElementById('cnv'));
+        // }, 100);
   
-        renderer.createBound();
-        renderer.render(document.getElementById('cnv'));
   
         renderer.release();
       });

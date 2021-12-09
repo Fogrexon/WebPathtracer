@@ -11,7 +11,6 @@ import { Model } from './Model';
  * @class GLTFLoader
  */
 export class GLTFLoader extends Model {
-  private rawUrl: string | null = null;
 
   private rawJson: GLTFJson | null = null;
 
@@ -22,7 +21,6 @@ export class GLTFLoader extends Model {
    * @memberof GLTFLoader
    */
   public async load(url: string) {
-    this.rawUrl = url;
     const response = await fetch(url);
     if (response.headers.get('Content-Type') !== 'model/gltf+json')
       throw Error(`This data is ${response.headers.get('Content-Type')} ,not model/gltf+json.`);
@@ -49,17 +47,16 @@ export class GLTFLoader extends Model {
       !Array.isArray(bufferViews) ||
       !Array.isArray(buffers)
     )
-      throw new Error('tttt');
+      throw new Error('gltf file with array type only');
 
     const [node] = nodes;
     const [bufPos, bufNorm, bufTex, bufInd] = bufferViews;
     const [{ uri }] = buffers;
 
-    if (!node.translation || !node.rotation || !node.scale) {
-      node.translation = [1, 0, 0, 0];
-      node.rotation = [0, 0, 0];
-      node.scale = [0, 0, 0];
-    }
+    // make default transform matrix
+    node.translation = node.translation || [0, 0, 0];
+    node.rotation = node.rotation || [0, 0, 0, 1];
+    node.scale = node.scale || [1, 1, 1];
 
     const translate = new Matrix4().translateMatrix(
       new Vector3(node.translation[0], node.translation[1], node.translation[2])
@@ -74,12 +71,15 @@ export class GLTFLoader extends Model {
 
     this._matrix = translate.multiply(rotation.multiply(scale)) as Matrix4;
 
+    // decode or fetch binary file
     const response = await fetch(uri);
     const buffer = await (await response.blob()).arrayBuffer();
 
+    // set default value
     this._position = new Float32Array(
       buffer.slice(bufPos.byteOffset, bufPos.byteOffset + bufPos.byteLength)
     );
+    this.createBoundingBox();
 
     this._normal = new Float32Array(
       buffer.slice(bufNorm.byteOffset, bufNorm.byteOffset + bufNorm.byteLength)

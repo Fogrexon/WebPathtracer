@@ -3,6 +3,7 @@ export * from './core/renderer/Renderer';
 export * from './core/model/GLTFLoader';
 export * from './core/wasm/WasmManager';
 export * from './core/wasm/WasmBuffer';
+export * from './math/Quaternion';
 export * from './math/Matrix4';
 export * from './math/Vector4';
 export * from './math/Vector2';

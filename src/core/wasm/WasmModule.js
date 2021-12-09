@@ -16,7 +16,15 @@
 /* eslint-disable no-use-before-define */
 /* eslint-disable global-require */
 /* eslint-disable camelcase */
-export const WasmModuleGenerator = (filename) => {
+
+
+export /**
+ * Wasm module generator. This code is based on Emscripten default js template.
+ *
+ * @param {*} filename .wasm file uri
+ * @return {*} 
+ */
+const WasmModuleGenerator = (filename) => {
   const Module = {};
   let arguments_ = [];
   let thisProgram = "./this.program";
