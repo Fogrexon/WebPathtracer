@@ -1,6 +1,6 @@
-import { Model } from "../model/Model";
-import { WasmBuffer } from "../wasm/WasmBuffer";
-import { WasmManager } from "../wasm/WasmManager";
+import { Model } from '../model/Model';
+import { WasmBuffer } from '../wasm/WasmBuffer';
+import { WasmManager } from '../wasm/WasmManager';
 
 /**
  * Image renderer. pass model and render image.
@@ -17,7 +17,7 @@ export class Renderer {
 
   private indicies: WasmBuffer | null = null;
 
-  private pixelData: WasmBuffer | null = null;;
+  private pixelData: WasmBuffer | null = null;
 
   /**
    * Creates an instance of Renderer.
@@ -33,14 +33,19 @@ export class Renderer {
   /**
    * Create BVH.
    *
-   * @return {*} 
+   * @return {*}
    * @memberof Renderer
    */
   public createBound() {
     this.position = this.wasmManager.createBuffer(this.model.position);
     this.indicies = this.wasmManager.createBuffer(this.model.indicies);
 
-    return this.wasmManager.callCreateBounding(this.position, this.model.position.length / 3, this.indicies, this.model.indicies.length / 3);
+    return this.wasmManager.callCreateBounding(
+      this.position,
+      this.model.position.length / 3,
+      this.indicies,
+      this.model.indicies.length / 3
+    );
   }
 
   /**
@@ -51,7 +56,7 @@ export class Renderer {
    * @memberof Renderer
    */
   public render(canvas: HTMLCanvasElement): number {
-    const {width, height} = canvas;
+    const { width, height } = canvas;
 
     const ctx = canvas.getContext('2d');
     if (!ctx) {
@@ -71,8 +76,8 @@ export class Renderer {
       console.error('Path trace failed.');
       return -1;
     }
-    
-    for(let i=0;i<pixels.length;i+=1) {
+
+    for (let i = 0; i < pixels.length; i += 1) {
       imagedata.data[i] = this.pixelData.get(i);
     }
 

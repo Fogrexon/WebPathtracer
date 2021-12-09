@@ -1,5 +1,5 @@
-import { WasmArrayType, WasmValueType } from "../../types/wasm";
-import { WasmModuleGenerator } from "./WasmModule";
+import { WasmArrayType, WasmValueType } from '../../types/wasm';
+import { WasmModuleGenerator } from './WasmModule';
 
 type WasmModule = ReturnType<typeof WasmModuleGenerator>;
 
@@ -19,14 +19,22 @@ export class WasmBuffer {
   protected stride: number = -1;
 
   constructor(module: WasmModule, array: WasmArrayType) {
-    if (array instanceof Float32Array) {this.type = 'float'; this.stride = 4;}
-    else if (array instanceof Float64Array) {this.type = 'double'; this.stride = 8;}
-    else if (array instanceof Int32Array) {this.type = 'i32'; this.stride = 4;}
-    else if (array instanceof BigInt64Array) {this.type = 'i64'; this.stride = 8;}
+    if (array instanceof Float32Array) {
+      this.type = 'float';
+      this.stride = 4;
+    } else if (array instanceof Float64Array) {
+      this.type = 'double';
+      this.stride = 8;
+    } else if (array instanceof Int32Array) {
+      this.type = 'i32';
+      this.stride = 4;
+    } else if (array instanceof BigInt64Array) {
+      this.type = 'i64';
+      this.stride = 8;
+    }
 
     if (!this.type) throw Error('Buffer type is invalid.');
     this.module = module;
-
 
     this.base = this.module._malloc(this.stride * array.length);
 
@@ -37,7 +45,7 @@ export class WasmBuffer {
    * Get array element
    *
    * @param {number} index
-   * @return {*} 
+   * @return {*}
    * @memberof WasmBuffer
    */
   public get(index: number): number {
@@ -50,7 +58,7 @@ export class WasmBuffer {
    *
    * @param {number} index
    * @param {(number | bigint)} value
-   * @return {*} 
+   * @return {*}
    * @memberof WasmBuffer
    */
   public set(index: number, value: number | bigint) {
@@ -61,7 +69,7 @@ export class WasmBuffer {
   /**
    * Get array pointer
    *
-   * @return {*} 
+   * @return {*}
    * @memberof WasmBuffer
    */
   public getPointer() {

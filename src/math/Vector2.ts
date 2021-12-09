@@ -3,7 +3,7 @@ export class Vector2 {
 
   public y: number;
 
-  constructor(_x: number, _y: number) {
+  constructor(_x: number = 0, _y: number = 0) {
     this.x = _x;
     this.y = _y;
   }
@@ -23,9 +23,7 @@ export class Vector2 {
   }
 
   public distance(a: Vector2): number {
-    return Math.sqrt(
-      (this.x - a.x) ** 2 + (this.y - a.y) ** 2,
-    );
+    return Math.sqrt((this.x - a.x) ** 2 + (this.y - a.y) ** 2);
   }
 
   public add(a: Vector2 | number): Vector2 {

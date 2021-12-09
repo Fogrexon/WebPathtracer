@@ -9,7 +9,7 @@
       y;
       z;
 
-      constructor(_x, _y, _z) {
+      constructor(_x = 0, _y = 0, _z = 0) {
         this.x = _x;
         this.y = _y;
         this.z = _z;
@@ -91,7 +91,7 @@
       z;
       w;
 
-      constructor(_x, _y, _z, _w) {
+      constructor(_x = 0, _y = 0, _z = 0, _w = 0) {
         this.x = _x;
         this.y = _y;
         this.z = _z;
@@ -450,7 +450,40 @@
       _normal = new Float32Array();
       _texcoord = new Float32Array();
       _indicies = new Int32Array();
+      _boundingBox = {
+        min: new Vector3(),
+        max: new Vector3()
+      };
       _matrix = new Matrix4();
+
+      transformPosition() {
+        const max = new Vector3();
+        const min = new Vector3();
+
+        for (let i = 0; i < this._position.length; i += 3) {
+          const pos = new Vector4(this._position[i + 0], this.position[i + 1], this._position[i + 3], 1.0);
+
+          const newPos = this._matrix.multiply(pos);
+
+          max.set(Math.max(max.x, newPos.x), Math.max(max.y, newPos.y), Math.max(max.z, newPos.z));
+          min.set(Math.min(min.x, newPos.x), Math.min(min.y, newPos.y), Math.min(min.z, newPos.z));
+          this._position[i + 0] = newPos.x;
+          this._position[i + 1] = newPos.y;
+          this._position[i + 2] = newPos.z;
+        }
+      }
+
+      transformNormal() {
+        const rot = this._matrix.getScaleRotationMatrix();
+
+        for (let i = 0; i < this._position.length; i += 3) {
+          const pos = new Vector4(this._position[i + 0], this.position[i + 1], this._position[i + 3], 1.0);
+          const newPos = rot.multiply(pos);
+          this._position[i + 0] = newPos.x;
+          this._position[i + 1] = newPos.y;
+          this._position[i + 2] = newPos.z;
+        }
+      }
       /**
        * Vertex position vector array
        *
@@ -458,6 +491,7 @@
        * @type {Float32Array}
        * @memberof Model
        */
+
 
       get position() {
         return this._position;
@@ -525,13 +559,13 @@
       position = null;
       indicies = null;
       pixelData = null;
-
       /**
        * Creates an instance of Renderer.
        * @param {WasmManager} wasmManager
        * @param {Model} model
        * @memberof Renderer
        */
+
       constructor(wasmManager, model) {
         this.model = model;
         this.wasmManager = wasmManager;
@@ -798,7 +832,7 @@
           bufferViews,
           buffers
         } = this.rawJson;
-        if (!Array.isArray(nodes) || !Array.isArray(meshes) || !Array.isArray(accessors) || !Array.isArray(bufferViews) || !Array.isArray(buffers)) throw new Error("tttt");
+        if (!Array.isArray(nodes) || !Array.isArray(meshes) || !Array.isArray(accessors) || !Array.isArray(bufferViews) || !Array.isArray(buffers)) throw new Error('tttt');
         const [node] = nodes;
         const [bufPos, bufNorm, bufTex, bufInd] = bufferViews;
         const [{
@@ -2077,7 +2111,7 @@
       x;
       y;
 
-      constructor(_x, _y) {
+      constructor(_x = 0, _y = 0) {
         this.x = _x;
         this.y = _y;
       }

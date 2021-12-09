@@ -1,36 +1,36 @@
 export interface GLTFJsonScene {
-  nodes     : number[] | string[];
+  nodes: number[] | string[];
 }
 
 export interface GLTFJsonNode {
-  children  : number[] | string[];
-  matrix?   : number[];
-  rotation? : number[];
-  scale?    : number[];
-  translation?  : number[];
-  meshes    : number[] | string[];
-  camera    : number | string;
-  name      : string;
+  children: number[] | string[];
+  matrix?: number[];
+  rotation?: number[];
+  scale?: number[];
+  translation?: number[];
+  meshes: number[] | string[];
+  camera: number | string;
+  name: string;
 }
 
 export interface GLTFJsonMesh {
-  name      : string;
+  name: string;
   primitives: {
     attibutes: {
       NORMAL: number | string;
       POSITION: number | string;
       [key: string]: number | string;
-    }
+    };
     indices: number | string;
-  }
+  };
 }
 
 export interface GLTFJsonAccessor {
-  bufferView  : number | string;
-  max?        : number[];
-  min?        : number[];
-  type        : string;
-  count       : number;
+  bufferView: number | string;
+  max?: number[];
+  min?: number[];
+  type: string;
+  count: number;
 }
 
 export interface GLTFJsonBufferView {
@@ -40,9 +40,9 @@ export interface GLTFJsonBufferView {
 }
 
 export interface GLTFJsonBuffer {
-  byteLength  : number;
-  type        : string;
-  uri         : string;
+  byteLength: number;
+  type: string;
+  uri: string;
 }
 
 /**
@@ -52,11 +52,11 @@ export interface GLTFJsonBuffer {
  * @interface GLTFJson
  */
 export interface GLTFJson {
-  scene   : number;
-  scenes  : GLTFJsonScene[] | {[key: string]: GLTFJsonScene};
-  nodes   : GLTFJsonNode[] | {[key: string]: GLTFJsonNode};
-  meshes  : GLTFJsonMesh[] | {[key: string]: GLTFJsonMesh};
-  accessors   : GLTFJsonAccessor[] | {[key: string]: GLTFJsonAccessor};
-  bufferViews : GLTFJsonBufferView[] | {[key: string]: GLTFJsonBufferView};
-  buffers : GLTFJsonBuffer[] | {[key: string]: GLTFJsonBuffer};
+  scene: number;
+  scenes: GLTFJsonScene[] | { [key: string]: GLTFJsonScene };
+  nodes: GLTFJsonNode[] | { [key: string]: GLTFJsonNode };
+  meshes: GLTFJsonMesh[] | { [key: string]: GLTFJsonMesh };
+  accessors: GLTFJsonAccessor[] | { [key: string]: GLTFJsonAccessor };
+  bufferViews: GLTFJsonBufferView[] | { [key: string]: GLTFJsonBufferView };
+  buffers: GLTFJsonBuffer[] | { [key: string]: GLTFJsonBuffer };
 }

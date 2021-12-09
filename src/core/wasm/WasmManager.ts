@@ -1,5 +1,5 @@
-import { WasmArrayType } from "../../types/wasm";
-import { WasmBuffer } from "./WasmBuffer";
+import { WasmArrayType } from '../../types/wasm';
+import { WasmBuffer } from './WasmBuffer';
 import { WasmModuleGenerator } from './WasmModule';
 
 /**
@@ -20,15 +20,15 @@ export class WasmManager extends EventTarget {
     super();
     this.module = WasmModuleGenerator(url);
     this.module.onRuntimeInitialized = () => {
-      this.dispatchEvent(new Event('initialized'))
-    }
+      this.dispatchEvent(new Event('initialized'));
+    };
   }
 
   /**
    * Create array argment
    *
    * @param {WasmArrayType} array
-   * @return {*} 
+   * @return {*}
    * @memberof WasmManager
    */
   public createBuffer(array: WasmArrayType) {
@@ -39,7 +39,7 @@ export class WasmManager extends EventTarget {
    * Call pathTracer function in wasm
    *
    * @param {(...(number | WasmBuffer)[])} args
-   * @return {*} 
+   * @return {*}
    * @memberof WasmManager
    */
   public callPathTracer(...args: (number | WasmBuffer)[]) {
@@ -51,8 +51,8 @@ export class WasmManager extends EventTarget {
   }
 
   public callFunction(funcname: string, ...args: (number | WasmBuffer)[]) {
-    const rawArgs = args.map((v) => v instanceof WasmBuffer ? v.getPointer() : v);
-    const argTypes = args.map((v) => v instanceof WasmBuffer ? 'pointer' : 'number')
+    const rawArgs = args.map((v) => (v instanceof WasmBuffer ? v.getPointer() : v));
+    const argTypes = args.map((v) => (v instanceof WasmBuffer ? 'pointer' : 'number'));
     return this.module.ccall(funcname, 'number', argTypes, rawArgs);
   }
 }
