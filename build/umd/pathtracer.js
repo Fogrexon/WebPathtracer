@@ -800,8 +800,8 @@
 
 
       createBound() {
-        this.position = this.wasmManager.createBuffer(this.model.position);
-        this.indicies = this.wasmManager.createBuffer(this.model.indicies);
+        if (!this.position) this.position = this.wasmManager.createBuffer(this.model.position);
+        if (!this.indicies) this.indicies = this.wasmManager.createBuffer(this.model.indicies);
         return this.wasmManager.callCreateBounding(this.position, this.model.position.length / 3, this.indicies, this.model.indicies.length / 3);
       }
       /**
@@ -839,6 +839,7 @@
           imagedata.data[i] = this.pixelData.get(i);
         }
 
+        this.pixelData.release();
         ctx.putImageData(imagedata, 0, 0);
         return 1;
       }

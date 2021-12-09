@@ -37,8 +37,8 @@ export class Renderer {
    * @memberof Renderer
    */
   public createBound() {
-    this.position = this.wasmManager.createBuffer(this.model.position);
-    this.indicies = this.wasmManager.createBuffer(this.model.indicies);
+    if (!this.position) this.position = this.wasmManager.createBuffer(this.model.position);
+    if (!this.indicies) this.indicies = this.wasmManager.createBuffer(this.model.indicies);
 
     return this.wasmManager.callCreateBounding(
       this.position,
@@ -80,6 +80,8 @@ export class Renderer {
     for (let i = 0; i < pixels.length; i += 1) {
       imagedata.data[i] = this.pixelData.get(i);
     }
+
+    this.pixelData.release();
 
     ctx.putImageData(imagedata, 0, 0);
 
