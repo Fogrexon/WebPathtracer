@@ -276,7 +276,9 @@ class ModelBVH {
         if(!col2.isHit){
             return col1;
         }
-        if(std::abs(col1.point.x-o.x)<=std::abs(col2.point.x-o.x)){
+        double dx1 = col1.point.x-o.x,dy1 = col1.point.y-o.y,dz1 = col1.point.z-o.z;
+        double dx2 = col2.point.x-o.x,dy2 = col2.point.y-o.y,dz2 = col2.point.z-o.z; 
+        if(dx1*dx1+dy1*dy1+dz1*dz1 <= dx2*dx2+dy2*dy2+dz2*dz2){
             return col1;
         }else{
             return col2;
