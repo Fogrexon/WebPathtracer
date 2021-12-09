@@ -4,6 +4,115 @@
     (global = typeof globalThis !== 'undefined' ? globalThis : global || self, factory(global.PathTracer = {}));
 })(this, (function (exports) { 'use strict';
 
+    /**
+     * Image renderer. pass model and render image.
+     *
+     * @export
+     * @class Renderer
+     */
+    class Renderer {
+      wasmManager;
+      model;
+      position = null;
+      indicies = null;
+      pixelData = null;
+      /**
+       * Creates an instance of Renderer.
+       * @param {WasmManager} wasmManager
+       * @param {Model} model
+       * @memberof Renderer
+       */
+
+      constructor(wasmManager, model) {
+        this.model = model;
+        this.wasmManager = wasmManager;
+      }
+      /**
+       * Create BVH.
+       *
+       * @return {*}
+       * @memberof Renderer
+       */
+
+
+      createBound() {
+        if (!this.position) this.position = this.wasmManager.createBuffer('float', this.model.position.length);
+        if (!this.indicies) this.indicies = this.wasmManager.createBuffer('i32', this.model.indicies.length);
+        this.position.setArray(this.model.position);
+        this.indicies.setArray(this.model.indicies);
+        return this.wasmManager.callCreateBounding(this.position, this.model.position.length / 3, this.indicies, this.model.indicies.length / 3);
+      }
+      /**
+       * Render image to canvas
+       *
+       * @param {HTMLCanvasElement} canvas
+       * @return {*}  {number}
+       * @memberof Renderer
+       */
+
+
+      render(canvas) {
+        const {
+          width,
+          height
+        } = canvas;
+        const ctx = canvas.getContext('2d');
+
+        if (!ctx) {
+          console.error('canvas is failed');
+          return -1;
+        }
+
+        const imagedata = ctx.createImageData(width, height);
+        const pixels = imagedata.data;
+
+        if (this.pixelData && this.pixelData.length < imagedata.data.length) {
+          this.pixelData.release();
+          this.pixelData = null;
+        }
+
+        if (!this.pixelData) this.pixelData = this.wasmManager.createBuffer('i32', imagedata.data.length);
+        const result = this.wasmManager.callPathTracer(this.pixelData, width, height);
+
+        if (result < 0) {
+          console.error('Path trace failed.');
+          return -1;
+        }
+
+        for (let i = 0; i < pixels.length; i += 1) {
+          imagedata.data[i] = this.pixelData.get(i);
+        }
+
+        this.pixelData.release();
+        ctx.putImageData(imagedata, 0, 0);
+        return 1;
+      }
+      /**
+       * Release buffers.
+       *
+       * @memberof Renderer
+       */
+
+
+      release() {
+        if (this.position) {
+          this.position.release();
+          this.position = null;
+        }
+
+        if (this.indicies) {
+          this.indicies.release();
+          this.indicies = null;
+        }
+
+        if (this.pixelData) {
+          this.pixelData.release();
+          this.pixelData = null;
+        }
+      }
+
+    }
+
     class Vector3 {
       x;
       y;
@@ -764,115 +873,6 @@
 
       get boundingBox() {
         return this._boundingBox;
-      }
-
-    }
-
-    /**
-     * Image renderer. pass model and render image.
-     *
-     * @export
-     * @class Renderer
-     */
-    class Renderer {
-      wasmManager;
-      model;
-      position = null;
-      indicies = null;
-      pixelData = null;
-      /**
-       * Creates an instance of Renderer.
-       * @param {WasmManager} wasmManager
-       * @param {Model} model
-       * @memberof Renderer
-       */
-
-      constructor(wasmManager, model) {
-        this.model = model;
-        this.wasmManager = wasmManager;
-      }
-      /**
-       * Create BVH.
-       *
-       * @return {*}
-       * @memberof Renderer
-       */
-
-
-      createBound() {
-        if (!this.position) this.position = this.wasmManager.createBuffer('float', this.model.position.length);
-        if (!this.indicies) this.indicies = this.wasmManager.createBuffer('i32', this.model.indicies.length);
-        this.position.setArray(this.model.position);
-        this.indicies.setArray(this.model.indicies);
-        return this.wasmManager.callCreateBounding(this.position, this.model.position.length / 3, this.indicies, this.model.indicies.length / 3);
-      }
-      /**
-       * Render image to canvas
-       *
-       * @param {HTMLCanvasElement} canvas
-       * @return {*}  {number}
-       * @memberof Renderer
-       */
-
-
-      render(canvas) {
-        const {
-          width,
-          height
-        } = canvas;
-        const ctx = canvas.getContext('2d');
-
-        if (!ctx) {
-          console.error('canvas is failed');
-          return -1;
-        }
-
-        const imagedata = ctx.createImageData(width, height);
-        const pixels = imagedata.data;
-
-        if (this.pixelData && this.pixelData.length < imagedata.data.length) {
-          this.pixelData.release();
-          this.pixelData = null;
-        }
-
-        if (!this.pixelData) this.pixelData = this.wasmManager.createBuffer('i32', imagedata.data.length);
-        const result = this.wasmManager.callPathTracer(this.pixelData, width, height);
-
-        if (result < 0) {
-          console.error('Path trace failed.');
-          return -1;
-        }
-
-        for (let i = 0; i < pixels.length; i += 1) {
-          imagedata.data[i] = this.pixelData.get(i);
-        }
-
-        this.pixelData.release();
-        ctx.putImageData(imagedata, 0, 0);
-        return 1;
-      }
-      /**
-       * Release buffers.
-       *
-       * @memberof Renderer
-       */
-
-
-      release() {
-        if (this.position) {
-          this.position.release();
-          this.position = null;
-        }
-
-        if (this.indicies) {
-          this.indicies.release();
-          this.indicies = null;
-        }
-
-        if (this.pixelData) {
-          this.pixelData.release();
-          this.pixelData = null;
-        }
       }
 
     }
@@ -2287,6 +2287,7 @@
     exports.Model = Model;
     exports.Quaternion = Quaternion;
     exports.Renderer = Renderer;
+    exports.Transform = Transform;
     exports.Vector2 = Vector2;
     exports.Vector3 = Vector3;
     exports.Vector4 = Vector4;
