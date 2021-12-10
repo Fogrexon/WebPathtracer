@@ -14,7 +14,7 @@ public:
     Raytracer::Vec3 camForward = Raytracer::normalize(to - pos);
     Raytracer::Vec3 cameraRightDir = Raytracer::normalize(Raytracer::cross(camForward, Raytracer::Vec3{0, 1, 0}));
     Raytracer::Vec3 cameraTopDir = Raytracer::normalize(Raytracer::cross(camForward, cameraRightDir));
-    Raytracer::Vec3 sensPos = pos + normalize(sub(to, pos)) * dist - cameraTopDir * v - cameraRightDir * u;
+    Raytracer::Vec3 sensPos = pos + normalize(to - pos) * dist - cameraTopDir * v - cameraRightDir * u;
     return Raytracer::normalize(pos - sensPos);
   }
 };
