@@ -41,6 +41,12 @@ int EMSCRIPTEN_KEEPALIVE createBounding(float* position, int posCount, int* indi
 }
 
 int EMSCRIPTEN_KEEPALIVE setCamera(float* camData) {
+  printf("pos %f %f %f\n", camData[0], camData[1], camData[2]);
+  printf("forward %f %f %f\n", camData[3], camData[4], camData[5]);
+  printf("camUp %f %f %f\n", camData[6], camData[7], camData[8]);
+  printf("camRight %f %f %f\n", camData[9], camData[10], camData[11]);
+  printf("dist %f\n", camData[12]);
+
   cam.pos = Raytracer::Vec3{camData[0], camData[1], camData[2]};
   cam.forward = Raytracer::Vec3{camData[3], camData[4], camData[5]};
   cam.camUp = Raytracer::Vec3{camData[6], camData[7], camData[8]};
@@ -59,8 +65,8 @@ int EMSCRIPTEN_KEEPALIVE pathTracer(int* a, int width, int height){
 
     // cam.pos = C;
     // cam.forward = Raytracer::Vec3{0, 1, 0};
-    // cam.camUp = Raytracer::Vec3{0, 0, 1};
-    // cam.camRight = Raytracer::Vec3{1, 0, 0};
+    // cam.camUp = Raytracer::Vec3{-1.0, 0, 0};
+    // cam.camRight = Raytracer::Vec3{0, 0, 1.0};
 
     for(int j=-height/2;j<height - height/2;j++){
         for(int i=-width/2;i<width - width/2;i++){
