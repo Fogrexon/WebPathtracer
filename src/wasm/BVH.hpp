@@ -1,10 +1,8 @@
 #include "simpleIntersect.hpp"
 
-struct rayHit{
-    bool isHit;
+struct vert{
     point3 point;
-    int index;
-    vec3 normal;
+    vec3 norm;
 };
 
 //モデルにBVHを与える関数のクラス
@@ -21,7 +19,7 @@ class ModelBVH {
         std::array<int,3> triangle; //葉が持っている三角形
     };
 
-    std::vector<point3> Vertex;
+    std::vector<vert> Vertex;
     std::vector<BVH> Node;
 
     void construct_BVH_internal(std::vector<std::array<int,3>> polygon,int index){
@@ -32,12 +30,12 @@ class ModelBVH {
             //ポリゴンが1個しかないならここを葉ノードにする
             point3 P={INFF,INFF,INFF},Q = {-INFF,-INFF,-INFF};
             for(int j=0;j<3;j++){
-                P.x = std::min(P.x,Vertex[polygon[0][j]].x);
-                P.y = std::min(P.y,Vertex[polygon[0][j]].y);
-                P.z = std::min(P.z,Vertex[polygon[0][j]].z);
-                Q.x = std::max(Q.x,Vertex[polygon[0][j]].x);
-                Q.y = std::max(Q.y,Vertex[polygon[0][j]].y);
-                Q.z = std::max(Q.z,Vertex[polygon[0][j]].z);
+                P.x = std::min(P.x,Vertex[polygon[0][j]].point.x);
+                P.y = std::min(P.y,Vertex[polygon[0][j]].point.y);
+                P.z = std::min(P.z,Vertex[polygon[0][j]].point.z);
+                Q.x = std::max(Q.x,Vertex[polygon[0][j]].point.x);
+                Q.y = std::max(Q.y,Vertex[polygon[0][j]].point.y);
+                Q.z = std::max(Q.z,Vertex[polygon[0][j]].point.z);
             }
 
             BVH bvh;
@@ -56,7 +54,7 @@ class ModelBVH {
         //X軸
         std::vector<double> coor(V);
         for(int i=0;i<V;i++){
-            coor[i] = (Vertex[polygon[i][0]].x+Vertex[polygon[i][1]].x+Vertex[polygon[i][2]].x)/3.0;
+            coor[i] = (Vertex[polygon[i][0]].point.x+Vertex[polygon[i][1]].point.x+Vertex[polygon[i][2]].point.x)/3.0;
         }
         std::sort(coor.begin(),coor.end());
         double med = coor[V/2];
@@ -65,25 +63,25 @@ class ModelBVH {
         std::vector<std::array<int,3>> poly_x[2];
         point3 p1={INFF,INFF,INFF},q1 = {-INFF,-INFF,-INFF},p2={INFF,INFF,INFF},q2 = {-INFF,-INFF,-INFF};
         for(int i=0;i<V;i++){
-            if((Vertex[polygon[i][0]].x+Vertex[polygon[i][1]].x+Vertex[polygon[i][2]].x)/3.0 < med){
+            if((Vertex[polygon[i][0]].point.x+Vertex[polygon[i][1]].point.x+Vertex[polygon[i][2]].point.x)/3.0 < med){
                 poly_x[0].push_back(polygon[i]);
                 for(int j=0;j<3;j++){
-                    p1.x = std::min(p1.x,Vertex[polygon[i][j]].x);
-                    p1.y = std::min(p1.y,Vertex[polygon[i][j]].y);
-                    p1.z = std::min(p1.z,Vertex[polygon[i][j]].z);
-                    q1.x = std::max(q1.x,Vertex[polygon[i][j]].x);
-                    q1.y = std::max(q1.y,Vertex[polygon[i][j]].y);
-                    q1.z = std::max(q1.z,Vertex[polygon[i][j]].z);
+                    p1.x = std::min(p1.x,Vertex[polygon[i][j]].point.x);
+                    p1.y = std::min(p1.y,Vertex[polygon[i][j]].point.y);
+                    p1.z = std::min(p1.z,Vertex[polygon[i][j]].point.z);
+                    q1.x = std::max(q1.x,Vertex[polygon[i][j]].point.x);
+                    q1.y = std::max(q1.y,Vertex[polygon[i][j]].point.y);
+                    q1.z = std::max(q1.z,Vertex[polygon[i][j]].point.z);
                 }
             }else{
                 poly_x[1].push_back(polygon[i]);
                 for(int j=0;j<3;j++){
-                    p2.x = std::min(p2.x,Vertex[polygon[i][j]].x);
-                    p2.y = std::min(p2.y,Vertex[polygon[i][j]].y);
-                    p2.z = std::min(p2.z,Vertex[polygon[i][j]].z);
-                    q2.x = std::max(q2.x,Vertex[polygon[i][j]].x);
-                    q2.y = std::max(q2.y,Vertex[polygon[i][j]].y);
-                    q2.z = std::max(q2.z,Vertex[polygon[i][j]].z);
+                    p2.x = std::min(p2.x,Vertex[polygon[i][j]].point.x);
+                    p2.y = std::min(p2.y,Vertex[polygon[i][j]].point.y);
+                    p2.z = std::min(p2.z,Vertex[polygon[i][j]].point.z);
+                    q2.x = std::max(q2.x,Vertex[polygon[i][j]].point.x);
+                    q2.y = std::max(q2.y,Vertex[polygon[i][j]].point.y);
+                    q2.z = std::max(q2.z,Vertex[polygon[i][j]].point.z);
                 }
                 
             }
@@ -97,7 +95,7 @@ class ModelBVH {
 
         //Y軸
         for(int i=0;i<V;i++){
-            coor[i] = (Vertex[polygon[i][0]].y+Vertex[polygon[i][1]].y+Vertex[polygon[i][2]].y)/3.0;
+            coor[i] = (Vertex[polygon[i][0]].point.y+Vertex[polygon[i][1]].point.y+Vertex[polygon[i][2]].point.y)/3.0;
         }
         std::sort(coor.begin(),coor.end());
         med = coor[V/2];
@@ -106,25 +104,25 @@ class ModelBVH {
         std::vector<std::array<int,3>> poly_y[2];
         p1={INFF,INFF,INFF},q1 = {-INFF,-INFF,-INFF},p2={INFF,INFF,INFF},q2 = {-INFF,-INFF,-INFF};
         for(int i=0;i<V;i++){
-            if((Vertex[polygon[i][0]].y+Vertex[polygon[i][1]].y+Vertex[polygon[i][2]].y)/3.0 < med){
+            if((Vertex[polygon[i][0]].point.y+Vertex[polygon[i][1]].point.y+Vertex[polygon[i][2]].point.y)/3.0 < med){
                 poly_y[0].push_back(polygon[i]);
                 for(int j=0;j<3;j++){
-                    p1.x = std::min(p1.x,Vertex[polygon[i][j]].x);
-                    p1.y = std::min(p1.y,Vertex[polygon[i][j]].y);
-                    p1.z = std::min(p1.z,Vertex[polygon[i][j]].z);
-                    q1.x = std::max(q1.x,Vertex[polygon[i][j]].x);
-                    q1.y = std::max(q1.y,Vertex[polygon[i][j]].y);
-                    q1.z = std::max(q1.z,Vertex[polygon[i][j]].z);
+                    p1.x = std::min(p1.x,Vertex[polygon[i][j]].point.x);
+                    p1.y = std::min(p1.y,Vertex[polygon[i][j]].point.y);
+                    p1.z = std::min(p1.z,Vertex[polygon[i][j]].point.z);
+                    q1.x = std::max(q1.x,Vertex[polygon[i][j]].point.x);
+                    q1.y = std::max(q1.y,Vertex[polygon[i][j]].point.y);
+                    q1.z = std::max(q1.z,Vertex[polygon[i][j]].point.z);
                 }
             }else{
                 poly_y[1].push_back(polygon[i]);
                 for(int j=0;j<3;j++){
-                    p2.x = std::min(p2.x,Vertex[polygon[i][j]].x);
-                    p2.y = std::min(p2.y,Vertex[polygon[i][j]].y);
-                    p2.z = std::min(p2.z,Vertex[polygon[i][j]].z);
-                    q2.x = std::max(q2.x,Vertex[polygon[i][j]].x);
-                    q2.y = std::max(q2.y,Vertex[polygon[i][j]].y);
-                    q2.z = std::max(q2.z,Vertex[polygon[i][j]].z);
+                    p2.x = std::min(p2.x,Vertex[polygon[i][j]].point.x);
+                    p2.y = std::min(p2.y,Vertex[polygon[i][j]].point.y);
+                    p2.z = std::min(p2.z,Vertex[polygon[i][j]].point.z);
+                    q2.x = std::max(q2.x,Vertex[polygon[i][j]].point.x);
+                    q2.y = std::max(q2.y,Vertex[polygon[i][j]].point.y);
+                    q2.z = std::max(q2.z,Vertex[polygon[i][j]].point.z);
                 }
                 
             }
@@ -138,7 +136,7 @@ class ModelBVH {
 
         //Z軸
         for(int i=0;i<V;i++){
-            coor[i] = (Vertex[polygon[i][0]].z+Vertex[polygon[i][1]].z+Vertex[polygon[i][2]].z)/3.0;
+            coor[i] = (Vertex[polygon[i][0]].point.z+Vertex[polygon[i][1]].point.z+Vertex[polygon[i][2]].point.z)/3.0;
         }
         std::sort(coor.begin(),coor.end());
         med = coor[V/2];
@@ -147,25 +145,25 @@ class ModelBVH {
         std::vector<std::array<int,3>> poly_z[2];
         p1={INFF,INFF,INFF},q1 = {-INFF,-INFF,-INFF},p2={INFF,INFF,INFF},q2 = {-INFF,-INFF,-INFF};
         for(int i=0;i<V;i++){
-            if((Vertex[polygon[i][0]].z+Vertex[polygon[i][1]].z+Vertex[polygon[i][2]].z)/3.0 < med){
+            if((Vertex[polygon[i][0]].point.z+Vertex[polygon[i][1]].point.z+Vertex[polygon[i][2]].point.z)/3.0 < med){
                 poly_z[0].push_back(polygon[i]);
                 for(int j=0;j<3;j++){
-                    p1.x = std::min(p1.x,Vertex[polygon[i][j]].x);
-                    p1.y = std::min(p1.y,Vertex[polygon[i][j]].y);
-                    p1.z = std::min(p1.z,Vertex[polygon[i][j]].z);
-                    q1.x = std::max(q1.x,Vertex[polygon[i][j]].x);
-                    q1.y = std::max(q1.y,Vertex[polygon[i][j]].y);
-                    q1.z = std::max(q1.z,Vertex[polygon[i][j]].z);
+                    p1.x = std::min(p1.x,Vertex[polygon[i][j]].point.x);
+                    p1.y = std::min(p1.y,Vertex[polygon[i][j]].point.y);
+                    p1.z = std::min(p1.z,Vertex[polygon[i][j]].point.z);
+                    q1.x = std::max(q1.x,Vertex[polygon[i][j]].point.x);
+                    q1.y = std::max(q1.y,Vertex[polygon[i][j]].point.y);
+                    q1.z = std::max(q1.z,Vertex[polygon[i][j]].point.z);
                 }
             }else{
                 poly_z[1].push_back(polygon[i]);
                 for(int j=0;j<3;j++){
-                    p2.x = std::min(p2.x,Vertex[polygon[i][j]].x);
-                    p2.y = std::min(p2.y,Vertex[polygon[i][j]].y);
-                    p2.z = std::min(p2.z,Vertex[polygon[i][j]].z);
-                    q2.x = std::max(q2.x,Vertex[polygon[i][j]].x);
-                    q2.y = std::max(q2.y,Vertex[polygon[i][j]].y);
-                    q2.z = std::max(q2.z,Vertex[polygon[i][j]].z);
+                    p2.x = std::min(p2.x,Vertex[polygon[i][j]].point.x);
+                    p2.y = std::min(p2.y,Vertex[polygon[i][j]].point.y);
+                    p2.z = std::min(p2.z,Vertex[polygon[i][j]].point.z);
+                    q2.x = std::max(q2.x,Vertex[polygon[i][j]].point.x);
+                    q2.y = std::max(q2.y,Vertex[polygon[i][j]].point.y);
+                    q2.z = std::max(q2.z,Vertex[polygon[i][j]].point.z);
                 }
                 
             }
@@ -183,12 +181,12 @@ class ModelBVH {
         point3 P={INFF,INFF,INFF},Q = {-INFF,-INFF,-INFF};
         for(int i=0;i<V;i++){
             for(int j=0;j<3;j++){
-                P.x = std::min(P.x,Vertex[polygon[i][j]].x);
-                P.y = std::min(P.y,Vertex[polygon[i][j]].y);
-                P.z = std::min(P.z,Vertex[polygon[i][j]].z);
-                Q.x = std::max(Q.x,Vertex[polygon[i][j]].x);
-                Q.y = std::max(Q.y,Vertex[polygon[i][j]].y);
-                Q.z = std::max(Q.z,Vertex[polygon[i][j]].z);
+                P.x = std::min(P.x,Vertex[polygon[i][j]].point.x);
+                P.y = std::min(P.y,Vertex[polygon[i][j]].point.y);
+                P.z = std::min(P.z,Vertex[polygon[i][j]].point.z);
+                Q.x = std::max(Q.x,Vertex[polygon[i][j]].point.x);
+                Q.y = std::max(Q.y,Vertex[polygon[i][j]].point.y);
+                Q.z = std::max(Q.z,Vertex[polygon[i][j]].point.z);
             }
         }
 
@@ -226,7 +224,7 @@ class ModelBVH {
 
     public:
     
-    void construct(std::vector<point3> vertex,std::vector<std::array<int,3>> polygon){
+    void construct(std::vector<vert> vertex,std::vector<std::array<int,3>> polygon){
         Vertex = vertex;
         Node.clear();
         Node.resize(1);
@@ -238,16 +236,17 @@ class ModelBVH {
 
         if(Node[index].isLeaf){
             tri3 tri;
-            tri.vertex[0] = Vertex[Node[index].triangle[0]],tri.vertex[1] = Vertex[Node[index].triangle[1]],tri.vertex[2] = Vertex[Node[index].triangle[2]];
-            std::pair<bool,point3> P = intersectTriangle(o,d,tri);
-            if(!P.first){
+            tri.vertex[0] = Vertex[Node[index].triangle[0]].point,tri.vertex[1] = Vertex[Node[index].triangle[1]].point,tri.vertex[2] = Vertex[Node[index].triangle[2]].point;
+            rayHit P = intersectTriangle(o,d,tri);
+            if(!P.isHit){
                 return {false,{INFF,INFF,INFF},-1,{0,0,0}};
             }
             return {
-                P.first,
-                P.second,
+                P.isHit,
+                P.point,
                 index,
-                normalVector({Vertex[Node[index].triangle[0]],Vertex[Node[index].triangle[1]],Vertex[Node[index].triangle[2]]})
+                P.normal
+                //normalVector({Vertex[Node[index].triangle[0]].point,Vertex[Node[index].triangle[1]].point,Vertex[Node[index].triangle[2]].point})
             };
         }
 

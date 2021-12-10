@@ -63,6 +63,14 @@ float map(vec3 pos) {
   return length(pos) - 10.0;
 }
 
+vec3 VtoP(point3 S){
+  return {S.x,S.y,S.z};
+}
+
+point3 PtoV(vec3 S){
+  return {S.x,S.y,S.z};
+}
+
 color rayCast(vec3 ori, vec3 dir) {
   vec3 pos = ori;
   float dist = 0;

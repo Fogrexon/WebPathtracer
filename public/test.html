@@ -12,7 +12,7 @@
     const wasmManager = new PathTracer.WasmManager('../build/wasm/main.wasm');
     wasmManager.addEventListener('initialized', () => {
       const gltfModel = new PathTracer.GLTFLoader();
-      gltfModel.load('rot_cube3.gltf').then(() => {
+      gltfModel.load('monkey.gltf').then(() => {
         const renderer = new PathTracer.Renderer(wasmManager, gltfModel);
 
         let rotate = 0;
