@@ -1,6 +1,8 @@
 import { Model } from '../model/Model';
 import { WasmBuffer } from '../wasm/WasmBuffer';
 import { WasmManager } from '../wasm/WasmManager';
+import { Camera } from '../camera/camera';
+import { Vector3 } from '../..';
 
 /**
  * Image renderer. pass model and render image.
@@ -23,6 +25,8 @@ export class Renderer {
 
   private pixelData: WasmBuffer | null = null;
 
+  private camera: Camera;
+
   /**
    * Creates an instance of Renderer.
    * @param {WasmManager} wasmManager
@@ -31,6 +35,7 @@ export class Renderer {
    */
   constructor(wasmManager: WasmManager, model: Model) {
     this.model = model;
+    this.camera = new Camera(1.0, new Vector3(0.0, 0.0, 0.0));
     this.wasmManager = wasmManager;
   }
 
