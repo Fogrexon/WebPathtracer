@@ -10,8 +10,8 @@ namespace Raytracer {
 
       Vec3 Le() const {
         return color;
-      }
-  }
+      };
+  };
 }
 
 #endif

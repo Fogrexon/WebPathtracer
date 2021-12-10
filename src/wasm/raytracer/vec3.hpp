@@ -22,6 +22,35 @@ namespace Raytracer {
       double length2() const {
         return x*x + y*y + z*z;
       };
+  
+      Vec3 operator-() const {
+        return Vec3(-x, -y, -z);
+      };
+
+      Vec3& operator+=(const Vec3& v) {
+        x += v.x;
+        y += v.y;
+        z += v.z;
+        return *this;
+      };
+      Vec3& operator-=(const Vec3& v) {
+        x -= v.x;
+        y -= v.y;
+        z -= v.z;
+        return *this;
+      };
+      Vec3& operator*=(const Vec3& v) {
+        x *= v.x;
+        y *= v.y;
+        z *= v.z;
+        return *this;
+      };
+      Vec3& operator/=(const Vec3& v) {
+        x /= v.x;
+        y /= v.y;
+        z /= v.z;
+        return *this;
+      };
 
       point3 toPoint3() const {
         return point3{x, y, z};
@@ -80,11 +109,12 @@ namespace Raytracer {
     return Vec3(k / v.x, k / v.y, k / v.z);
   }
 
+  // utils
   double dot(const Vec3 &v1, const Vec3 &v2) {
     return v1.x * v2.x + v1.y * v2.y + v1.z * v2.z;
   }
 
-  Vec3 cross(Vec3 &v1, Vec3 &v2) {
+  Vec3 cross(const Vec3 &v1, const Vec3 &v2) {
     return Vec3(
       v1.y * v2.z - v1.z * v2.y,
       v1.z * v2.x - v1.x * v2.z,
@@ -96,12 +126,20 @@ namespace Raytracer {
     return v / v.length();
   }
 
+  void orthonormalBasis(const Vec3& v1, Vec3& v2, Vec3& v3) {
+    if(std::abs(v1.x) > 0.9) v2 = Vec3(0, 1, 0);
+    else v2 = Vec3(1, 0, 0);
+
+    v2 = normalize(v2 - dot(v1, v2) * v1);
+    v3 = cross(v1, v2);
+  }
+
   Vec3 reflect(const Vec3 &iv, const Vec3 &n) {
     return iv - 2.0 * dot(iv, n) * n;
   }
 
   Vec3 worldToLocal(const Vec3& v, const Vec3& s, const Vec3& t, const Vec3& n) {
-    returnVec3(dot(v, s), doc(v, t), dot(v, n));
+    return Vec3(dot(v, s), dot(v, t), dot(v, n));
   }
 
   Vec3 localToWorld(const Vec3& v, const Vec3& s, const Vec3& t, const Vec3& n) {
@@ -109,7 +147,7 @@ namespace Raytracer {
     Vec3 b = Vec3(s.y, n.y, t.y);
     Vec3 c = Vec3(s.z, n.z, t.z);
 
-    return Vec3(dot(v, a), dot(v, b), dot(v, z));
+    return Vec3(dot(v, a), dot(v, b), dot(v, c));
   }
 
   double cosTheta(const Vec3& localv) {

@@ -6,10 +6,10 @@
 namespace Raytracer {
   class Ray {
     public:
-      Vec3 origin;
-      Vec3 direction;
+      Vec3 pos;
+      Vec3 dir;
 
-      Ray(Vec3 _origin, Vec3 _direction): origin(_origin), direction(_direction) {};
+      Ray(Vec3 _pos, Vec3 _dir): pos(_pos), dir(_dir) {};
   };
 }
 

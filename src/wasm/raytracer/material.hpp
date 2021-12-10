@@ -1,13 +1,13 @@
 #ifndef RAYTRACER_MATERIAL_HPP
 #define RAYTRACER_MATERIAL_HPP
 
-#define M_PI 3.14159265358979
+#include "random.hpp"
 
 namespace Raytracer {
   class Material {
     public:
       virtual Vec3 sample(const Vec3& wo, Vec3& wi, double &pdf) const = 0;
-  }
+  };
 
   class Diffuse : public Material {
     public:
@@ -15,7 +15,7 @@ namespace Raytracer {
 
       Diffuse(const Vec3& _rho) : rho(_rho) {};
 
-      vec3 sample(const Vec3 &wo, Vec3 &wi, double &pdf) const {
+      Vec3 sample(const Vec3 &wo, Vec3 &wi, double &pdf) const {
         double u = rnd();
         double v = rnd();
 
@@ -31,8 +31,8 @@ namespace Raytracer {
         pdf = std::cos(theta)/M_PI;
 
         return rho / M_PI;
-      }
-  }
+      };
+  };
 }
 
 #endif
