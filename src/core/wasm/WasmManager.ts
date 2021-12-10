@@ -50,6 +50,10 @@ export class WasmManager extends EventTarget {
     return this.callFunction('createBounding', ...args);
   }
 
+  public callSetCamera(...args: (number | WasmBuffer)[]) {
+    return this.callFunction('setCamera', ...args);
+  }
+
   public callFunction(funcname: string, ...args: (number | WasmBuffer)[]) {
     const rawArgs = args.map((v) => (v instanceof WasmBuffer ? v.getPointer() : v));
     const argTypes = args.map((v) => (v instanceof WasmBuffer ? 'pointer' : 'number'));

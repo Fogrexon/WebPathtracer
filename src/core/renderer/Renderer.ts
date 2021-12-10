@@ -24,6 +24,8 @@ export class Renderer {
   private texcoord: WasmBuffer| null = null;
 
   private pixelData: WasmBuffer | null = null;
+  
+  private cameraBuf: WasmBuffer | null = null;
 
   /**
    * Creates an instance of Renderer.
@@ -72,7 +74,7 @@ export class Renderer {
    * @return {*}  {number}
    * @memberof Renderer
    */
-  public render(canvas: HTMLCanvasElement, camera: Camera | null = null): number {
+  public render(canvas: HTMLCanvasElement, camera: Camera): number {
     const { width, height } = canvas;
 
     const ctx = canvas.getContext('2d');
@@ -90,6 +92,10 @@ export class Renderer {
       this.pixelData = null;
     } 
     if (!this.pixelData) this.pixelData = this.wasmManager.createBuffer('i32', imagedata.data.length);
+
+    if (!this.cameraBuf) this.cameraBuf = this.wasmManager.createBuffer('float', 13);
+    this.cameraBuf.setArray(camera.dumpAsArray());
+    this.wasmManager.callSetCamera(this.cameraBuf);
 
     const result = this.wasmManager.callPathTracer(this.pixelData, width, height);
 
@@ -126,6 +132,10 @@ export class Renderer {
     if (this.pixelData) {
       this.pixelData.release();
       this.pixelData = null;
+    }
+    if(this.cameraBuf) {
+      this.cameraBuf.release();
+      this.cameraBuf = null;
     }
   }
 }

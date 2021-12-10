@@ -15,14 +15,19 @@
       
       gltfModel.load('spheres_smooth_floor.gltf').then(() => {
         const renderer = new PathTracer.Renderer(wasmManager, gltfModel);
+        renderer.createBound();
+
+        const cam = new PathTracer.Camera();
 
         let rotate = 0;
         setInterval(() => {
           rotate += Math.PI * 0.1;
-          gltfModel.transform.rotation = (new PathTracer.Quaternion()).angleAxis(rotate, new PathTracer.Vector3(0, 0, 1));
+          // gltfModel.transform.rotation = (new PathTracer.Quaternion()).angleAxis(rotate, new PathTracer.Vector3(0, 0, 1));
 
-          renderer.createBound();
-          renderer.render(document.getElementById('cnv'));
+          cam.pos = new PathTracer.Vector3(0.0, -10.0, 0.0);
+          cam.lookAt(new PathTracer.Vector3(0.0, 0.0, 0.0))
+
+          renderer.render(document.getElementById('cnv'), cam);
         }, 2000);
   
   
