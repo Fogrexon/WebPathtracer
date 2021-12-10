@@ -4,9 +4,6 @@
 #include <emscripten/emscripten.h>
 #include "BVH.hpp"
 #include "raytracer/raytracer.hpp"
-#include "raytracer/vec3.hpp"
-#include "raytracer/color.hpp"
-#include "raytracer/ray.hpp"
 
 int main(int argc, char **argv) {
   printf("Hello WASM World\n");
