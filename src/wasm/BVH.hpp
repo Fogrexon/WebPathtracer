@@ -18,7 +18,7 @@ class ModelBVH {
         point3 Box_m,Box_M; //AABBの対角線上の2頂点
         bool isLeaf; //葉ならtrue、子を持つならfalse
         std::array<int,2> children; //子頂点のインデックス
-        std::array<int,3> triangle; //葉が持っている三角形
+        std::vector<std::array<int,3>> triangle; //葉が持っている三角形
     };
 
     std::vector<point3> Vertex;
@@ -44,7 +44,7 @@ class ModelBVH {
             bvh.Box_m = P;
             bvh.Box_M = Q;
             bvh.isLeaf = true;
-            bvh.triangle = polygon[0];
+            bvh.triangle = {polygon[0]};
             
             Node[index] = bvh;
             return ;
@@ -195,32 +195,41 @@ class ModelBVH {
         BVH bvh;
         bvh.Box_m = P;
         bvh.Box_M = Q;
-        bvh.isLeaf = false;
 
-        int n = Node.size();
-        Node.resize(n+2);
-        bvh.children[0] = n;
-        bvh.children[1] = n+1;
 
         Node[index] = bvh;
 
-        assert(std::min({surx,sury,surz})!=INFF);
-        std::vector<std::tuple<int,double,int>> decide(3);
-        decide[0] = {std::abs((int)poly_x[0].size()-(int)poly_x[1].size()),surx,0};
-        decide[1] = {std::abs((int)poly_y[0].size()-(int)poly_y[1].size()),sury,1};
-        decide[2] = {std::abs((int)poly_z[0].size()-(int)poly_z[1].size()),surz,2};
-        std::sort(decide.begin(),decide.end());
+        //assert(std::min({surx,sury,surz})!=INFF);
+        if(std::min({surx,sury,surz})!=INFF){
+            bvh.isLeaf = false;
+            int n = Node.size();
+            Node.resize(n+2);
+            bvh.children[0] = n;
+            bvh.children[1] = n+1;
+            Node[index] = bvh;
 
-        if(std::get<2>(decide[0])==0){
-            construct_BVH_internal(poly_x[0],n);
-            construct_BVH_internal(poly_x[1],n+1);
-        }else if(std::get<2>(decide[0])==1){
-            construct_BVH_internal(poly_y[0],n);
-            construct_BVH_internal(poly_y[1],n+1);
+            std::vector<std::tuple<int,double,int>> decide(3);
+            decide[0] = {std::abs((int)poly_x[0].size()-(int)poly_x[1].size()),surx,0};
+            decide[1] = {std::abs((int)poly_y[0].size()-(int)poly_y[1].size()),sury,1};
+            decide[2] = {std::abs((int)poly_z[0].size()-(int)poly_z[1].size()),surz,2};
+            std::sort(decide.begin(),decide.end());
+
+            if(std::get<2>(decide[0])==0){
+                construct_BVH_internal(poly_x[0],n);
+                construct_BVH_internal(poly_x[1],n+1);
+            }else if(std::get<2>(decide[0])==1){
+                construct_BVH_internal(poly_y[0],n);
+                construct_BVH_internal(poly_y[1],n+1);
+            }else{
+                construct_BVH_internal(poly_z[0],n);
+                construct_BVH_internal(poly_z[1],n+1);
+            }
         }else{
-            construct_BVH_internal(poly_z[0],n);
-            construct_BVH_internal(poly_z[1],n+1);
+            bvh.isLeaf = true;
+            bvh.triangle = polygon;
+            Node[index] = bvh;
         }
+        
 
     }
 
@@ -233,22 +242,38 @@ class ModelBVH {
         construct_BVH_internal(polygon,0);
     }
 
+    /*ModelBVH(std::vector<point3> vertex,std::vector<std::array<int,3>> polygon){
+        construct(vertex,polygon);
+    }*/
+
     private:    
     rayHit intersectModel_internal(point3 o,vec3 d,int index){
 
         if(Node[index].isLeaf){
-            tri3 tri;
-            tri.vertex[0] = Vertex[Node[index].triangle[0]],tri.vertex[1] = Vertex[Node[index].triangle[1]],tri.vertex[2] = Vertex[Node[index].triangle[2]];
-            std::pair<bool,point3> P = intersectTriangle(o,d,tri);
-            if(!P.first){
-                return {false,{INFF,INFF,INFF},-1,{0,0,0}};
+
+            rayHit ret = {false,{INFF,INFF,INFF},-1,{0,0,0}};
+            double length = 3*INFF;
+            for(int i=0;i<(int)Node[index].triangle.size();i++){
+                tri3 tri;
+                tri.vertex[0] = Vertex[Node[index].triangle[i][0]],tri.vertex[1] = Vertex[Node[index].triangle[i][1]],tri.vertex[2] = Vertex[Node[index].triangle[i][2]];
+                std::pair<bool,point3> P = intersectTriangle(o,d,tri);
+
+                if(!P.first)continue;
+                double dx = (P.second.x-o.x),dy = (P.second.y-o.y),dz = (P.second.z-o.z);
+                double releng = dx*dx+dy*dy+dz*dz;
+                if(!ret.isHit || (releng < length)){
+                    ret = {
+                        P.first,
+                        P.second,
+                        index,
+                        normalVector({Vertex[Node[index].triangle[i][0]],Vertex[Node[index].triangle[i][1]],Vertex[Node[index].triangle[i][2]]})
+                    };
+                    length = releng;
+                }
+
             }
-            return {
-                P.first,
-                P.second,
-                index,
-                normalVector({Vertex[Node[index].triangle[0]],Vertex[Node[index].triangle[1]],Vertex[Node[index].triangle[2]]})
-            };
+
+            return ret;
         }
 
         int child1 = Node[index].children[0], child2 = Node[index].children[1];
@@ -276,9 +301,7 @@ class ModelBVH {
         if(!col2.isHit){
             return col1;
         }
-        double dx1 = col1.point.x-o.x,dy1 = col1.point.y-o.y,dz1 = col1.point.z-o.z;
-        double dx2 = col2.point.x-o.x,dy2 = col2.point.y-o.y,dz2 = col2.point.z-o.z; 
-        if(dx1*dx1+dy1*dy1+dz1*dz1 <= dx2*dx2+dy2*dy2+dz2*dz2){
+        if(std::abs(col1.point.x-o.x)<=std::abs(col2.point.x-o.x)){
             return col1;
         }else{
             return col2;
