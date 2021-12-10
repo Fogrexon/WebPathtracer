@@ -45,8 +45,8 @@ int EMSCRIPTEN_KEEPALIVE pathTracer(int* a, int width, int height){
     for(int j=-height/2;j<height - height/2;j++){
         for(int i=-width/2;i<width - width/2;i++){
             Raytracer::Vec3 O = C;
-            O.x += (double)(i) / width * 2.0;
-            O.z += (double)(j) / height * 2.0;
+            O.x += (double)(i) / width * 4.0;
+            O.z += (double)(j) / height * 4.0;
 
             Raytracer::Ray ray = Raytracer::Ray(O, d);
 

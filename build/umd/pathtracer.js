@@ -825,7 +825,7 @@
 
         for (let i = 0; i < this._normal.length; i += 3) {
           const pos = new Vector4(this._normal[i + 0], this._normal[i + 1], this._normal[i + 2], 1.0);
-          const newPos = rot.multiply(pos);
+          const newPos = rot.multiply(pos).normalize();
           normal[i + 0] = newPos.x;
           normal[i + 1] = newPos.y;
           normal[i + 2] = newPos.z;

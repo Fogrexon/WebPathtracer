@@ -136,7 +136,7 @@ export abstract class Model {
         1.0
       );
 
-      const newPos = rot.multiply(pos) as Vector4;
+      const newPos = (rot.multiply(pos) as Vector4).normalize();
 
       normal[i + 0] = newPos.x;
       normal[i + 1] = newPos.y;

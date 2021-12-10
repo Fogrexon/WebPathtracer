@@ -34,6 +34,7 @@ namespace Raytracer {
       if (hit.isHit) {
         Vec3 point = Vec3(hit.point.x, hit.point.y, hit.point.z);
         Vec3 normal = normalize(Vec3(hit.normal.x, hit.normal.y, hit.normal.z));
+        assert(0.999 < normal.length() && normal.length() < 1.00001);
         result.rgb = normal * 0.5 + 0.5;
         break;
 
@@ -45,7 +46,9 @@ namespace Raytracer {
 
     return result;
   };
+
   #else
+
   Color raytrace(Ray& init_ray, ModelBVH& bvh) {
 
     Ray ray = init_ray;
