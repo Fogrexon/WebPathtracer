@@ -1,12 +1,11 @@
 #include "raytracer/vec3.hpp"
 
 class camera {
-  int w, h;
   double dist;
   Raytracer::Vec3 pos, to;
   Raytracer::Vec3 camUp;
 public:
-  camera(int _w, int _h, double _dist) : w(_w), h(_h), dist(_dist) {}
+  camera(double _dist) : dist(_dist) {}
   void setPos(Raytracer::Vec3 _pos) { pos = _pos; }
   void lookAt(Raytracer::Vec3 _to) { to = _to; }
   
