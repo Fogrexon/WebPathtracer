@@ -30,6 +30,9 @@ struct rayHit{
     point3 point;
     int index;
     vec3 normal;
+    double u;
+    double v;
+    point3 texcoord;
 };
 
 //3次元正方行列[a,b,c]の行列式をSarrusの方法で求める
@@ -79,7 +82,7 @@ rayHit intersectTriangle(point3 o,vec3 d,tri3 T){
 
     double det = determinant(d,e2,e1);
     if(std::abs(det) < EPS){
-        return {false,{INFF,INFF,INFF},-1,{0,0,0}};
+        return {false,{INFF,INFF,INFF},-1,{0,0,0},-1,-1,{INFF,INFF,INFF}};
     }
 
     double f = 1/det;
@@ -89,14 +92,17 @@ rayHit intersectTriangle(point3 o,vec3 d,tri3 T){
     double v = f * determinant(r,e1,d);
 
     if(t<0 || u<0 || v<0 || u+v>1){
-        return {false,{INFF,INFF,INFF},-1,{0,0,0}};
+        return {false,{INFF,INFF,INFF},-1,{0,0,0},-1,-1,{INFF,INFF,INFF}};
     }
 
     return {
         true,
         {o.x+t*d.x, o.y+t*d.y, o.z+t*d.z},
         -1,
-        {v0.x + u*e1.x + v*e2.x, v0.y + u*e1.y + v*e2.y, v0.z + u*e1.z + v*e2.z}
+        {v0.x + u*e1.x + v*e2.x, v0.y + u*e1.y + v*e2.y, v0.z + u*e1.z + v*e2.z},
+        u,
+        v,
+        {INFF,INFF,INFF}
     };
 }
 
