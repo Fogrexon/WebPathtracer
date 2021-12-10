@@ -4,6 +4,9 @@
 #include <emscripten/emscripten.h>
 #include "BVH.hpp"
 #include "raytracer/raytracer.hpp"
+#include "raytracer/vec3.hpp"
+#include "raytracer/color.hpp"
+#include "raytracer/ray.hpp"
 
 int main(int argc, char **argv) {
   printf("Hello WASM World\n");
@@ -15,11 +18,13 @@ extern "C" {
 
 ModelBVH bvh;
 
-int EMSCRIPTEN_KEEPALIVE createBounding(float* position, int posCount, int* indicies, int indexCount) {
-  std::vector<point3> vertex;
+int EMSCRIPTEN_KEEPALIVE createBounding(float* position, int posCount, int* indicies, int indexCount, float* normal, int normCount, float* texCoord, int texCoordCount) {
+  std::vector<vert> vertex;
+  assert(posCount==normCount);
   for (int i=0;i<posCount * 3;i += 3) {
     point3 p{(double)position[i+0], (double)position[i+1], (double)position[i+2]};
-    vertex.push_back(p);
+    vec3 n{(double)normal[i+0], (double)normal[i+1], (double)normal[i+2]};
+    vertex.push_back({p,n});
   }
   
   std::vector<std::array<int,3>> polygon;

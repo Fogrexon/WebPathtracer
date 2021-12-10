@@ -28,6 +28,13 @@ struct tri3{
     std::array<point3,3> vertex;
 };
 
+struct rayHit{
+    bool isHit;
+    point3 point;
+    int index;
+    vec3 normal;
+};
+
 //3次元正方行列[a,b,c]の行列式をSarrusの方法で求める
 //TODO:誤差にやさしい形式で実装したい
 double determinant(vec3 a, vec3 b, vec3 c){
@@ -65,7 +72,7 @@ vec3 normalVector(tri3 T) {
 
 //rayの始点oと向きd、三角形Tを与えると、Tの内部または境界にrayが
 //当たるかを判定し、当たらないならfalseを、当たるならtrueとそのポイントを返す
-std::pair<bool,point3> intersectTriangle(point3 o,vec3 d,tri3 T){
+rayHit intersectTriangle(point3 o,vec3 d,tri3 T){
 
     //point3 v0 = T[0],v1 = T[1],v2 = T[2];
     point3 v0 = T.vertex[0],v1 = T.vertex[1],v2 = T.vertex[2];
@@ -75,7 +82,7 @@ std::pair<bool,point3> intersectTriangle(point3 o,vec3 d,tri3 T){
 
     double det = determinant(d,e2,e1);
     if(std::abs(det) < EPS){
-        return {false,{INFF,INFF,INFF}};
+        return {false,{INFF,INFF,INFF},-1,{0,0,0}};
     }
 
     double f = 1/det;
@@ -85,12 +92,15 @@ std::pair<bool,point3> intersectTriangle(point3 o,vec3 d,tri3 T){
     double v = f * determinant(r,e1,d);
 
     if(t<0 || u<0 || v<0 || u+v>1){
-        return {false,{INFF,INFF,INFF}};
+        return {false,{INFF,INFF,INFF},-1,{0,0,0}};
     }
-    
-    point3 h = {o.x+t*d.x, o.y+t*d.y, o.z+t*d.z};
 
-    return {true,h};
+    return {
+        true,
+        {o.x+t*d.x, o.y+t*d.y, o.z+t*d.z},
+        -1,
+        {v0.x + u*e1.x + v*e2.x, v0.y + u*e1.y + v*e2.y, v0.z + u*e1.z + v*e2.z}
+    };
 }
 
 //rayの始点oと向きd、p,qを対角線上にもつ直方体Bを与えると、Bの内部(または境界)にrayが
