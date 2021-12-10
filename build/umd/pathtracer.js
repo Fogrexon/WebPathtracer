@@ -2021,6 +2021,10 @@
         return (Module._createBounding = Module.asm.createBounding).apply(null, arguments);
       };
 
+      Module._setCamera = function () {
+        return (Module._setCamera = Module.asm.setCamera).apply(null, arguments);
+      };
+
       Module._pathTracer = function () {
         return (Module._pathTracer = Module.asm.pathTracer).apply(null, arguments);
       };
