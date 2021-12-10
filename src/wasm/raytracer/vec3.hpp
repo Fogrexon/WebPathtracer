@@ -99,6 +99,22 @@ namespace Raytracer {
   Vec3 reflect(const Vec3 &iv, const Vec3 &n) {
     return iv - 2.0 * dot(iv, n) * n;
   }
+
+  Vec3 worldToLocal(const Vec3& v, const Vec3& s, const Vec3& t, const Vec3& n) {
+    returnVec3(dot(v, s), doc(v, t), dot(v, n));
+  }
+
+  Vec3 localToWorld(const Vec3& v, const Vec3& s, const Vec3& t, const Vec3& n) {
+    Vec3 a = Vec3(s.x, n.x, t.x);
+    Vec3 b = Vec3(s.y, n.y, t.y);
+    Vec3 c = Vec3(s.z, n.z, t.z);
+
+    return Vec3(dot(v, a), dot(v, b), dot(v, z));
+  }
+
+  double cosTheta(const Vec3& localv) {
+    return localv.y;
+  }
 }
 
 
