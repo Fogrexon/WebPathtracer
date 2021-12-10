@@ -63,21 +63,6 @@ export class Renderer {
     );
   }
 
-  public setTexture(texture: typeof Image | HTMLImageElemet) {
-    const canvas = document.createElement('canvas');
-    canvas.width = 1024;
-    canvas.height = 1024;
-    const ctx = canvas.getContext('2d');
-
-    if(!ctx) throw new Error('cannot get canvas rendering context');
-
-    ctx.drawImage(texture, 0, 0, 1024, 1024);
-    const imageData = ctx.getImageData(0, 0, 1024, 1024);
-    const pixels = imageData.data;
-
-    // TODO pixelsをうまいことwasmに転送する
-  }
-
   /**
    * Render image to canvas
    *

@@ -17,7 +17,6 @@ ModelBVH bvh;
 int EMSCRIPTEN_KEEPALIVE createBounding(float* position, int posCount, int* indicies, int indexCount, float* normal, int normCount, float* texCoord, int texCoordCount) {
   std::vector<vert> vertex;
   assert(posCount==normCount);
-  assert(posCount==texCoordCount);
   for (int i=0;i<posCount * 3;i += 3) {
     point3 p{(double)position[i+0], (double)position[i+1], (double)position[i+2]};
     vec3 n{(double)normal[i+0], (double)normal[i+1], (double)normal[i+2]};
@@ -28,12 +27,6 @@ int EMSCRIPTEN_KEEPALIVE createBounding(float* position, int posCount, int* indi
   for (int i=0;i<indexCount * 3;i += 3) {
     std::array<int, 3> p{indicies[i+0], indicies[i+1], indicies[i+2]};
     polygon.push_back(p);
-  }
-
-  std::vector<tri3> texcoord;
-  for (int i=0;i<texCoordCount * 3;i += 3) {
-    tri3 t{texCoord[i+0], texCoord[i+1], texCoord[i+2]};
-    texcoord.push_back(t);
   }
 
     //   std::vector<point3> vertex = {
@@ -74,7 +67,7 @@ int EMSCRIPTEN_KEEPALIVE createBounding(float* position, int posCount, int* indi
     //     {7,8,9},
     // };
 
-  bvh.construct(vertex, polygon, texcoord);
+  bvh.construct(vertex, polygon);
 
   return 0;
 }

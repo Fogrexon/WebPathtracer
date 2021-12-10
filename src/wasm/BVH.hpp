@@ -21,7 +21,6 @@ class ModelBVH {
 
     std::vector<vert> Vertex;
     std::vector<BVH> Node;
-    std::vector<tri3> TexCoord;
 
     void construct_BVH_internal(std::vector<std::array<int,3>> polygon,int index){
 
@@ -225,11 +224,10 @@ class ModelBVH {
 
     public:
     
-    void construct(std::vector<vert> vertex,std::vector<std::array<int,3>> polygon,std::vector<tri3> texcoord){
+    void construct(std::vector<vert> vertex,std::vector<std::array<int,3>> polygon){
         Vertex = vertex;
         Node.clear();
         Node.resize(1);
-        TexCoord = texcoord;
         construct_BVH_internal(polygon,0);
     }
 
@@ -243,11 +241,21 @@ class ModelBVH {
             if(!P.isHit){
                 return {false,{INFF,INFF,INFF},-1,{0,0,0},-1,-1,{INFF,INFF,INFF}};
             }
+            vec3 n0 = Vertex[Node[index].triangle[0]].norm, n1 = Vertex[Node[index].triangle[1]].norm, n2 = Vertex[Node[index].triangle[2]].norm;
+
+            double zu = P.u,zv = P.v,zw = 1.0-P.u-P.v;
+            vec3 Z = {zw*zw,zu*zu,zv*zv};
+            double Zl = Z.x+Z.y+Z.z;
+            double w = Z.x/Zl,u = Z.y/Zl,v = Z.z/Zl;
             return {
                 P.isHit,
                 P.point,
                 index,
-                P.normal,
+                normalize({
+                    w*n0.x + u*n1.x + v*n2.x,
+                    w*n0.y + u*n1.y + v*n2.y,
+                    w*n0.z + u*n1.z + v*n2.z,
+                }),
                 P.u,
                 P.v,
                 {

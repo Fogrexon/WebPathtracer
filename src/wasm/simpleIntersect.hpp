@@ -99,7 +99,7 @@ rayHit intersectTriangle(point3 o,vec3 d,tri3 T){
         true,
         {o.x+t*d.x, o.y+t*d.y, o.z+t*d.z},
         -1,
-        {v0.x + u*e1.x + v*e2.x, v0.y + u*e1.y + v*e2.y, v0.z + u*e1.z + v*e2.z},
+        normalVector(T),
         u,
         v,
         {INFF,INFF,INFF}
