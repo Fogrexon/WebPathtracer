@@ -15,6 +15,8 @@
       model;
       position = null;
       indicies = null;
+      normal = null;
+      texcoord = null;
       pixelData = null;
       /**
        * Creates an instance of Renderer.
@@ -38,9 +40,13 @@
       createBound() {
         if (!this.position) this.position = this.wasmManager.createBuffer('float', this.model.position.length);
         if (!this.indicies) this.indicies = this.wasmManager.createBuffer('i32', this.model.indicies.length);
+        if (!this.normal) this.normal = this.wasmManager.createBuffer('float', this.model.normal.length);
+        if (!this.texcoord) this.texcoord = this.wasmManager.createBuffer('float', this.model.texcoord.length);
         this.position.setArray(this.model.position);
         this.indicies.setArray(this.model.indicies);
-        return this.wasmManager.callCreateBounding(this.position, this.model.position.length / 3, this.indicies, this.model.indicies.length / 3);
+        this.normal.setArray(this.model.normal);
+        this.texcoord.setArray(this.model.texcoord);
+        return this.wasmManager.callCreateBounding(this.position, this.model.position.length / 3, this.indicies, this.model.indicies.length / 3, this.normal, this.model.normal.length / 3, this.texcoord, this.model.texcoord.length / 2);
       }
       /**
        * Render image to canvas
