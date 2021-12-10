@@ -1,3 +1,6 @@
+#ifndef BVH_HPP
+#define BVH_HPP
+
 #include "simpleIntersect.hpp"
 
 struct vert{
@@ -312,3 +315,5 @@ class ModelBVH {
     }
 
 };
+
+#endif

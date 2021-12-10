@@ -1,3 +1,6 @@
+#ifndef SIMPLEINTERSECT_HPP
+#define SIMPLEINTERSECT_HPP
+
 #include <vector>
 #include <array>
 #include <tuple>
@@ -156,3 +159,5 @@ std::pair<bool,point3> intersectBox(point3 o,vec3 d,point3 p,point3 q){
     return {true,h};
 
 }
+
+#endif
