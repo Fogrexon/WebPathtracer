@@ -57,7 +57,7 @@
        */
 
 
-      render(canvas) {
+      render(canvas, camera = null) {
         const {
           width,
           height

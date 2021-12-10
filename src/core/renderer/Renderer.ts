@@ -1,7 +1,7 @@
 import { Model } from '../model/Model';
 import { WasmBuffer } from '../wasm/WasmBuffer';
 import { WasmManager } from '../wasm/WasmManager';
-import { Camera } from '../camera/camera';
+import { Camera } from '../camera/Camera';
 import { Vector3 } from '../..';
 
 /**
@@ -25,8 +25,6 @@ export class Renderer {
 
   private pixelData: WasmBuffer | null = null;
 
-  private camera: Camera;
-
   /**
    * Creates an instance of Renderer.
    * @param {WasmManager} wasmManager
@@ -35,7 +33,6 @@ export class Renderer {
    */
   constructor(wasmManager: WasmManager, model: Model) {
     this.model = model;
-    this.camera = new Camera(1.0, new Vector3(0.0, 0.0, 0.0));
     this.wasmManager = wasmManager;
   }
 
@@ -75,7 +72,7 @@ export class Renderer {
    * @return {*}  {number}
    * @memberof Renderer
    */
-  public render(canvas: HTMLCanvasElement): number {
+  public render(canvas: HTMLCanvasElement, camera: Camera | null = null): number {
     const { width, height } = canvas;
 
     const ctx = canvas.getContext('2d');
