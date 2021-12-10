@@ -2288,6 +2288,70 @@
 
     }
 
+    class Camera {
+      _pos;
+      _forward;
+      _top;
+      _dist;
+
+      constructor(viewAngle) {
+        this._pos = new Vector3(0.0, 0.0, 0.0);
+        this._forward = new Vector3(1.0, 0.0, 0.0);
+        this._top = new Vector3(0.0, 1.0, 0.0);
+        this._dist = 0.5 / Math.tan(viewAngle / 2);
+      }
+
+      get pos() {
+        return this._pos;
+      }
+
+      set pos(pos) {
+        this._pos = pos;
+      }
+
+      get forward() {
+        return this._forward;
+      }
+
+      set forward(forward) {
+        this._forward = forward.normalize();
+
+        const right = this._forward.cross(this._top);
+
+        this._top = right.cross(this._forward).normalize();
+      }
+
+      get top() {
+        return this._top;
+      }
+
+      set top(top) {
+        this._top = top.normalize();
+
+        const right = this._forward.cross(this._top);
+
+        this._forward = this._top.cross(right).normalize();
+      }
+
+      get dist() {
+        return this._dist;
+      }
+
+      set dist(dist) {
+        this._dist = dist;
+      }
+
+      get viewAngle() {
+        return 2 * Math.atan(0.5 / this._dist);
+      }
+
+      set viewAngle(viewAngle) {
+        this._dist = 0.5 / Math.tan(viewAngle / 2);
+      }
+
+    }
+
+    exports.Camera = Camera;
     exports.GLTFLoader = GLTFLoader;
     exports.Matrix4 = Matrix4;
     exports.Model = Model;
