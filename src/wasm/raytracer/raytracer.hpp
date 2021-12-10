@@ -5,11 +5,11 @@
 #include "material.hpp"
 #include "light.hpp"
 
-#define MAX_REFLECT 2
+#define MAX_REFLECT 10
 #define ROULETTE 0.9
 #define DELTA 0.000001
 
-#define RAYTRACER_DEBUG
+// #define RAYTRACER_DEBUG
 
 
 namespace Raytracer {
