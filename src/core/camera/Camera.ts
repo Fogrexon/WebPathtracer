@@ -24,14 +24,18 @@ export class Camera {
     return this._forward;
   }
   set forward(forward: Vector3) {
-    this._forward = forward;
+    this._forward = forward.normalize();
+    const right = this._forward.cross(this._top);
+    this._top = right.cross(this._forward).normalize();
   }
 
   get top(): Vector3 {
     return this._top;
   }
   set top(top: Vector3) {
-    this._top = top;
+    this._top = top.normalize();
+    const right = this._forward.cross(this._top);
+    this._forward = this._top.cross(right).normalize();
   }
 
   get dist(): number {
