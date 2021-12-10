@@ -17,14 +17,13 @@
         const renderer = new PathTracer.Renderer(wasmManager, gltfModel);
         renderer.createBound();
 
-        const cam = new PathTracer.Camera();
+        const cam = new PathTracer.Camera(1.0);
 
         let rotate = 0;
         setInterval(() => {
           rotate += Math.PI * 0.1;
-          // gltfModel.transform.rotation = (new PathTracer.Quaternion()).angleAxis(rotate, new PathTracer.Vector3(0, 0, 1));
 
-          cam.pos = new PathTracer.Vector3(0.0, -10.0, 0.0);
+          cam.pos = new PathTracer.Vector3(4.0 * Math.cos(rotate), 4.0 * Math.sin(rotate), 0.0);
           cam.lookAt(new PathTracer.Vector3(0.0, 0.0, 0.0))
 
           renderer.render(document.getElementById('cnv'), cam);
