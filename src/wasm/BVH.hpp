@@ -1,3 +1,6 @@
+#ifndef BVH_HPP
+#define BVH_HPP
+
 #include "simpleIntersect.hpp"
 
 struct rayHit{
@@ -296,3 +299,5 @@ class ModelBVH {
     }
 
 };
+
+#endif
