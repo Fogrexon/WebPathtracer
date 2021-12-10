@@ -1,134 +1,70 @@
+#include <iostream>
 #include <stdio.h>
 #include <math.h>
 #include <emscripten/emscripten.h>
 #include "BVH.hpp"
+#include "raytracer/raytracer.hpp"
+#include "raytracer/vec3.hpp"
+#include "raytracer/color.hpp"
+#include "raytracer/ray.hpp"
 
 int main(int argc, char **argv) {
   printf("Hello WASM World\n");
-}
-
-/*typedef struct {
-  float x;
-  float y;
-  float z;
-} vec3;*/
-
-typedef struct {
-  float r;
-  float g;
-  float b;
-  float a;
-} color;
-
-float length(vec3 v) {
-  return sqrt(v.x * v.x + v.y * v.y + v.z * v.z);
-}
-
-vec3 normalize(vec3 v) {
-  float len = length(v);
-
-  vec3 norm;
-  norm.x = v.x / len;
-  norm.y = v.y / len;
-  norm.z = v.z / len;
-
-  return norm;
-}
-
-vec3 sub(vec3 a, vec3 b) {
-  vec3 r;
-  r.x = a.x - b.x;
-  r.y = a.y - b.y;
-  r.z = a.z - b.z;
-  return r;
-}
-
-vec3 add(vec3 a, vec3 b) {
-  vec3 r;
-  r.x = a.x + b.x;
-  r.y = a.y + b.y;
-  r.z = a.z + b.z;
-  return r;
-}
-
-vec3 mul(vec3 a, float b) {
-  vec3 r;
-  r.x = a.x * b;
-  r.y = a.y * b;
-  r.z = a.z * b;
-  return r;
-}
-
-float map(vec3 pos) {
-  return length(pos) - 10.0;
-}
-
-vec3 VtoP(point3 S){
-  return {S.x,S.y,S.z};
-}
-
-point3 PtoV(vec3 S){
-  return {S.x,S.y,S.z};
-}
-
-color rayCast(vec3 ori, vec3 dir) {
-  vec3 pos = ori;
-  float dist = 0;
-  color res;
-
-  for(int i=0;i<100;i++) {
-    float d = map(pos);
-    dist += d;
-    pos = add(pos, mul(dir, d));
-    if (d < 0.001) {
-      res.r = exp(- dist / 20.0);
-      res.g = exp(- dist / 20.0);
-      res.b = exp(- dist / 20.0);
-      res.a = 1.0;
-      return res;
-    }
-  }
-
-  res.r = 0.0;
-  res.g = 0.0;
-  res.b = 0.0;
-  res.a = 0.0;
-  return res;
 }
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-void EMSCRIPTEN_KEEPALIVE pathTracer(int* a, int width, int height)
-{
-  for(int y=0;y<height;y++) {
-    printf("loading... : %d\n", 100 * y / height);
-    for(int x=0;x<width;x++) {
-      int base = (y * width + x) * 4;
+ModelBVH bvh;
 
-      vec3 pos;
-      pos.x = 0.0;
-      pos.y = 0.0;
-      pos.z = 30.0;
-
-      vec3 dir;
-      dir.x = (float)x / (float)width - 0.5;
-      dir.y = (float)y / (float)height - 0.5;
-      dir.z = -1.0;
-
-      dir = normalize(dir);
-
-      color col = rayCast(pos, dir);
-
-      a[base+0] = col.r * 256;
-      a[base+1] = col.g * 256;
-      a[base+2] = col.b * 256;
-      a[base+3] = 256;
-    }
+int EMSCRIPTEN_KEEPALIVE createBounding(float* position, int posCount, int* indicies, int indexCount, float* normal, int normCount, float* texCoord, int texCoordCount) {
+  std::vector<vert> vertex;
+  assert(posCount==normCount);
+  for (int i=0;i<posCount * 3;i += 3) {
+    point3 p{(double)position[i+0], (double)position[i+1], (double)position[i+2]};
+    vec3 n{(double)normal[i+0], (double)normal[i+1], (double)normal[i+2]};
+    vertex.push_back({p,n});
+  }
+  
+  std::vector<std::array<int,3>> polygon;
+  for (int i=0;i<indexCount * 3;i += 3) {
+    std::array<int, 3> p{indicies[i+0], indicies[i+1], indicies[i+2]};
+    polygon.push_back(p);
   }
 
-  
+  bvh.construct(vertex, polygon);
+
+  return 0;
+}
+
+int EMSCRIPTEN_KEEPALIVE pathTracer(int* a, int width, int height){
+    
+    Raytracer::Vec3 C(0,-10,0);
+    Raytracer::Vec3 d(0,1,0);
+
+    int index = 0;
+
+    for(int j=-height/2;j<height - height/2;j++){
+        for(int i=-width/2;i<width - width/2;i++){
+            Raytracer::Vec3 O = C;
+            O.x += (double)(i) / width * 2.0;
+            O.z += (double)(j) / height * 2.0;
+
+            Raytracer::Ray ray = Raytracer::Ray(O, d);
+
+
+            Raytracer::Color result = Raytracer::raytrace(ray, bvh);
+
+              a[index * 4 + 0] = result.rgb.x * 255;
+              a[index * 4 + 1] = result.rgb.y * 255;
+              a[index * 4 + 2] = result.rgb.z * 255;
+              a[index * 4 + 3] = 255;
+            index ++;
+        }
+    }
+    
+    return 0;
 }
 
 #ifdef __cplusplus

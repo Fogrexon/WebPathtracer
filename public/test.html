@@ -12,19 +12,21 @@
     const wasmManager = new PathTracer.WasmManager('../build/wasm/main.wasm');
     wasmManager.addEventListener('initialized', () => {
       const gltfModel = new PathTracer.GLTFLoader();
-      gltfModel.load('monkey.gltf').then(() => {
+      
+      gltfModel.load('spheres_smooth_floor.gltf').then(() => {
         const renderer = new PathTracer.Renderer(wasmManager, gltfModel);
 
         let rotate = 0;
         setInterval(() => {
           rotate += Math.PI * 0.1;
-          gltfModel.transform.rotation = (new PathTracer.Quaternion()).angleAxis(rotate, new PathTracer.Vector3(1, 0, 0));
+          gltfModel.transform.rotation = (new PathTracer.Quaternion()).angleAxis(rotate, new PathTracer.Vector3(0, 0, 1));
+
           renderer.createBound();
           renderer.render(document.getElementById('cnv'));
-        }, 100);
+        }, 2000);
   
   
-        renderer.release();
+        // renderer.release();
       });
     });
   </script>
