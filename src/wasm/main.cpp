@@ -7,6 +7,7 @@
 #include "raytracer/vec3.hpp"
 #include "raytracer/color.hpp"
 #include "raytracer/ray.hpp"
+#include "camera.hpp"
 
 int main(int argc, char **argv) {
   printf("Hello WASM World\n");
@@ -17,6 +18,7 @@ extern "C" {
 #endif
 
 ModelBVH bvh;
+camera cam;
 
 int EMSCRIPTEN_KEEPALIVE createBounding(float* position, int posCount, int* indicies, int indexCount, float* normal, int normCount, float* texCoord, int texCoordCount) {
   std::vector<vert> vertex;
@@ -40,19 +42,20 @@ int EMSCRIPTEN_KEEPALIVE createBounding(float* position, int posCount, int* indi
 
 int EMSCRIPTEN_KEEPALIVE pathTracer(int* a, int width, int height){
     
-    Raytracer::Vec3 C(0,-10,0);
+    Raytracer::Vec3 C(0,-3,0);
     Raytracer::Vec3 d(0,1,0);
 
     int index = 0;
 
+    cam.pos = C;
+    cam.forward = Raytracer::Vec3{0, 1, 0};
+    cam.camUp = Raytracer::Vec3{0, 0, 1};
+    cam.camRight = Raytracer::Vec3{1, 0, 0};
+
     for(int j=-height/2;j<height - height/2;j++){
         for(int i=-width/2;i<width - width/2;i++){
-            Raytracer::Vec3 O = C;
-            O.x += (double)(i) / width * 2.0;
-            O.z += (double)(j) / height * 2.0;
-
-            Raytracer::Ray ray = Raytracer::Ray(O, d);
-
+            // heightを1とした正規化
+            Raytracer::Ray ray = cam.getRay(double(i) / height, double(j) / height);
 
             Raytracer::Color result = Raytracer::raytrace(ray, bvh);
 
