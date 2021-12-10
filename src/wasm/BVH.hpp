@@ -242,13 +242,30 @@ class ModelBVH {
             tri.vertex[0] = Vertex[Node[index].triangle[0]].point,tri.vertex[1] = Vertex[Node[index].triangle[1]].point,tri.vertex[2] = Vertex[Node[index].triangle[2]].point;
             rayHit P = intersectTriangle(o,d,tri);
             if(!P.isHit){
-                return {false,{INFF,INFF,INFF},-1,{0,0,0}};
+                return {false,{INFF,INFF,INFF},-1,{0,0,0},-1,-1,{INFF,INFF,INFF}};
             }
+            vec3 n0 = Vertex[Node[index].triangle[0]].norm, n1 = Vertex[Node[index].triangle[1]].norm, n2 = Vertex[Node[index].triangle[2]].norm;
+
+            double zu = P.u,zv = P.v,zw = 1.0-P.u-P.v;
+            vec3 Z = {zw*zw,zu*zu,zv*zv};
+            double Zl = Z.x+Z.y+Z.z;
+            double w = Z.x/Zl,u = Z.y/Zl,v = Z.z/Zl;
             return {
                 P.isHit,
                 P.point,
                 index,
-                P.normal
+                normalize({
+                    w*n0.x + u*n1.x + v*n2.x,
+                    w*n0.y + u*n1.y + v*n2.y,
+                    w*n0.z + u*n1.z + v*n2.z,
+                }),
+                P.u,
+                P.v,
+                {
+                    (1-P.u-P.v)*tri.vertex[0].x+P.u*(tri.vertex[1].x)+P.v*(tri.vertex[2].x),
+                    (1-P.u-P.v)*tri.vertex[0].y+P.u*(tri.vertex[1].y)+P.v*(tri.vertex[2].y),
+                    (1-P.u-P.v)*tri.vertex[0].z+P.u*(tri.vertex[1].z)+P.v*(tri.vertex[2].z)
+                }
                 //normalVector({Vertex[Node[index].triangle[0]].point,Vertex[Node[index].triangle[1]].point,Vertex[Node[index].triangle[2]].point})
             };
         }
@@ -258,7 +275,7 @@ class ModelBVH {
         std::pair<bool,point3> inter2 = intersectBox(o,d,Node[child2].Box_m,Node[child2].Box_M);
 
         if(!inter1.first && !inter2.first){
-            return {false,{INFF,INFF,INFF},-1,{0,0,0}};
+            return {false,{INFF,INFF,INFF},-1,{0,0,0},-1,-1,{INFF,INFF,INFF}};
         }
         if(!inter1.first){
             return intersectModel_internal(o,d,child2);
@@ -270,7 +287,7 @@ class ModelBVH {
         rayHit col2 = intersectModel_internal(o,d,child2);
 
         if(!col1.isHit && !col2.isHit){
-            return {false,{INFF,INFF,INFF},-1,{0,0,0}};
+            return {false,{INFF,INFF,INFF},-1,{0,0,0},-1,-1,{INFF,INFF,INFF}};
         }
         if(!col1.isHit){
             return col2;
@@ -285,14 +302,14 @@ class ModelBVH {
         }else{
             return col2;
         }
-        return {false,{INFF,INFF,INFF},-1,{0,0,0}};
+        return {false,{INFF,INFF,INFF},-1,{0,0,0},-1,-1,{INFF,INFF,INFF}};
     }
     
     public:
     //rayの始点oと向きdを与えると、予め与えたモデルの表面にrayが当たるかを判定し、当たらないならfalseを、当たるならtrueとそのポイントを返す
     rayHit intersectModel(point3 o,vec3 d){
         if(!intersectBox(o,d,Node[0].Box_m,Node[0].Box_M).first){
-            return {false,{INFF,INFF,INFF},-1,{0,0,0}};
+            return {false,{INFF,INFF,INFF},-1,{0,0,0},-1,-1,{INFF,INFF,INFF}};
         }
         return intersectModel_internal(o,d,0);
     }
