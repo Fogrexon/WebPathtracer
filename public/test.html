@@ -22,7 +22,7 @@
         setInterval(() => {
           rotate += Math.PI * 0.1;
 
-          cam.pos = new PathTracer.Vector3(4.0 * Math.cos(rotate), 4.0 * Math.sin(rotate), 0.0);
+          cam.pos = new PathTracer.Vector3(4.0 * Math.cos(rotate), 0.0, 4.0 * Math.sin(rotate));
           cam.lookAt(new PathTracer.Vector3(0.0, 0.0, 0.0))
 
           renderer.render(document.getElementById('cnv'), cam);
