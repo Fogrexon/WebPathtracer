@@ -2314,9 +2314,9 @@
 
       constructor(viewAngle) {
         this._pos = new Vector3(0.0, 0.0, 0.0);
-        this._forward = new Vector3(0.0, 1.0, 0.0);
-        this._top = new Vector3(0.0, 0.0, 1.0);
-        this._right = new Vector3(1.0, 0.0, 1.0);
+        this._forward = new Vector3(1.0, 0.0, 0.0);
+        this._top = new Vector3(0.0, 1.0, 0.0);
+        this._right = new Vector3(0.0, 0.0, 1.0);
         this._dist = 0.5 / Math.tan(viewAngle / 2);
       }
 
@@ -2370,15 +2370,15 @@
 
       lookAt(to) {
         if (to.equal(this._pos)) {
-          this._forward = new Vector3(0, 0, 1);
+          this._forward = new Vector3(1, 0, 0);
         } else {
           this._forward = to.subtract(this._pos).normalize();
         }
 
-        this._right = this._forward.cross(new Vector3(0, 0, 1));
+        this._right = this._forward.cross(new Vector3(0, 1, 0)).normalize();
 
         if (this._right.length() === 0) {
-          this._right = new Vector3(1, 0, 0);
+          this._right = new Vector3(0, 0, 1);
         }
 
         this._top = this._right.cross(this._forward).normalize();
