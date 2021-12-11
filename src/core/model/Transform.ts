@@ -1,6 +1,6 @@
-import { Matrix4 } from "../../math/Matrix4";
-import { Quaternion } from "../../math/Quaternion";
-import { Vector3 } from "../../math/Vector3";
+import { Matrix4 } from '../../math/Matrix4';
+import { Quaternion } from '../../math/Quaternion';
+import { Vector3 } from '../../math/Vector3';
 
 /**
  * Define 3D model transform and get matrix;

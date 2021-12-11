@@ -46,6 +46,13 @@ export interface WasmModule {
   _createBounding(...args: number[]): number;
 
   /**
+   * Set Camera position
+   *
+   * @memberof WasmRawModule
+   */
+  _setCamera(...args: number[]): number;
+
+  /**
    * call wasm function
    *
    * @param {string} funcname

@@ -4,6 +4,7 @@
 #include <emscripten/emscripten.h>
 #include "BVH.hpp"
 #include "raytracer/raytracer.hpp"
+#include "camera.hpp"
 
 int main(int argc, char **argv) {
   printf("Hello WASM World\n");
@@ -14,6 +15,7 @@ extern "C" {
 #endif
 
 ModelBVH bvh;
+camera cam;
 
 int EMSCRIPTEN_KEEPALIVE createBounding(float* position, int posCount, int* indicies, int indexCount, float* normal, int normCount, float* texCoord, int texCoordCount) {
   std::vector<vert> vertex;
@@ -35,21 +37,38 @@ int EMSCRIPTEN_KEEPALIVE createBounding(float* position, int posCount, int* indi
   return 0;
 }
 
+int EMSCRIPTEN_KEEPALIVE setCamera(float* camData) {
+  // printf("pos %f %f %f\n", camData[0], camData[1], camData[2]);
+  // printf("forward %f %f %f\n", camData[3], camData[4], camData[5]);
+  // printf("camUp %f %f %f\n", camData[6], camData[7], camData[8]);
+  // printf("camRight %f %f %f\n", camData[9], camData[10], camData[11]);
+  // printf("dist %f\n", camData[12]);
+
+  cam.pos = Raytracer::Vec3{camData[0], camData[1], camData[2]};
+  cam.forward = Raytracer::Vec3{camData[3], camData[4], camData[5]};
+  cam.camUp = Raytracer::Vec3{camData[6], camData[7], camData[8]};
+  cam.camRight = Raytracer::Vec3{camData[9], camData[10], camData[11]};
+  cam.dist = camData[12];
+
+  return 0;
+}
+
 int EMSCRIPTEN_KEEPALIVE pathTracer(int* a, int width, int height){
     
-    Raytracer::Vec3 C(0,-10,0);
+    Raytracer::Vec3 C(0,-3,0);
     Raytracer::Vec3 d(0,1,0);
 
     int index = 0;
 
+    // cam.pos = C;
+    // cam.forward = Raytracer::Vec3{0, 1, 0};
+    // cam.camUp = Raytracer::Vec3{-1.0, 0, 0};
+    // cam.camRight = Raytracer::Vec3{0, 0, 1.0};
+
     for(int j=-height/2;j<height - height/2;j++){
         for(int i=-width/2;i<width - width/2;i++){
-            Raytracer::Vec3 O = C;
-            O.x += (double)(i) / width * 4.0;
-            O.z += (double)(j) / height * 4.0;
-
-            Raytracer::Ray ray = Raytracer::Ray(O, d);
-
+            // heightを1とした正規化
+            Raytracer::Ray ray = cam.getRay(double(i) / height, double(j) / height);
 
             Raytracer::Color result = Raytracer::raytrace(ray, bvh);
 

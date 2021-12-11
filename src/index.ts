@@ -11,3 +11,4 @@ export * from './math/Vector2';
 export * from './math/Vector3';
 export * from './types/gltf';
 export * from './types/wasm';
+export * from './core/camera/Camera';
