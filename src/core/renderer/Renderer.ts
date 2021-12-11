@@ -16,6 +16,15 @@ export class Renderer {
 
   private cameraBuf: WasmBuffer | null = null;
 
+  // partial rendering context
+  private renderCtx: {
+    width: number,
+    height: number,
+    ctx: CanvasRenderingContext2D,
+    pixelData: WasmBuffer,
+    imageData: ImageData,
+  } | null = null;
+
   /**
    * Creates an instance of Renderer.
    * @param {WasmManager} wasmManager
@@ -109,6 +118,74 @@ export class Renderer {
     ctx.putImageData(imagedata, 0, 0);
 
     return 1;
+  }
+
+  public preparePartialRendering(canvas: HTMLCanvasElement, camera: Camera) {
+    if(this.renderCtx !== null){
+      return -1;
+    }
+
+    const { width, height } = canvas;
+
+    const ctx = canvas.getContext('2d');
+    if (!ctx) {
+      console.error('canvas is failed');
+      return -1;
+    }
+
+    const imageData = ctx.createImageData(width, height);
+
+    const pixelData = this.wasmManager.createBuffer('i32', imageData.data.length);
+
+    this.renderCtx = {
+      width,
+      height,
+      ctx,
+      pixelData,
+      imageData,
+    };
+
+    if (!this.cameraBuf) this.cameraBuf = this.wasmManager.createBuffer('float', 13);
+    this.cameraBuf.setArray(camera.dumpAsArray());
+    this.wasmManager.callSetCamera(this.cameraBuf);
+
+    const result = this.wasmManager.callPathTracer(pixelData, width, height);
+
+    if (result < 0) {
+      console.error('Path trace failed.');
+      return -1;
+    }
+
+    return 1;
+  }
+
+  public function partialRendering(update: boolean = true) {
+    if(this.renderCtx == null){
+      return -1;
+    }
+
+    const { width, height, ctx, pixelData, imageData } = this.renderCtx;
+
+    const pixels = imageData.data;
+    
+    const result = this.wasmManager.callReadStream(pixelData);
+    
+    if (result < 0) {
+      console.error('Path trace failed.');
+      return -1;
+    }
+
+    for (let i = 0; i < pixels.length; i += 1) {
+      imageData.data[i] = pixelData.get(i);
+    }
+    if(result == 0) {
+      pixelData.release();
+    }
+    if(update || result == 0){
+      ctx.putImageData(imageData, 0, 0);
+    }
+
+    return result;
   }
 
   /**
