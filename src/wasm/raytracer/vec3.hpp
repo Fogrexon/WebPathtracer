@@ -22,6 +22,12 @@ namespace Raytracer {
       double length2() const {
         return x*x + y*y + z*z;
       };
+
+      void set(const Vec3& v) {
+        x = v.x;
+        y = v.y;
+        z = v.z;
+      }
   
       Vec3 operator-() const {
         return Vec3(-x, -y, -z);
