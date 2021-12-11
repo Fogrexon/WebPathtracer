@@ -23,17 +23,27 @@ namespace Raytracer {
         if (id < 0) return Vec3(1.0);
         int* texture = textures[id];
 
-        float ux = uv.x % 1;
-        float uy = uv.y % 1;
-        float fx = (int)std::floor(ux * TEXTURE_SIZE);
-        float fy = (int)std::floor(uy * TEXTURE_SIZE);
-        float cx = (int)std::ceil(ux * TEXTURE_SIZE);
-        float cy = (int)std::ceil(ux * TEXTURE_SIZE);
+        double ux = uv.x % 1;
+        double uy = 1.0 - uv.y % 1;
+        int fx = (int)std::floor(ux * TEXTURE_SIZE);
+        int fy = (int)std::floor(uy * TEXTURE_SIZE);
+        int cx = (int)std::ceil(ux * TEXTURE_SIZE);
+        int cy = (int)std::ceil(ux * TEXTURE_SIZE);
 
-        Vec3 
+        int ltindex = fy * TEXTURE_SIZE + fx;
+        int lbindex = cy * TEXTURE_SIZE + fx;
+        int rtindex = fy * TEXTURE_SIZE + cx;
+        int rbindex = cy * TEXTURE_SIZE + cx;
 
-        float dx = ux * TEXTURE_SIZE - fx;
-        float dy = uy * TEXTURE_SIZE - fy;
+        Vec3 lt((double)texture[ltindex * 3 + 0] / 255.0, (double)texture[ltindex * 3 + 1] / 255.0, (double)texture[ltindex * 3 + 2] / 255.0);
+        Vec3 lb((double)texture[lbindex * 3 + 0] / 255.0, (double)texture[lbindex * 3 + 1] / 255.0, (double)texture[lbindex * 3 + 2] / 255.0);
+        Vec3 rt((double)texture[rtindex * 3 + 0] / 255.0, (double)texture[rtindex * 3 + 1] / 255.0, (double)texture[rtindex * 3 + 2] / 255.0);
+        Vec3 rb((double)texture[rbindex * 3 + 0] / 255.0, (double)texture[rbindex * 3 + 1] / 255.0, (double)texture[rbindex * 3 + 2] / 255.0);
+
+        double dx = ux * TEXTURE_SIZE - fx;
+        double dy = uy * TEXTURE_SIZE - fy;
+
+        return lerp(lerp(lt, lb, dy), lerp(rt, rb, dy), dx);
         
       }
 
