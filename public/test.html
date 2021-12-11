@@ -11,11 +11,13 @@
   <script>
     const wasmManager = new PathTracer.WasmManager('../build/wasm/main.wasm');
     wasmManager.addEventListener('initialized', () => {
-      const gltfModel = new PathTracer.GLTFLoader();
+      const gltfModel = new PathTracer.GLTFLoader(
+        new PathTracer.Material(new PathTracer.Vector3(1, 0, 0)),
+      );
       
       gltfModel.load('spheres_smooth.gltf').then(() => {
         const renderer = new PathTracer.Renderer(wasmManager, gltfModel);
-        renderer.createBound();
+        renderer.createBound(gltfModel);
 
         const cam = new PathTracer.Camera(Math.PI * 0.5);
 

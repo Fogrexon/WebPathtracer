@@ -2,6 +2,7 @@
 #define RAYTRACER_MATERIAL_HPP
 
 #include "random.hpp"
+#include "texture.hpp"
 
 namespace Raytracer {
   class Material {
@@ -9,13 +10,23 @@ namespace Raytracer {
       virtual Vec3 sample(const Vec3& wo, Vec3& wi, double &pdf) const = 0;
   };
 
+  Diffuse createMaterial(float* params) {
+    int type = (int)params[0];
+    assert(type == 0, "material type is invalid");
+    int texId = (int)params[1];
+    Vec3 rho(params[2], params[3], params[4]);
+
+    return Diffuse(rho, texId);
+  }
+
   class Diffuse : public Material {
     public:
       Vec3 rho;
+      int texId;
 
-      Diffuse(const Vec3& _rho) : rho(_rho) {};
+      Diffuse(const Vec3& _rho, int _texId) : rho(_rho), texId(_texId) {};
 
-      Vec3 sample(const Vec3 &wo, Vec3 &wi, double &pdf) const {
+      Vec3 sample(const Vec3 &wo, Vec3 &wi, double &pdf, Vec3& uv, Texture &textures) const {
         double u = rnd();
         double v = rnd();
 
@@ -30,7 +41,7 @@ namespace Raytracer {
 
         pdf = std::cos(theta)/M_PI;
 
-        return rho / M_PI;
+        return rho * textures.get(texId, uv) / M_PI;
       };
   };
 }

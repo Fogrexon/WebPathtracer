@@ -15,7 +15,7 @@
 namespace Raytracer {
   #ifdef RAYTRACER_DEBUG
   
-  Color raytrace(Ray& init_ray, Stage& stage) {
+  Color raytrace(Ray& init_ray, Stage& stage, Texture& textures) {
 
     Ray ray = init_ray;
     ray.pos = init_ray.pos;
@@ -32,8 +32,16 @@ namespace Raytracer {
     if (hit.isHit) {
       Vec3 point = Vec3(hit.point.x, hit.point.y, hit.point.z);
       Vec3 normal = normalize(Vec3(hit.normal.x, hit.normal.y, hit.normal.z));
+      Vec3 uv = Vec3(hit.texcoord.x, hit.texcoord.y, 0.0);
+
+      // TODO material 受け取り
      
+      // normal
       result.rgb = normal * 0.5 + 0.5;
+      // uv
+      result.rgb = uv;
+      // texture
+      result.rgb = textures.get(mat.texId, uv);
 
     } else {
       result.rgb += throughput * Vec3(0);
@@ -44,7 +52,7 @@ namespace Raytracer {
 
   #else
 
-  Color raytrace(Ray& init_ray, Stage& stage) {
+  Color raytrace(Ray& init_ray, Stage& stage, Textures& textures) {
 
     Ray ray = init_ray;
     ray.pos = init_ray.pos;
@@ -62,7 +70,11 @@ namespace Raytracer {
 
       if (hit.isHit) {
         Vec3 point = Vec3(hit.point.x, hit.point.y, hit.point.z);
-        Vec3 normal = normalize(Vec3(hit.normal.x, hit.normal.y, hit.normal.z));
+        Vec3 normal = Vec3(hit.normal.x, hit.normal.y, hit.normal.z);
+        Vec3 uv = Vec3(hit.texcoord.x, hit.texcoord.y, 0.0);
+
+        // TODO material 受け取り
+
 
         Vec3 rayStart = point + DELTA * normal;
         Vec3 s, t;
@@ -74,7 +86,7 @@ namespace Raytracer {
         Vec3 brdf;
         Vec3 wi_local;
         double pdf;
-        brdf = mat.sample(wo_local, wi_local, pdf);
+        brdf = mat.sample(wo_local, wi_local, pdf, uv, textures);
 
         double cos = cosTheta(wi_local);
 
