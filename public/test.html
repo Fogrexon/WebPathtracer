@@ -17,7 +17,7 @@
         const renderer = new PathTracer.Renderer(wasmManager, gltfModel);
         renderer.createBound();
 
-        const cam = new PathTracer.Camera(1.0);
+        const cam = new PathTracer.Camera(Math.PI * 0.5);
 
         let rotate = 0;
         setInterval(() => {
