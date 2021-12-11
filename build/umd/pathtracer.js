@@ -86,6 +86,12 @@
           return -1;
         }
 
+        console.log('start calc');
+
+        while ((this.wasmManager.callReadStream(this.pixelData)) == 1) {}
+
+        console.log('end calc');
+
         for (let i = 0; i < pixels.length; i += 1) {
           imagedata.data[i] = this.pixelData.get(i);
         }
@@ -2246,6 +2252,10 @@
         return (Module._setCamera = Module.asm.setCamera).apply(null, arguments);
       };
 
+      Module._readStream = function () {
+        return (Module._readStream = Module.asm.readStream).apply(null, arguments);
+      };
+
       Module._pathTracer = function () {
         return (Module._pathTracer = Module.asm.pathTracer).apply(null, arguments);
       };
@@ -2442,6 +2452,10 @@
 
       callSetCamera(...args) {
         return this.callFunction('setCamera', ...args);
+      }
+
+      callReadStream(...args) {
+        return this.callFunction('readStream', ...args);
       }
 
       callFunction(funcname, ...args) {

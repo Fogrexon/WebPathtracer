@@ -53,6 +53,13 @@ export interface WasmModule {
   _setCamera(...args: number[]): number;
 
   /**
+   * load pixel data
+   *
+   * @memberof WasmRawModule
+   */
+  _readStream(...args: number[]): number;
+
+  /**
    * call wasm function
    *
    * @param {string} funcname
