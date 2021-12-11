@@ -73,13 +73,13 @@ export class Renderer {
    * @return {*}  {number}
    * @memberof Renderer
    */
-  public render(canvas: HTMLCanvasElement, camera: Camera): number {
+  public render(canvas: HTMLCanvasElement, camera: Camera): Promise<void> | void {
     const { width, height } = canvas;
 
     const ctx = canvas.getContext('2d');
     if (!ctx) {
       console.error('canvas is failed');
-      return -1;
+      return;
     }
 
     const imagedata = ctx.createImageData(width, height);
@@ -101,23 +101,42 @@ export class Renderer {
 
     if (result < 0) {
       console.error('Path trace failed.');
-      return -1;
+      return;
     }
     console.log('start calc');
     
-    let result2;
-    while((result2 = this.wasmManager.callReadStream(this.pixelData)) == 1){}
-
-    console.log('end calc');
-
-    for (let i = 0; i < pixels.length; i += 1) {
-      imagedata.data[i] = this.pixelData.get(i);
+    let result2 = this.wasmManager.callReadStream(this.pixelData);
+    const renderfunc = async () => {
+      if(!this.pixelData) return;
+      
+      while(result2 === 1){
+        result2 = this.wasmManager.callReadStream(this.pixelData);
+        
+        // eslint-disable-next-line no-await-in-loop
+        await new Promise((resolve) => {
+          setTimeout(() => {
+            resolve(0);
+          }, 10);
+        });
+        for (let i = 0; i < pixels.length; i += 1) {
+          imagedata.data[i] = this.pixelData.get(i);
+        }
+        ctx.putImageData(imagedata, 0, 0);
+        console.log("waiting");
+      }
+  
+      console.log('end calc');
+  
+      for (let i = 0; i < pixels.length; i += 1) {
+        imagedata.data[i] = this.pixelData.get(i);
+      }
+  
+      this.pixelData.release();
+      ctx.putImageData(imagedata, 0, 0);
     }
 
-    this.pixelData.release();
-    ctx.putImageData(imagedata, 0, 0);
-
-    return 1;
+    // eslint-disable-next-line consistent-return
+    return renderfunc();
   }
 
   public preparePartialRendering(canvas: HTMLCanvasElement, camera: Camera) {
@@ -164,7 +183,7 @@ export class Renderer {
       return -1;
     }
 
-    const { width, height, ctx, pixelData, imageData } = this.renderCtx;
+    const { ctx, pixelData, imageData } = this.renderCtx;
 
     const pixels = imageData.data;
     
@@ -178,10 +197,10 @@ export class Renderer {
     for (let i = 0; i < pixels.length; i += 1) {
       imageData.data[i] = pixelData.get(i);
     }
-    if(result == 0) {
+    if(result === 0) {
       pixelData.release();
     }
-    if(update || result == 0){
+    if(update || result === 0){
       ctx.putImageData(imageData, 0, 0);
     }
 
