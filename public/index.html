@@ -10,7 +10,7 @@
   <canvas id="cnv" width=500 height=500></canvas>
   <div>
     制作者: Fogrex, kegra, 0214sh7<br>
-    モデル提供元: d_etteiu8383<br>
+    モデル提供元: d_etteiu8383 のはずだった、githubにあげるの良くないかと思ってけしちゃった<br>
     リロードする度違う方面からレンダリングします。女の子の脚が見えないのはバグなのかファイルがミスってるのか分かりません。<br>
     <a href="https://github.com/Fogrexon/WebPathtracer">このライブラリのリポジトリ(でっていうさんのモデルは無いです)</a>
   </div>
@@ -47,7 +47,7 @@
         const renderer = new PathTracer.Renderer(wasmManager);
 
         // BVH(衝突判定用のデータ構造)
-        renderer.createBound(humanModel);
+        // renderer.createBound(humanModel);
         renderer.createBound(gltfModel);
 
         // カメラ
@@ -63,8 +63,8 @@
           .then(() => {
             // バッファの開放
             gltfModel.release();
-            humanModel.release();
-            humanTexture.release();
+            // humanModel.release();
+            // humanTexture.release();
             renderer.release();
           });
       });
