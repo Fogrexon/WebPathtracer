@@ -90,7 +90,7 @@ int EMSCRIPTEN_KEEPALIVE pathTracer(int* a, int width, int height){
     double filterKernel[kernelW][kernelH] = {
       {1.0}
     };
-    const double gamma = 2.2;
+    const double gamma = 1/2.2;
     for(int j = 0; j < height; j++){
       for(int i = 0; i < width; i++){
         Raytracer::Vec3 resultRgb{};
