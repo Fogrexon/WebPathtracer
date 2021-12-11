@@ -75,21 +75,15 @@ export class GLTFLoader extends Model {
     const buffer = await (await response.blob()).arrayBuffer();
 
     // set default value
-    this._position = new Float32Array(
-      buffer.slice(bufPos.byteOffset, bufPos.byteOffset + bufPos.byteLength)
-    );
+    this._position = new Float32Array(buffer, bufPos.byteOffset, bufPos.byteLength / 4);
     this.createBoundingBox();
 
-    this._normal = new Float32Array(
-      buffer.slice(bufNorm.byteOffset, bufNorm.byteOffset + bufNorm.byteLength)
-    );
+    this._normal = new Float32Array(buffer, bufNorm.byteOffset, bufNorm.byteLength / 4);
 
-    this._texcoord = new Float32Array(
-      buffer.slice(bufTex.byteOffset, bufTex.byteOffset + bufTex.byteLength)
-    );
+    this._texcoord = new Float32Array(buffer, bufTex.byteOffset, bufTex.byteLength / 4);
 
     this._indicies = Int32Array.from(
-      new Int16Array(buffer.slice(bufInd.byteOffset, bufInd.byteOffset + bufInd.byteLength))
+      new Int16Array(buffer, bufInd.byteOffset,bufInd.byteLength / 2)
     );
   }
 }

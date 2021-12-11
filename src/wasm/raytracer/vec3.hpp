@@ -22,6 +22,12 @@ namespace Raytracer {
       double length2() const {
         return x*x + y*y + z*z;
       };
+
+      void set(const Vec3& v) {
+        x = v.x;
+        y = v.y;
+        z = v.z;
+      }
   
       Vec3 operator-() const {
         return Vec3(-x, -y, -z);
@@ -148,6 +154,10 @@ namespace Raytracer {
     Vec3 c = Vec3(s.z, n.z, t.z);
 
     return Vec3(dot(v, a), dot(v, b), dot(v, c));
+  }
+
+  Vec3 lerp(const Vec3& v1, const Vec3& v2, double t) {
+    return v1 * (1 - t) + v2 * t; 
   }
 
   double cosTheta(const Vec3& localv) {

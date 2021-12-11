@@ -24,6 +24,7 @@ class ModelBVH {
 
     std::vector<vert> Vertex;
     std::vector<BVH> Node;
+    std::vector<tri3> TexCoord;
 
     void construct_BVH_internal(std::vector<std::array<int,3>> polygon,int index){
 
@@ -227,10 +228,11 @@ class ModelBVH {
 
     public:
     
-    void construct(std::vector<vert> vertex,std::vector<std::array<int,3>> polygon){
+    void construct(std::vector<vert> vertex,std::vector<std::array<int,3>> polygon,std::vector<tri3> texcoord){
         Vertex = vertex;
         Node.clear();
         Node.resize(1);
+        TexCoord = texcoord;
         construct_BVH_internal(polygon,0);
     }
 
@@ -245,6 +247,7 @@ class ModelBVH {
                 return {false,{INFF,INFF,INFF},-1,{0,0,0},-1,-1,{INFF,INFF,INFF}};
             }
             vec3 n0 = Vertex[Node[index].triangle[0]].norm, n1 = Vertex[Node[index].triangle[1]].norm, n2 = Vertex[Node[index].triangle[2]].norm;
+            tri3 tex = TexCoord[index];
 
             double zu = P.u,zv = P.v,zw = 1.0-P.u-P.v;
             vec3 Z = {zw*zw,zu*zu,zv*zv};
@@ -262,9 +265,9 @@ class ModelBVH {
                 P.u,
                 P.v,
                 {
-                    (1-P.u-P.v)*tri.vertex[0].x+P.u*(tri.vertex[1].x)+P.v*(tri.vertex[2].x),
-                    (1-P.u-P.v)*tri.vertex[0].y+P.u*(tri.vertex[1].y)+P.v*(tri.vertex[2].y),
-                    (1-P.u-P.v)*tri.vertex[0].z+P.u*(tri.vertex[1].z)+P.v*(tri.vertex[2].z)
+                    (1-P.u-P.v)*tex.vertex[0].x+P.u*(tex.vertex[1].x)+P.v*(tex.vertex[2].x),
+                    (1-P.u-P.v)*tex.vertex[0].y+P.u*(tex.vertex[1].y)+P.v*(tex.vertex[2].y),
+                    (1-P.u-P.v)*tex.vertex[0].z+P.u*(tex.vertex[1].z)+P.v*(tex.vertex[2].z)
                 }
                 //normalVector({Vertex[Node[index].triangle[0]].point,Vertex[Node[index].triangle[1]].point,Vertex[Node[index].triangle[2]].point})
             };

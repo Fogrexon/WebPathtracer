@@ -3,10 +3,8 @@
 #include <math.h>
 #include <emscripten/emscripten.h>
 #include "BVH.hpp"
+#include "stage.hpp"
 #include "raytracer/raytracer.hpp"
-#include "raytracer/vec3.hpp"
-#include "raytracer/color.hpp"
-#include "raytracer/ray.hpp"
 #include "camera.hpp"
 #include <algorithm>
 
@@ -22,8 +20,10 @@ struct renderingStream {
   bool working = false;
   struct {
     int width, height;
-    ModelBVH bvh;
     camera cam;
+    Stage stage;
+    camera cam;
+    Raytracer::Texture textureManager();
   } settings;
   struct {
     int j;
@@ -32,7 +32,22 @@ struct renderingStream {
 };
 renderingStream stream;
 
-int EMSCRIPTEN_KEEPALIVE createBounding(float* position, int posCount, int* indicies, int indexCount, float* normal, int normCount, float* texCoord, int texCoordCount) {
+int EMSCRIPTEN_KEEPALIVE createTexture(int* texture) {
+  return textureManager.set(texture);
+}
+
+int EMSCRIPTEN_KEEPALIVE createBounding(
+  float* position,
+  int posCount,
+  int* indicies,
+  int indexCount,
+  float* normal,
+  int normCount,
+  float* texCoord,
+  int texCoordCount,
+  float* matrixs,
+  float* material,
+) {
   std::vector<vert> vertex;
   assert(posCount==normCount);
   for (int i=0;i<posCount * 3;i += 3) {
@@ -47,7 +62,21 @@ int EMSCRIPTEN_KEEPALIVE createBounding(float* position, int posCount, int* indi
     polygon.push_back(p);
   }
 
-  stream.settings.bvh.construct(vertex, polygon);
+  std::vector<tri3> texcoord;
+  for (int i=0;i<texCoordCount * 3;i += 3) {
+    tri3 t{texCoord[i+0], texCoord[i+1], texCoord[i+2]};
+    texcoord.push_back(t);
+  }
+
+  //stream.settings.bvh.construct(vertex, polygon, texcoord);
+  stream.settings.stage.add(vertex, polygon, texcoord,{1,0,0,0,0,1,0,0,0,0,1,0,0,0,0,1},{1,0,0,0,0,1,0,0,0,0,1,0,0,0,0,1});
+  stream.settings.stage.add(vertex, polygon, texcoord,{0,1,0,0,0,0,1,0,1,0,0,0,0,0,0,1},{0,0,1,0,1,0,0,0,0,1,0,0,0,0,0,1});
+  stream.settings.stage.add(vertex, polygon, texcoord,{0,0,1,0,1,0,0,0,0,1,0,0,0,0,0,1},{0,1,0,0,0,0,1,0,1,0,0,0,0,0,0,1});
+
+  Raytrace::Material mat = Raytrace::createMaterial(material);
+
+  // TODO matをどうにかする
+
 
   return 0;
 }

@@ -827,6 +827,9 @@ const WasmModuleGenerator = (filename) => {
   let _main = Module._main = function() {
       return (_main = Module._main = Module.asm.main).apply(null, arguments)
   };
+  let _createTexture = Module._createTexture = function() {
+      return (_createTexture = Module._createTexture = Module.asm.createTexture).apply(null, arguments)
+  };
   let _createBounding = Module._createBounding = function() {
       return (_createBounding = Module._createBounding = Module.asm.createBounding).apply(null, arguments)
   };
