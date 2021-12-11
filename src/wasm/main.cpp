@@ -67,7 +67,9 @@ int EMSCRIPTEN_KEEPALIVE pathTracer(int* a, int width, int height){
             Raytracer::Vec3 resultRgb{};
             for(int s = 0; s < spp; s++) {
                 // heightを1とした正規化
-                Raytracer::Ray ray = cam.getRay((double(i) - width / 2) / height, -(double(j) - height / 2) / height);
+                Raytracer::Ray ray = cam.getRay(
+                  (double(i) + Raytracer::rnd() - width / 2) / height,
+                  -(double(j) + Raytracer::rnd() - height / 2) / height);
                 resultRgb += Raytracer::raytrace(ray, bvh).rgb;
             }
             resultRgb *= (double(1.0) / spp);
