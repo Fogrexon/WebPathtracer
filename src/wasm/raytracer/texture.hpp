@@ -1,30 +1,31 @@
 #ifndef RAYTRACER_TEXTURE_HPP
 #define RAYTRACER_TEXTURE_HPP
 
-#import <cmath>
+#include <cmath>
 
 #define TEXTURE_SIZE 1024
 
 namespace Raytracer {
 
   class Texture {
+    public:
     Texture() {};
     private:
-      std::vector<int*> textures();
+      std::vector<int*> textures;
 
     public:
-      int set(float* texture) {
+      int set(int* texture) {
         textures.push_back(texture);
         return textures.size() - 1;
       }
 
       Vec3 get(int id, Vec3& uv) {
-        assert(id >= textures.size(), "texture id is invalid.");
+        assert(id >= textures.size()/*, "texture id is invalid."*/);
         if (id < 0) return Vec3(1.0);
         int* texture = textures[id];
 
-        double ux = uv.x % 1;
-        double uy = 1.0 - uv.y % 1;
+        double ux = uv.x;
+        double uy = 1.0 - uv.y;
         int fx = (int)std::floor(ux * TEXTURE_SIZE);
         int fy = (int)std::floor(uy * TEXTURE_SIZE);
         int cx = (int)std::ceil(ux * TEXTURE_SIZE);
@@ -47,7 +48,7 @@ namespace Raytracer {
         
       }
 
-  }
+  };
 }
 
 #endif

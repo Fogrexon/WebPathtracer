@@ -18,7 +18,7 @@ extern "C" {
 
 Stage stage;
 camera cam;
-Raytracer::Texture textureManager();
+Raytracer::Texture textureManager;
 
 int EMSCRIPTEN_KEEPALIVE createTexture(int* texture) {
   return textureManager.set(texture);
@@ -34,7 +34,7 @@ int EMSCRIPTEN_KEEPALIVE createBounding(
   float* texCoord,
   int texCoordCount,
   float* matrixs,
-  float* material,
+  float* material
 ) {
   std::vector<vert> vertex;
   assert(posCount==normCount);
@@ -61,7 +61,7 @@ int EMSCRIPTEN_KEEPALIVE createBounding(
   stage.add(vertex, polygon, texcoord,{0,1,0,0,0,0,1,0,1,0,0,0,0,0,0,1},{0,0,1,0,1,0,0,0,0,1,0,0,0,0,0,1});
   stage.add(vertex, polygon, texcoord,{0,0,1,0,1,0,0,0,0,1,0,0,0,0,0,1},{0,1,0,0,0,0,1,0,1,0,0,0,0,0,0,1});
 
-  Raytrace::Material mat = Raytrace::createMaterial(material);
+  Raytracer::Diffuse mat = Raytracer::createMaterial(material);
 
   // TODO matをどうにかする
 

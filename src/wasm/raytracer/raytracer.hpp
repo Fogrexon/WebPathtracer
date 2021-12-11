@@ -23,7 +23,7 @@ namespace Raytracer {
 
     Vec3 throughput(1, 1, 1);
 
-    Diffuse mat(Vec3(0.4, 0.4, 0.7));
+    Diffuse mat(Vec3(0.4, 0.4, 0.7),-1);
     PlaneLight light(Vec3(0, 2, 0), 2, Vec3(1, 1, 1));
 
     Color result{Vec3(0, 0, 0), 1.0};
@@ -39,9 +39,9 @@ namespace Raytracer {
       // normal
       result.rgb = normal * 0.5 + 0.5;
       // uv
-      result.rgb = uv;
+      //result.rgb = uv;
       // texture
-      result.rgb = textures.get(mat.texId, uv);
+      //result.rgb = textures.get(mat.texId, uv);
 
     } else {
       result.rgb += throughput * Vec3(0);
@@ -60,7 +60,7 @@ namespace Raytracer {
 
     Vec3 throughput(1, 1, 1);
 
-    Diffuse mat(Vec3(0.4, 0.4, 0.7));
+    Diffuse mat(Vec3(0.4, 0.4, 0.7),-1);
     PlaneLight light(Vec3(0, 3, 0), 7, Vec3(3.0, 10.0, 8.0));
 
     Color result{Vec3(0, 0, 0), 1.0};
