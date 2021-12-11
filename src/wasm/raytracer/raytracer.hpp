@@ -9,7 +9,7 @@
 #define ROULETTE 0.999
 #define DELTA 0.000001
 
-// #define RAYTRACER_DEBUG
+#define RAYTRACER_DEBUG
 
 
 namespace Raytracer {
@@ -38,9 +38,9 @@ namespace Raytracer {
       // material 受け取り
       Diffuse mat = hitMat.mat;
       // normal
-      result.rgb = normal * 0.5 + 0.5;
+      // result.rgb = normal * 0.5 + 0.5;
       // uv
-      result.rgb = uv;
+      // result.rgb = uv;
       // texture
       result.rgb = textures.get(mat.texId, uv);
 
