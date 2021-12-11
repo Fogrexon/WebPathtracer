@@ -90,6 +90,7 @@ int EMSCRIPTEN_KEEPALIVE pathTracer(int* a, int width, int height){
     double filterKernel[kernelW][kernelH] = {
       {1.0}
     };
+    const double gamma = 2.2;
     for(int j = 0; j < height; j++){
       for(int i = 0; i < width; i++){
         Raytracer::Vec3 resultRgb{};
@@ -101,6 +102,10 @@ int EMSCRIPTEN_KEEPALIVE pathTracer(int* a, int width, int height){
             resultRgb += filterKernel[dx][dy] * rawPixels[sy][sx];
           }
         }
+        resultRgb.x = pow(resultRgb.x, gamma);
+        resultRgb.y = pow(resultRgb.y, gamma);
+        resultRgb.z = pow(resultRgb.z, gamma);
+
         a[index * 4 + 0] = resultRgb.x * 255;
         a[index * 4 + 1] = resultRgb.y * 255;
         a[index * 4 + 2] = resultRgb.z * 255;
