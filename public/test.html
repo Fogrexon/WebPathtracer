@@ -15,24 +15,25 @@
         new PathTracer.Material(new PathTracer.Vector3(1, 0, 0)),
       );
       
-      gltfModel.load('spheres_smooth.gltf').then(() => {
+      gltfModel.load('spheres_smooth_floor.gltf').then(() => {
         const renderer = new PathTracer.Renderer(wasmManager, gltfModel);
         renderer.createBound(gltfModel);
 
         const cam = new PathTracer.Camera(Math.PI * 0.5);
 
         let rotate = 0;
-         setInterval(() => {
-          //rotate += Math.PI * Math.random() * 2;
-          rotate += Math.PI * 0.1;
+        //  setInterval(() => {
+          rotate += Math.PI * Math.random() * 2;
+          // rotate += Math.PI * 0.1;
 
           cam.pos = new PathTracer.Vector3(2.0 * Math.cos(rotate), 1.0, 2.0 * Math.sin(rotate));
           cam.lookAt(new PathTracer.Vector3(0.0, 0.0, 0.0))
 
           renderer.render(document.getElementById('cnv'), cam);
-         }, 1000);
+        //  }, 1000);
   
   
+        gltfModel.release();
         renderer.release();
       });
     });
