@@ -7,15 +7,18 @@
 </head>
 <body>
   <canvas id="cnv" width=500 height=500></canvas>
+  <img src="./uv.png" id="img" />
   <script src="../build/umd/pathtracer.js"></script>
   <script>
     const wasmManager = new PathTracer.WasmManager('../build/wasm/main.wasm');
-    wasmManager.addEventListener('initialized', () => {
+    const image = document.getElementById('img');
+    const texture = new PathTracer.Texture(image);
+    wasmManager.addEventListener('initialized', async () => {
       const gltfModel = new PathTracer.GLTFLoader(
-        new PathTracer.Material(new PathTracer.Vector3(1, 0, 0)),
+        new PathTracer.Material(new PathTracer.Vector3(1, 1, 1), texture),
       );
       
-      gltfModel.load('spheres_smooth_floor.gltf').then(() => {
+      gltfModel.load('bunnyinboxuv.gltf').then(() => {
         const renderer = new PathTracer.Renderer(wasmManager, gltfModel);
         renderer.createBound(gltfModel);
 
