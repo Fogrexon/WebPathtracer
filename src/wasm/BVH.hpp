@@ -6,6 +6,7 @@
 struct vert{
     point3 point;
     vec3 norm;
+    texpoint texcoord;
 };
 
 //モデルにBVHを与える関数のクラス
@@ -24,7 +25,6 @@ class ModelBVH {
 
     std::vector<vert> Vertex;
     std::vector<BVH> Node;
-    std::vector<std::array<texpoint,3>> TexCoord;
 
     void construct_BVH_internal(std::vector<std::array<int,3>> polygon,int index){
 
@@ -228,11 +228,10 @@ class ModelBVH {
 
     public:
     
-    void construct(std::vector<vert> vertex,std::vector<std::array<int,3>> polygon,std::vector<std::array<texpoint,3>> texcoord){
+    void construct(std::vector<vert> vertex,std::vector<std::array<int,3>> polygon){
         Vertex = vertex;
         Node.clear();
         Node.resize(1);
-        TexCoord = texcoord;
         construct_BVH_internal(polygon,0);
     }
 
@@ -247,7 +246,7 @@ class ModelBVH {
                 return {false,{INFF,INFF,INFF},-1,{0,0,0},-1,-1,{INFF,INFF}};
             }
             vec3 n0 = Vertex[Node[index].triangle[0]].norm, n1 = Vertex[Node[index].triangle[1]].norm, n2 = Vertex[Node[index].triangle[2]].norm;
-            texpoint tex0 = TexCoord[index][0], tex1 = TexCoord[index][1], tex2 = TexCoord[index][2];
+            texpoint tex0 = Vertex[Node[index].triangle[0]].texcoord, tex1 = Vertex[Node[index].triangle[1]].texcoord, tex2 = Vertex[Node[index].triangle[2]].texcoord;
 
             double zu = P.u,zv = P.v,zw = 1.0-P.u-P.v;
             vec3 Z = {zw*zw,zu*zu,zv*zv};

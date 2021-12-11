@@ -38,22 +38,17 @@ int EMSCRIPTEN_KEEPALIVE createBounding(
 ) {
   std::vector<vert> vertex;
   assert(posCount==normCount);
-  for (int i=0;i<posCount * 3;i += 3) {
-    point3 p{(double)position[i+0], (double)position[i+1], (double)position[i+2]};
-    vec3 n{(double)normal[i+0], (double)normal[i+1], (double)normal[i+2]};
-    vertex.push_back({p,n});
+  for (int i=0;i<posCount;i += 1) {
+    point3 p{(double)position[3*i+0], (double)position[3*i+1], (double)position[3*i+2]};
+    vec3 n{(double)normal[3*i+0], (double)normal[3*i+1], (double)normal[3*i+2]};
+    texpoint t{(double)texCoord[2*i+0], (double)texCoord[2*i+1]};
+    vertex.push_back({p,n,t});
   }
   
   std::vector<std::array<int,3>> polygon;
   for (int i=0;i<indexCount * 3;i += 3) {
     std::array<int, 3> p{indicies[i+0], indicies[i+1], indicies[i+2]};
     polygon.push_back(p);
-  }
-
-  std::vector<std::array<texpoint,3>> texcoord;
-  for (int i=0;i<texCoordCount * 3;i += 3) {
-    std::array<texpoint,3> t{texCoord[i+0], texCoord[i+1], texCoord[i+2]};
-    texcoord.push_back(t);
   }
 
   std::array<double,16> matr,matrinv;
@@ -67,9 +62,7 @@ int EMSCRIPTEN_KEEPALIVE createBounding(
   //stage.add(vertex, polygon, texcoord,{0,0,1,0,1,0,0,0,0,1,0,0,0,0,0,1},{0,1,0,0,0,0,1,0,1,0,0,0,0,0,0,1});
 
   Raytracer::Diffuse mat = Raytracer::createMaterial(material);
-  stage.add(vertex, polygon, texcoord,matr,matrinv,mat);
-
-  // TODO matをどうにかする
+  stage.add(vertex, polygon,matr,matrinv,mat);
 
 
   return 0;

@@ -27,11 +27,11 @@ class Stage{
     }*/
 
     //頂点情報をv、ポリゴン情報をp、テクスチャ情報をt、モデルの回転拡大平行移動をd(の逆行列)としてステージに追加し、インデックスを返す
-    int add(std::vector<vert> v,std::vector<std::array<int,3>> p,std::vector<std::array<texpoint,3>> t,std::array<double,16> d,std::array<double,16> di,Raytracer::Diffuse m){
+    int add(std::vector<vert> v,std::vector<std::array<int,3>> p,std::array<double,16> d,std::array<double,16> di,Raytracer::Diffuse m){
         int n = models.size();
         
         ModelBVH bvh;
-        bvh.construct(v,p,t);
+        bvh.construct(v,p);
 
         Models newModel = {bvh,d,di,m};
         models.push_back(newModel);
