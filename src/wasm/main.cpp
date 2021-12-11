@@ -3,6 +3,7 @@
 #include <math.h>
 #include <emscripten/emscripten.h>
 #include "BVH.hpp"
+#include "stage.hpp"
 #include "raytracer/raytracer.hpp"
 #include "camera.hpp"
 #include <algorithm>
@@ -15,7 +16,7 @@ int main(int argc, char **argv) {
 extern "C" {
 #endif
 
-ModelBVH bvh;
+Stage stage;
 camera cam;
 
 int EMSCRIPTEN_KEEPALIVE createBounding(float* position, int posCount, int* indicies, int indexCount, float* normal, int normCount, float* texCoord, int texCoordCount) {
@@ -33,7 +34,17 @@ int EMSCRIPTEN_KEEPALIVE createBounding(float* position, int posCount, int* indi
     polygon.push_back(p);
   }
 
-  bvh.construct(vertex, polygon);
+  std::vector<tri3> texcoord;
+  for (int i=0;i<texCoordCount * 3;i += 3) {
+    tri3 t{texCoord[i+0], texCoord[i+1], texCoord[i+2]};
+    texcoord.push_back(t);
+  }
+
+  //bvh.construct(vertex, polygon, texcoord);
+  stage.add(vertex, polygon, texcoord,{1,0,0,0,0,1,0,0,0,0,1,0,0,0,0,1},{1,0,0,0,0,1,0,0,0,0,1,0,0,0,0,1});
+  stage.add(vertex, polygon, texcoord,{0,1,0,0,0,0,1,0,1,0,0,0,0,0,0,1},{0,0,1,0,1,0,0,0,0,1,0,0,0,0,0,1});
+  stage.add(vertex, polygon, texcoord,{0,0,1,0,1,0,0,0,0,1,0,0,0,0,0,1},{0,1,0,0,0,0,1,0,1,0,0,0,0,0,0,1});
+
 
   return 0;
 }
@@ -68,7 +79,7 @@ int EMSCRIPTEN_KEEPALIVE pathTracer(int* a, int width, int height){
                 Raytracer::Ray ray = cam.getRay(
                   (double(i) + Raytracer::rnd() - width / 2) / height,
                   -(double(j) + Raytracer::rnd() - height / 2) / height);
-                resultRgb += Raytracer::raytrace(ray, bvh).rgb;
+                resultRgb += Raytracer::raytrace(ray, stage).rgb;
             }
             resultRgb *= (double(1.0) / spp);
 
