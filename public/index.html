@@ -16,7 +16,6 @@
   </div>
   <div style="display:none;">
     <img src="./uv.png" id="img" />
-    <img src="./human.png" id="human" />
   </div>
   <script src="../build/umd/pathtracer.js"></script>
   <script>
@@ -24,8 +23,8 @@
     const wasmManager = new PathTracer.WasmManager('../build/wasm/main.wasm');
 
     // テクスチャ作成
-    const image = document.getElementById('human');
-    const humanTexture = new PathTracer.Texture(image);
+    // const image = document.getElementById('human');
+    // const humanTexture = new PathTracer.Texture(image);
 
     // Wasmのロードが終わり次第
     wasmManager.addEventListener('initialized', async () => {
@@ -34,15 +33,15 @@
         new PathTracer.Material(new PathTracer.Vector3(0.5,0.5,0.5)),
       );
       // 人型
-      const humanModel = new PathTracer.GLTFLoader(
-        new PathTracer.Material(new PathTracer.Vector3(1, 1, 1), humanTexture),
-      );
+      // const humanModel = new PathTracer.GLTFLoader(
+      //   new PathTracer.Material(new PathTracer.Vector3(1, 1, 1), humanTexture),
+      // );
       // 人型を中心から移動させてちょっと縮小
-      humanModel.transform.position = humanModel.transform.position.add(new PathTracer.Vector3(0.8, 0, 0));
-      humanModel.transform.scale.set(0.5, 0.5, 0.5);
+      // humanModel.transform.position = humanModel.transform.position.add(new PathTracer.Vector3(0.8, 0, 0));
+      // humanModel.transform.scale.set(0.5, 0.5, 0.5);
       
       // モデルのロード
-      Promise.all([gltfModel.load('bunnyinboxuv.gltf'), humanModel.load('human.gltf')]).then(() => {
+      Promise.all([gltfModel.load('bunnyinboxuv.gltf')]).then(() => {
         
         // レンダラを用意
         const renderer = new PathTracer.Renderer(wasmManager);
@@ -57,7 +56,7 @@
         // カメラを回転
         const rotate = Math.PI * Math.random() * 2;
         cam.pos = new PathTracer.Vector3(1 * Math.cos(rotate), 1, 1 * Math.sin(rotate));
-        cam.lookAt(new PathTracer.Vector3(0.3, 0.0, 0.0))
+        cam.lookAt(new PathTracer.Vector3(0.0, 0.0, 0.0))
 
         // レンダリング(時間がかかる)
           renderer.render(document.getElementById('cnv'), cam)
