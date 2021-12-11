@@ -1,4 +1,4 @@
-import {  WasmValueType } from '../../types/wasm';
+import { WasmValueType } from '../../types/wasm';
 import { WasmBuffer } from './WasmBuffer';
 import { WasmModuleGenerator } from './WasmModule';
 
@@ -48,6 +48,10 @@ export class WasmManager extends EventTarget {
 
   public callCreateBounding(...args: (number | WasmBuffer)[]) {
     return this.callFunction('createBounding', ...args);
+  }
+
+  public callSetCamera(...args: (number | WasmBuffer)[]) {
+    return this.callFunction('setCamera', ...args);
   }
 
   public callFunction(funcname: string, ...args: (number | WasmBuffer)[]) {

@@ -18,6 +18,7 @@
       normal = null;
       texcoord = null;
       pixelData = null;
+      cameraBuf = null;
       /**
        * Creates an instance of Renderer.
        * @param {WasmManager} wasmManager
@@ -57,7 +58,7 @@
        */
 
 
-      render(canvas) {
+      render(canvas, camera) {
         const {
           width,
           height
@@ -78,6 +79,9 @@
         }
 
         if (!this.pixelData) this.pixelData = this.wasmManager.createBuffer('i32', imagedata.data.length);
+        if (!this.cameraBuf) this.cameraBuf = this.wasmManager.createBuffer('float', 13);
+        this.cameraBuf.setArray(camera.dumpAsArray());
+        this.wasmManager.callSetCamera(this.cameraBuf);
         const result = this.wasmManager.callPathTracer(this.pixelData, width, height);
 
         if (result < 0) {
@@ -114,6 +118,11 @@
         if (this.pixelData) {
           this.pixelData.release();
           this.pixelData = null;
+        }
+
+        if (this.cameraBuf) {
+          this.cameraBuf.release();
+          this.cameraBuf = null;
         }
       }
 
@@ -2012,6 +2021,10 @@
         return (Module._createBounding = Module.asm.createBounding).apply(null, arguments);
       };
 
+      Module._setCamera = function () {
+        return (Module._setCamera = Module.asm.setCamera).apply(null, arguments);
+      };
+
       Module._pathTracer = function () {
         return (Module._pathTracer = Module.asm.pathTracer).apply(null, arguments);
       };
@@ -2206,6 +2219,10 @@
         return this.callFunction('createBounding', ...args);
       }
 
+      callSetCamera(...args) {
+        return this.callFunction('setCamera', ...args);
+      }
+
       callFunction(funcname, ...args) {
         const rawArgs = args.map(v => v instanceof WasmBuffer ? v.getPointer() : v);
         const argTypes = args.map(v => v instanceof WasmBuffer ? 'pointer' : 'number');
@@ -2288,6 +2305,92 @@
 
     }
 
+    class Camera {
+      _pos;
+      _forward;
+      _top;
+      _right;
+      _dist;
+
+      constructor(viewAngle) {
+        this._pos = new Vector3(0.0, 0.0, 0.0);
+        this._forward = new Vector3(0.0, 1.0, 0.0);
+        this._top = new Vector3(0.0, 0.0, 1.0);
+        this._right = new Vector3(1.0, 0.0, 1.0);
+        this._dist = 0.5 / Math.tan(viewAngle / 2);
+      }
+
+      get pos() {
+        return this._pos;
+      }
+
+      set pos(pos) {
+        this._pos = pos;
+      }
+
+      get forward() {
+        return this._forward;
+      }
+
+      set forward(forward) {
+        this._forward = forward.normalize();
+
+        const right = this._forward.cross(this._top);
+
+        this._top = right.cross(this._forward).normalize();
+      }
+
+      get top() {
+        return this._top;
+      }
+
+      set top(top) {
+        this._top = top.normalize();
+
+        const right = this._forward.cross(this._top);
+
+        this._forward = this._top.cross(right).normalize();
+      }
+
+      get dist() {
+        return this._dist;
+      }
+
+      set dist(dist) {
+        this._dist = dist;
+      }
+
+      get viewAngle() {
+        return 2 * Math.atan(0.5 / this._dist);
+      }
+
+      set viewAngle(viewAngle) {
+        this._dist = 0.5 / Math.tan(viewAngle / 2);
+      }
+
+      lookAt(to) {
+        if (to.equal(this._pos)) {
+          this._forward = new Vector3(0, 0, 1);
+        } else {
+          this._forward = to.subtract(this._pos).normalize();
+        }
+
+        this._right = this._forward.cross(new Vector3(0, 0, 1));
+
+        if (this._right.length() === 0) {
+          this._right = new Vector3(1, 0, 0);
+        }
+
+        this._top = this._right.cross(this._forward).normalize();
+      }
+
+      dumpAsArray() {
+        return [this._pos.x, this._pos.y, this._pos.z, this._forward.x, this._forward.y, this._forward.z, this._top.x, this._top.y, this._top.z, this._right.x, this._right.y, this._right.z, this._dist];
+      }
+
+    }
+
+    exports.Camera = Camera;
     exports.GLTFLoader = GLTFLoader;
     exports.Matrix4 = Matrix4;
     exports.Model = Model;

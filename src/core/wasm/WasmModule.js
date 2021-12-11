@@ -830,6 +830,9 @@ const WasmModuleGenerator = (filename) => {
   let _createBounding = Module._createBounding = function() {
       return (_createBounding = Module._createBounding = Module.asm.createBounding).apply(null, arguments)
   };
+  let _setCamera = Module._setCamera = function() {
+      return (_setCamera = Module._setCamera = Module.asm.setCamera).apply(null, arguments)
+  };
   let _pathTracer = Module._pathTracer = function() {
       return (_pathTracer = Module._pathTracer = Module.asm.pathTracer).apply(null, arguments)
   };
