@@ -11,7 +11,6 @@ import { Model } from './Model';
  * @class GLTFLoader
  */
 export class GLTFLoader extends Model {
-
   private rawJson: GLTFJson | null = null;
 
   /**

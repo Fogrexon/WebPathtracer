@@ -2377,7 +2377,7 @@
 
         this._right = this._forward.cross(new Vector3(0, 0, 1));
 
-        if (this._right.length() == 0) {
+        if (this._right.length() === 0) {
           this._right = new Vector3(1, 0, 0);
         }
 

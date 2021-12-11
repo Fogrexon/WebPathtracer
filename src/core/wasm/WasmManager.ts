@@ -1,4 +1,4 @@
-import {  WasmValueType } from '../../types/wasm';
+import { WasmValueType } from '../../types/wasm';
 import { WasmBuffer } from './WasmBuffer';
 import { WasmModuleGenerator } from './WasmModule';
 

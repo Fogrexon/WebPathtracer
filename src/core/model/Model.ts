@@ -75,7 +75,6 @@ export abstract class Model {
 
       max.set(Math.max(max.x, newPos.x), Math.max(max.y, newPos.y), Math.max(max.z, newPos.z));
       min.set(Math.min(min.x, newPos.x), Math.min(min.y, newPos.y), Math.min(min.z, newPos.z));
-
     }
     this._boundingBox.min = min;
     this._boundingBox.max = max;
@@ -100,7 +99,7 @@ export abstract class Model {
    */
   get position(): Float32Array {
     const position = new Float32Array(this._position.length);
-    const {matrix} = this;
+    const { matrix } = this;
     for (let i = 0; i < this._position.length; i += 3) {
       const pos = new Vector4(
         this._position[i + 0],
@@ -127,14 +126,9 @@ export abstract class Model {
    */
   get normal(): Float32Array {
     const rot = this.matrix.getScaleRotationMatrix();
-    const normal = new Float32Array(this._normal.length)
+    const normal = new Float32Array(this._normal.length);
     for (let i = 0; i < this._normal.length; i += 3) {
-      const pos = new Vector4(
-        this._normal[i + 0],
-        this._normal[i + 1],
-        this._normal[i + 2],
-        1.0
-      );
+      const pos = new Vector4(this._normal[i + 0], this._normal[i + 1], this._normal[i + 2], 1.0);
 
       const newPos = rot.multiply(pos) as Vector4;
 

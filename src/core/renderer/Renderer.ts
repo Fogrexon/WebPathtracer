@@ -2,7 +2,6 @@ import { Model } from '../model/Model';
 import { WasmBuffer } from '../wasm/WasmBuffer';
 import { WasmManager } from '../wasm/WasmManager';
 import { Camera } from '../camera/Camera';
-import { Vector3 } from '../..';
 
 /**
  * Image renderer. pass model and render image.
@@ -15,16 +14,16 @@ export class Renderer {
 
   private model: Model;
 
-  private position: WasmBuffer| null = null;
+  private position: WasmBuffer | null = null;
 
-  private indicies: WasmBuffer| null = null;
+  private indicies: WasmBuffer | null = null;
 
-  private normal: WasmBuffer| null = null;
+  private normal: WasmBuffer | null = null;
 
-  private texcoord: WasmBuffer| null = null;
+  private texcoord: WasmBuffer | null = null;
 
   private pixelData: WasmBuffer | null = null;
-  
+
   private cameraBuf: WasmBuffer | null = null;
 
   /**
@@ -45,10 +44,14 @@ export class Renderer {
    * @memberof Renderer
    */
   public createBound() {
-    if (!this.position) this.position = this.wasmManager.createBuffer('float', this.model.position.length);
-    if (!this.indicies) this.indicies = this.wasmManager.createBuffer('i32', this.model.indicies.length);
-    if (!this.normal) this.normal = this.wasmManager.createBuffer('float', this.model.normal.length);
-    if (!this.texcoord) this.texcoord = this.wasmManager.createBuffer('float', this.model.texcoord.length);
+    if (!this.position)
+      this.position = this.wasmManager.createBuffer('float', this.model.position.length);
+    if (!this.indicies)
+      this.indicies = this.wasmManager.createBuffer('i32', this.model.indicies.length);
+    if (!this.normal)
+      this.normal = this.wasmManager.createBuffer('float', this.model.normal.length);
+    if (!this.texcoord)
+      this.texcoord = this.wasmManager.createBuffer('float', this.model.texcoord.length);
 
     this.position.setArray(this.model.position);
     this.indicies.setArray(this.model.indicies);
@@ -63,7 +66,7 @@ export class Renderer {
       this.normal,
       this.model.normal.length / 3,
       this.texcoord,
-      this.model.texcoord.length / 2,
+      this.model.texcoord.length / 2
     );
   }
 
@@ -90,8 +93,9 @@ export class Renderer {
     if (this.pixelData && this.pixelData.length < imagedata.data.length) {
       this.pixelData.release();
       this.pixelData = null;
-    } 
-    if (!this.pixelData) this.pixelData = this.wasmManager.createBuffer('i32', imagedata.data.length);
+    }
+    if (!this.pixelData)
+      this.pixelData = this.wasmManager.createBuffer('i32', imagedata.data.length);
 
     if (!this.cameraBuf) this.cameraBuf = this.wasmManager.createBuffer('float', 13);
     this.cameraBuf.setArray(camera.dumpAsArray());
@@ -133,7 +137,7 @@ export class Renderer {
       this.pixelData.release();
       this.pixelData = null;
     }
-    if(this.cameraBuf) {
+    if (this.cameraBuf) {
       this.cameraBuf.release();
       this.cameraBuf = null;
     }

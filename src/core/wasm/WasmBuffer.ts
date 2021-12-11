@@ -1,5 +1,5 @@
-import { WasmArrayType, WasmValueType } from "../../types/wasm";
-import { WasmModule } from "./WasmModule";
+import { WasmArrayType, WasmValueType } from '../../types/wasm';
+import { WasmModule } from './WasmModule';
 
 /**
  * Wrapper of wasm array buffer
@@ -41,7 +41,7 @@ export class WasmBuffer {
     else throw Error('Invalid buffer type');
 
     this._type = type;
-    
+
     this._module = module;
 
     this._base = this._module._malloc(this._stride * size);
@@ -51,7 +51,7 @@ export class WasmBuffer {
    * Get value at index
    *
    * @param {number} index
-   * @return {*} 
+   * @return {*}
    * @memberof WasmBuffer
    */
   public get(index: number): number {
@@ -64,7 +64,7 @@ export class WasmBuffer {
    *
    * @param {number} index
    * @param {(number | bigint)} value
-   * @return {*} 
+   * @return {*}
    * @memberof WasmBuffer
    */
   public set(index: number, value: number | bigint) {
@@ -85,7 +85,7 @@ export class WasmBuffer {
   /**
    * Get array pointer
    *
-   * @return {*} 
+   * @return {*}
    * @memberof WasmBuffer
    */
   public getPointer() {
