@@ -156,6 +156,10 @@ namespace Raytracer {
     return Vec3(dot(v, a), dot(v, b), dot(v, c));
   }
 
+  Vec3 lerp(const Vec3& v1, const Vec3& v2, double t) {
+    return v1 * (1 - t) + v2 * t; 
+  }
+
   double cosTheta(const Vec3& localv) {
     return localv.y;
   }
