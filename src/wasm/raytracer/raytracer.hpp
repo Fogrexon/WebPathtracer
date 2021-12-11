@@ -9,7 +9,7 @@
 #define ROULETTE 0.999
 #define DELTA 0.000001
 
- #define RAYTRACER_DEBUG
+// #define RAYTRACER_DEBUG
 
 
 namespace Raytracer {
@@ -53,7 +53,7 @@ namespace Raytracer {
 
   #else
 
-  Color raytrace(Ray& init_ray, Stage& stage, Textures& textures) {
+  Color raytrace(Ray& init_ray, Stage& stage, Texture& textures) {
 
     Ray ray = init_ray;
     ray.pos = init_ray.pos;
@@ -101,7 +101,7 @@ namespace Raytracer {
         Vec3 toLightDir(0);
         Vec3 le = light.NEE(point, normal, toLightPos, toLightDir);
 
-        rayHit toLightHit = stage.intersectStage(rayStart.toPoint3(), toLightDir.toVec3());
+        rayHit toLightHit = stage.intersectStage(rayStart.toPoint3(), toLightDir.toVec3()).rayhit;
         Vec3 toLightHitPos = Vec3(toLightHit.point.x, toLightHit.point.y, toLightHit.point.z);
         double lightDist2 = (toLightPos - rayStart).length2();
         double hitDist2 = (toLightHitPos - rayStart).length2();
