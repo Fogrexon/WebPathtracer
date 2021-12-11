@@ -25,7 +25,18 @@ int EMSCRIPTEN_KEEPALIVE createTexture(int* texture) {
   return textures.size() - 1;
 }
 
-int EMSCRIPTEN_KEEPALIVE createBounding(float* position, int posCount, int* indicies, int indexCount, float* normal, int normCount, float* texCoord, int texCoordCount) {
+int EMSCRIPTEN_KEEPALIVE createBounding(
+  float* position,
+  int posCount,
+  int* indicies,
+  int indexCount,
+  float* normal,
+  int normCount,
+  float* texCoord,
+  int texCoordCount,
+  float* matrixs,
+  float* material,
+) {
   std::vector<vert> vertex;
   assert(posCount==normCount);
   for (int i=0;i<posCount * 3;i += 3) {

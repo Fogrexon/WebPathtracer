@@ -57,8 +57,6 @@ export class Renderer {
     );
   }
 
-  
-
   /**
    * Render image to canvas
    *
