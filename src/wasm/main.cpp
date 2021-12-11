@@ -40,9 +40,9 @@ int EMSCRIPTEN_KEEPALIVE createBounding(float* position, int posCount, int* indi
     polygon.push_back(p);
   }
 
-  std::vector<tri3> texcoord;
+  std::vector<std::array<texpoint,3>> texcoord;
   for (int i=0;i<texCoordCount * 3;i += 3) {
-    tri3 t{texCoord[i+0], texCoord[i+1], texCoord[i+2]};
+    std::array<texpoint,3> t{texCoord[i+0], texCoord[i+1], texCoord[i+2]};
     texcoord.push_back(t);
   }
 

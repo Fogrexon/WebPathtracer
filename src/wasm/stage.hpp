@@ -20,7 +20,7 @@ class Stage{
     }*/
 
     //頂点情報をv、ポリゴン情報をp、テクスチャ情報をt、モデルの回転拡大平行移動をd(の逆行列)としてステージに追加し、インデックスを返す
-    int add(std::vector<vert> v,std::vector<std::array<int,3>> p,std::vector<tri3> t,std::array<int,16> d,std::array<int,16> di){
+    int add(std::vector<vert> v,std::vector<std::array<int,3>> p,std::vector<std::array<texpoint,3>> t,std::array<int,16> d,std::array<int,16> di){
         int n = models.size();
         models.resize(n+1);
         active.resize(n+1);
@@ -45,7 +45,7 @@ class Stage{
 
     //与えられた光線とモデルたちの当たり判定をする
     rayHit intersectStage(point3 o,vec3 d){
-        rayHit ret = {false,{INFF,INFF,INFF},-1,{0,0,0},-1,-1,{INFF,INFF,INFF}};
+        rayHit ret = {false,{INFF,INFF,INFF},-1,{0,0,0},-1,-1,{INFF,INFF}};
         double length = INFF;
 
         for(int i=0;i<(int)models.size();i++){

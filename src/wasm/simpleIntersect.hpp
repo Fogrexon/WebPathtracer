@@ -28,6 +28,11 @@ struct tri3{
     std::array<point3,3> vertex;
 };
 
+struct texpoint{
+    double x;
+    double y;
+};
+
 struct rayHit{
     bool isHit;
     point3 point;
@@ -35,7 +40,7 @@ struct rayHit{
     vec3 normal;
     double u;
     double v;
-    point3 texcoord;
+    texpoint texcoord;
 };
 
 //3次元正方行列[a,b,c]の行列式をSarrusの方法で求める
@@ -85,7 +90,7 @@ rayHit intersectTriangle(point3 o,vec3 d,tri3 T){
 
     double det = determinant(d,e2,e1);
     if(std::abs(det) < EPS){
-        return {false,{INFF,INFF,INFF},-1,{0,0,0},-1,-1,{INFF,INFF,INFF}};
+        return {false,{INFF,INFF,INFF},-1,{0,0,0},-1,-1,{INFF,INFF}};
     }
 
     double f = 1/det;
@@ -95,7 +100,7 @@ rayHit intersectTriangle(point3 o,vec3 d,tri3 T){
     double v = f * determinant(r,e1,d);
 
     if(t<0 || u<0 || v<0 || u+v>1){
-        return {false,{INFF,INFF,INFF},-1,{0,0,0},-1,-1,{INFF,INFF,INFF}};
+        return {false,{INFF,INFF,INFF},-1,{0,0,0},-1,-1,{INFF,INFF}};
     }
 
     return {
@@ -105,7 +110,7 @@ rayHit intersectTriangle(point3 o,vec3 d,tri3 T){
         normalVector(T),
         u,
         v,
-        {INFF,INFF,INFF}
+        {INFF,INFF}
     };
 }
 

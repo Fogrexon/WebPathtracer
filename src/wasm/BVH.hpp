@@ -24,7 +24,7 @@ class ModelBVH {
 
     std::vector<vert> Vertex;
     std::vector<BVH> Node;
-    std::vector<tri3> TexCoord;
+    std::vector<std::array<texpoint,3>> TexCoord;
 
     void construct_BVH_internal(std::vector<std::array<int,3>> polygon,int index){
 
@@ -228,7 +228,7 @@ class ModelBVH {
 
     public:
     
-    void construct(std::vector<vert> vertex,std::vector<std::array<int,3>> polygon,std::vector<tri3> texcoord){
+    void construct(std::vector<vert> vertex,std::vector<std::array<int,3>> polygon,std::vector<std::array<texpoint,3>> texcoord){
         Vertex = vertex;
         Node.clear();
         Node.resize(1);
@@ -244,10 +244,10 @@ class ModelBVH {
             tri.vertex[0] = Vertex[Node[index].triangle[0]].point,tri.vertex[1] = Vertex[Node[index].triangle[1]].point,tri.vertex[2] = Vertex[Node[index].triangle[2]].point;
             rayHit P = intersectTriangle(o,d,tri);
             if(!P.isHit){
-                return {false,{INFF,INFF,INFF},-1,{0,0,0},-1,-1,{INFF,INFF,INFF}};
+                return {false,{INFF,INFF,INFF},-1,{0,0,0},-1,-1,{INFF,INFF}};
             }
             vec3 n0 = Vertex[Node[index].triangle[0]].norm, n1 = Vertex[Node[index].triangle[1]].norm, n2 = Vertex[Node[index].triangle[2]].norm;
-            tri3 tex = TexCoord[index];
+            texpoint tex0 = TexCoord[index][0], tex1 = TexCoord[index][1], tex2 = TexCoord[index][2];
 
             double zu = P.u,zv = P.v,zw = 1.0-P.u-P.v;
             vec3 Z = {zw*zw,zu*zu,zv*zv};
@@ -265,9 +265,8 @@ class ModelBVH {
                 P.u,
                 P.v,
                 {
-                    (1-P.u-P.v)*tex.vertex[0].x+P.u*(tex.vertex[1].x)+P.v*(tex.vertex[2].x),
-                    (1-P.u-P.v)*tex.vertex[0].y+P.u*(tex.vertex[1].y)+P.v*(tex.vertex[2].y),
-                    (1-P.u-P.v)*tex.vertex[0].z+P.u*(tex.vertex[1].z)+P.v*(tex.vertex[2].z)
+                    (1-P.u-P.v)*tex0.x+P.u*tex1.x+P.v*tex2.x,
+                    (1-P.u-P.v)*tex0.y+P.u*tex1.y+P.v*tex2.y
                 }
                 //normalVector({Vertex[Node[index].triangle[0]].point,Vertex[Node[index].triangle[1]].point,Vertex[Node[index].triangle[2]].point})
             };
@@ -278,7 +277,7 @@ class ModelBVH {
         std::pair<bool,point3> inter2 = intersectBox(o,d,Node[child2].Box_m,Node[child2].Box_M);
 
         if(!inter1.first && !inter2.first){
-            return {false,{INFF,INFF,INFF},-1,{0,0,0},-1,-1,{INFF,INFF,INFF}};
+            return {false,{INFF,INFF,INFF},-1,{0,0,0},-1,-1,{INFF,INFF}};
         }
         if(!inter1.first){
             return intersectModel_internal(o,d,child2);
@@ -290,7 +289,7 @@ class ModelBVH {
         rayHit col2 = intersectModel_internal(o,d,child2);
 
         if(!col1.isHit && !col2.isHit){
-            return {false,{INFF,INFF,INFF},-1,{0,0,0},-1,-1,{INFF,INFF,INFF}};
+            return {false,{INFF,INFF,INFF},-1,{0,0,0},-1,-1,{INFF,INFF}};
         }
         if(!col1.isHit){
             return col2;
@@ -305,14 +304,14 @@ class ModelBVH {
         }else{
             return col2;
         }
-        return {false,{INFF,INFF,INFF},-1,{0,0,0},-1,-1,{INFF,INFF,INFF}};
+        return {false,{INFF,INFF,INFF},-1,{0,0,0},-1,-1,{INFF,INFF}};
     }
     
     public:
     //rayの始点oと向きdを与えると、予め与えたモデルの表面にrayが当たるかを判定し、当たらないならfalseを、当たるならtrueとそのポイントを返す
     rayHit intersectModel(point3 o,vec3 d){
         if(!intersectBox(o,d,Node[0].Box_m,Node[0].Box_M).first){
-            return {false,{INFF,INFF,INFF},-1,{0,0,0},-1,-1,{INFF,INFF,INFF}};
+            return {false,{INFF,INFF,INFF},-1,{0,0,0},-1,-1,{INFF,INFF}};
         }
         return intersectModel_internal(o,d,0);
     }
