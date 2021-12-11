@@ -27,21 +27,16 @@ namespace Raytracer {
     Light light(Vec3(0));
 
     Color result{Vec3(0, 0, 0), 1.0};
-    
-    for(int i=0;i<MAX_REFLECT;i++) {
-      rayHit hit = bvh.intersectModel(ray.pos.toPoint3(), ray.dir.toVec3());
+    rayHit hit = bvh.intersectModel(ray.pos.toPoint3(), ray.dir.toVec3());
 
-      if (hit.isHit) {
-        Vec3 point = Vec3(hit.point.x, hit.point.y, hit.point.z);
-        Vec3 normal = normalize(Vec3(hit.normal.x, hit.normal.y, hit.normal.z));
-        assert(0.999 < normal.length() && normal.length() < 1.00001);
-        result.rgb = normal * 0.5 + 0.5;
-        break;
+    if (hit.isHit) {
+      Vec3 point = Vec3(hit.point.x, hit.point.y, hit.point.z);
+      Vec3 normal = normalize(Vec3(hit.normal.x, hit.normal.y, hit.normal.z));
+      assert(0.999 < normal.length() && normal.length() < 1.00001);
+      result.rgb = normal * 0.5 + 0.5;
 
-      } else {
-        result.rgb += throughput * Vec3(1, 1, 1);
-        break;
-      }
+    } else {
+      result.rgb += throughput * Vec3(1, 1, 1);
     }
 
     return result;
