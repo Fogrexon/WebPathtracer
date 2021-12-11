@@ -9,7 +9,7 @@
 #define ROULETTE 0.999
 #define DELTA 0.000001
 
-#define RAYTRACER_DEBUG
+//#define RAYTRACER_DEBUG
 
 
 namespace Raytracer {
