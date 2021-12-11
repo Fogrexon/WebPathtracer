@@ -17,6 +17,12 @@ extern "C" {
 
 ModelBVH bvh;
 camera cam;
+std::vector<int*> textures;
+
+int EMSCRIPTEN_KEEPALIVE createTexture(int* texture) {
+  textures.push_back(texture);
+  return textures.size() - 1;
+}
 
 int EMSCRIPTEN_KEEPALIVE createBounding(float* position, int posCount, int* indicies, int indexCount, float* normal, int normCount, float* texCoord, int texCoordCount) {
   std::vector<vert> vertex;
@@ -39,6 +45,22 @@ int EMSCRIPTEN_KEEPALIVE createBounding(float* position, int posCount, int* indi
 }
 
 int EMSCRIPTEN_KEEPALIVE setCamera(float* camData) {
+  // printf("pos %f %f %f\n", camData[0], camData[1], camData[2]);
+  // printf("forward %f %f %f\n", camData[3], camData[4], camData[5]);
+  // printf("camUp %f %f %f\n", camData[6], camData[7], camData[8]);
+  // printf("camRight %f %f %f\n", camData[9], camData[10], camData[11]);
+  // printf("dist %f\n", camData[12]);
+
+  cam.pos = Raytracer::Vec3{camData[0], camData[1], camData[2]};
+  cam.forward = Raytracer::Vec3{camData[3], camData[4], camData[5]};
+  cam.camUp = Raytracer::Vec3{camData[6], camData[7], camData[8]};
+  cam.camRight = Raytracer::Vec3{camData[9], camData[10], camData[11]};
+  cam.dist = camData[12];
+
+  return 0;
+}
+
+int EMSCRIPTEN_KEEPALIVE setTexture(float* camData) {
   // printf("pos %f %f %f\n", camData[0], camData[1], camData[2]);
   // printf("forward %f %f %f\n", camData[3], camData[4], camData[5]);
   // printf("camUp %f %f %f\n", camData[6], camData[7], camData[8]);
