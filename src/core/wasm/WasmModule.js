@@ -833,6 +833,9 @@ const WasmModuleGenerator = (filename) => {
   let _setCamera = Module._setCamera = function() {
       return (_setCamera = Module._setCamera = Module.asm.setCamera).apply(null, arguments)
   };
+  let _readStream = Module._readStream = function() {
+      return (_readStream = Module._readStream = Module.asm.readStream).apply(null, arguments)
+  };
   let _pathTracer = Module._pathTracer = function() {
       return (_pathTracer = Module._pathTracer = Module.asm.pathTracer).apply(null, arguments)
   };

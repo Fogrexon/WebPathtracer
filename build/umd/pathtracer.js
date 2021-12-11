@@ -89,6 +89,12 @@
           return -1;
         }
 
+        console.log('start calc');
+
+        while ((this.wasmManager.callReadStream(this.pixelData)) == 1) {}
+
+        console.log('end calc');
+
         for (let i = 0; i < pixels.length; i += 1) {
           imagedata.data[i] = this.pixelData.get(i);
         }
@@ -2025,6 +2031,10 @@
         return (Module._setCamera = Module.asm.setCamera).apply(null, arguments);
       };
 
+      Module._readStream = function () {
+        return (Module._readStream = Module.asm.readStream).apply(null, arguments);
+      };
+
       Module._pathTracer = function () {
         return (Module._pathTracer = Module.asm.pathTracer).apply(null, arguments);
       };
@@ -2223,6 +2233,10 @@
         return this.callFunction('setCamera', ...args);
       }
 
+      callReadStream(...args) {
+        return this.callFunction('readStream', ...args);
+      }
+
       callFunction(funcname, ...args) {
         const rawArgs = args.map(v => v instanceof WasmBuffer ? v.getPointer() : v);
         const argTypes = args.map(v => v instanceof WasmBuffer ? 'pointer' : 'number');
@@ -2375,7 +2389,7 @@
           this._forward = to.subtract(this._pos).normalize();
         }
 
-        this._right = this._forward.cross(new Vector3(0, 1, 0));
+        this._right = this._forward.cross(new Vector3(0, 1, 0)).normalize();
 
         if (this._right.length() === 0) {
           this._right = new Vector3(0, 0, 1);

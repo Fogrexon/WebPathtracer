@@ -107,13 +107,18 @@ export class Renderer {
       console.error('Path trace failed.');
       return -1;
     }
+    console.log('start calc');
+    
+    let result2;
+    while((result2 = this.wasmManager.callReadStream(this.pixelData)) == 1){}
+
+    console.log('end calc');
 
     for (let i = 0; i < pixels.length; i += 1) {
       imagedata.data[i] = this.pixelData.get(i);
     }
 
     this.pixelData.release();
-
     ctx.putImageData(imagedata, 0, 0);
 
     return 1;

@@ -53,6 +53,10 @@ export class WasmManager extends EventTarget {
   public callSetCamera(...args: (number | WasmBuffer)[]) {
     return this.callFunction('setCamera', ...args);
   }
+  
+  public callReadStream(...args: (number | WasmBuffer)[]) {
+    return this.callFunction('readStream', ...args);
+  }
 
   public callFunction(funcname: string, ...args: (number | WasmBuffer)[]) {
     const rawArgs = args.map((v) => (v instanceof WasmBuffer ? v.getPointer() : v));
