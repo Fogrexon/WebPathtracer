@@ -96,7 +96,7 @@ int EMSCRIPTEN_KEEPALIVE readStream(int* a){
   }
 
   int width = stream.settings.width, height = stream.settings.height;
-  const int lineperupdate = 1;
+  const int lineperupdate = 10;
 
   if(stream.progress.j < stream.settings.height){
       int j;
@@ -114,6 +114,11 @@ int EMSCRIPTEN_KEEPALIVE readStream(int* a){
               resultRgb *= (double(1.0) / spp);
 
               stream.progress.rawPixels[j][i] = resultRgb;
+              int index = j * width + i;
+              a[index * 4 + 0] = resultRgb.x * 255;
+              a[index * 4 + 1] = resultRgb.y * 255;
+              a[index * 4 + 2] = resultRgb.z * 255;
+              a[index * 4 + 3] = 255;
           }
       }
       stream.progress.j = j;
@@ -171,6 +176,9 @@ int EMSCRIPTEN_KEEPALIVE pathTracer(int* a, int width, int height){
     stream.progress.rawPixels.clear();
     stream.progress.rawPixels.assign(height, std::vector<Raytracer::Vec3>(width));
     stream.progress.j = 0;
+
+    for(int i = 0; i < width * height * 4; i++)
+      a[i] = 255;
 
     return 0;
 }
