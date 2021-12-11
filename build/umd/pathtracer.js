@@ -12,11 +12,6 @@
      */
     class Renderer {
       wasmManager;
-      model;
-      position = null;
-      indicies = null;
-      normal = null;
-      texcoord = null;
       pixelData = null;
       cameraBuf = null;
       /**
@@ -26,8 +21,7 @@
        * @memberof Renderer
        */
 
-      constructor(wasmManager, model) {
-        this.model = model;
+      constructor(wasmManager) {
         this.wasmManager = wasmManager;
       }
       /**
@@ -38,16 +32,19 @@
        */
 
 
-      createBound() {
-        if (!this.position) this.position = this.wasmManager.createBuffer('float', this.model.position.length);
-        if (!this.indicies) this.indicies = this.wasmManager.createBuffer('i32', this.model.indicies.length);
-        if (!this.normal) this.normal = this.wasmManager.createBuffer('float', this.model.normal.length);
-        if (!this.texcoord) this.texcoord = this.wasmManager.createBuffer('float', this.model.texcoord.length);
-        this.position.setArray(this.model.position);
-        this.indicies.setArray(this.model.indicies);
-        this.normal.setArray(this.model.normal);
-        this.texcoord.setArray(this.model.texcoord);
-        return this.wasmManager.callCreateBounding(this.position, this.model.position.length / 3, this.indicies, this.model.indicies.length / 3, this.normal, this.model.normal.length / 3, this.texcoord, this.model.texcoord.length / 2);
+      createBound(model) {
+        model.createBuffers(this.wasmManager);
+        const {
+          texture
+        } = model.material;
+
+        if (texture && texture.isValid() && texture.id < 0 && texture.buffer) {
+          const id = this.wasmManager.callFunction('createTexture', texture.buffer);
+          texture.id = id;
+          model.material.createBuffers(this.wasmManager);
+        }
+
+        return this.wasmManager.callCreateBounding(model.positionBuffer, model.positionBuffer.length / 3, model.indiciesBuffer, model.indiciesBuffer.length / 3, model.normalBuffer, model.normalBuffer.length / 3, model.texcoordBuffer, model.texcoordBuffer.length / 2, model.matrixBuffer, model.material.buffer);
       }
       /**
        * Render image to canvas
@@ -105,16 +102,6 @@
 
 
       release() {
-        if (this.position) {
-          this.position.release();
-          this.position = null;
-        }
-
-        if (this.indicies) {
-          this.indicies.release();
-          this.indicies = null;
-        }
-
         if (this.pixelData) {
           this.pixelData.release();
           this.pixelData = null;
@@ -751,15 +738,25 @@
 
     class Model {
       _position = new Float32Array();
+      _positionBuffer = null;
       _normal = new Float32Array();
+      _normalBuffer = null;
       _texcoord = new Float32Array();
+      _texcoordBuffer = null;
       _indicies = new Int32Array();
+      _indiciesBuffer = null;
       _boundingBox = {
         min: new Vector3(),
         max: new Vector3()
       };
       _matrix = new Matrix4();
+      _matrixBuffer = null;
       _transform = new Transform();
+      _material;
+
+      constructor(material) {
+        this._material = material;
+      }
       /**
        * create bounding box from default vertex and matrix
        *
@@ -767,17 +764,15 @@
        * @memberof Model
        */
 
+
       createBoundingBox() {
         const max = new Vector3();
         const min = new Vector3();
 
         for (let i = 0; i < this._position.length; i += 3) {
           const pos = new Vector4(this._position[i + 0], this._position[i + 1], this._position[i + 2], 1.0);
-
-          const newPos = this._matrix.multiply(pos);
-
-          max.set(Math.max(max.x, newPos.x), Math.max(max.y, newPos.y), Math.max(max.z, newPos.z));
-          min.set(Math.min(min.x, newPos.x), Math.min(min.y, newPos.y), Math.min(min.z, newPos.z));
+          max.set(Math.max(max.x, pos.x), Math.max(max.y, pos.y), Math.max(max.z, pos.z));
+          min.set(Math.min(min.x, pos.x), Math.min(min.y, pos.y), Math.min(min.z, pos.z));
         }
 
         this._boundingBox.min = min;
@@ -804,20 +799,7 @@
 
 
       get position() {
-        const position = new Float32Array(this._position.length);
-        const {
-          matrix
-        } = this;
-
-        for (let i = 0; i < this._position.length; i += 3) {
-          const pos = new Vector4(this._position[i + 0], this._position[i + 1], this._position[i + 2], 1.0);
-          const newPos = matrix.multiply(pos);
-          position[i + 0] = newPos.x;
-          position[i + 1] = newPos.y;
-          position[i + 2] = newPos.z;
-        }
-
-        return position;
+        return this._position;
       }
       /**
        * Vertex normal vector array
@@ -829,18 +811,7 @@
 
 
       get normal() {
-        const rot = this.matrix.getScaleRotationMatrix();
-        const normal = new Float32Array(this._normal.length);
-
-        for (let i = 0; i < this._normal.length; i += 3) {
-          const pos = new Vector4(this._normal[i + 0], this._normal[i + 1], this._normal[i + 2], 1.0);
-          const newPos = rot.multiply(pos).normalize();
-          normal[i + 0] = newPos.x;
-          normal[i + 1] = newPos.y;
-          normal[i + 2] = newPos.z;
-        }
-
-        return normal;
+        return this._normal;
       }
       /**
        * Texcoord vector array
@@ -877,6 +848,83 @@
 
       get matrix() {
         return this._transform.matrix.multiply(this._matrix);
+      }
+
+      get material() {
+        return this._material;
+      } // buffers
+
+
+      get positionBuffer() {
+        return this._positionBuffer;
+      }
+
+      get normalBuffer() {
+        return this._positionBuffer;
+      }
+
+      get texcoordBuffer() {
+        return this._normalBuffer;
+      }
+
+      get indiciesBuffer() {
+        return this._indiciesBuffer;
+      }
+
+      get matrixBuffer() {
+        return this._matrixBuffer;
+      }
+
+      createBuffers(manager) {
+        if (!this._positionBuffer) this._positionBuffer = manager.createBuffer('float', this._position.length);
+        if (!this._normalBuffer) this._normalBuffer = manager.createBuffer('float', this._normal.length);
+        if (!this._texcoordBuffer) this._texcoordBuffer = manager.createBuffer('float', this._texcoord.length);
+        if (!this._indiciesBuffer) this._indiciesBuffer = manager.createBuffer('i32', this._indicies.length);
+        if (!this._matrixBuffer) this._matrixBuffer = manager.createBuffer('float', this._matrix.matrix.length * 2);
+
+        this._positionBuffer.setArray(this._position);
+
+        this._normalBuffer.setArray(this._normal);
+
+        this._texcoordBuffer.setArray(this._texcoord);
+
+        this._indiciesBuffer.setArray(this._indicies);
+
+        const {
+          matrix
+        } = this;
+
+        this._matrixBuffer.setArray(matrix.matrix.concat(matrix.inverse().matrix));
+
+        this._material.createBuffers(manager);
+      }
+
+      release() {
+        if (this._positionBuffer) {
+          this._positionBuffer.release();
+
+          this._positionBuffer = null;
+        }
+
+        if (this._normalBuffer) {
+          this._normalBuffer.release();
+
+          this._normalBuffer = null;
+        }
+
+        if (this._texcoordBuffer) {
+          this._texcoordBuffer.release();
+
+          this._texcoordBuffer = null;
+        }
+
+        if (this._indiciesBuffer) {
+          this._indiciesBuffer.release();
+
+          this._indiciesBuffer = null;
+        }
+
+        this._material.release();
       }
       /**
        * get bounding box(you should use this after get position)
@@ -951,11 +999,180 @@
         const response = await fetch(uri);
         const buffer = await (await response.blob()).arrayBuffer(); // set default value
 
-        this._position = new Float32Array(buffer.slice(bufPos.byteOffset, bufPos.byteOffset + bufPos.byteLength));
+        this._position = new Float32Array(buffer, bufPos.byteOffset, bufPos.byteLength);
         this.createBoundingBox();
-        this._normal = new Float32Array(buffer.slice(bufNorm.byteOffset, bufNorm.byteOffset + bufNorm.byteLength));
-        this._texcoord = new Float32Array(buffer.slice(bufTex.byteOffset, bufTex.byteOffset + bufTex.byteLength));
+        this._normal = new Float32Array(buffer, bufNorm.byteOffset, bufNorm.byteLength);
+        this._texcoord = new Float32Array(buffer, bufTex.byteOffset, bufTex.byteLength);
         this._indicies = Int32Array.from(new Int16Array(buffer.slice(bufInd.byteOffset, bufInd.byteOffset + bufInd.byteLength)));
+      }
+
+    }
+
+    const MATERIAL_UNIFORM_LENGTH = 10;
+    class Material {
+      color;
+      texture = null;
+      _materialBuffer = null;
+
+      get buffer() {
+        return this._materialBuffer;
+      }
+
+      constructor(color = new Vector3(1.0), texture = null) {
+        this.color = color;
+        this.texture = texture;
+      }
+
+      createBuffers(manager) {
+        var _this$_materialBuffer;
+
+        if (!this._materialBuffer) this._materialBuffer = manager.createBuffer('float', MATERIAL_UNIFORM_LENGTH);
+        (_this$_materialBuffer = this._materialBuffer) === null || _this$_materialBuffer === void 0 ? void 0 : _this$_materialBuffer.setArray([0, this.texture ? this.texture.id : -1, this.color.x, this.color.y, this.color.z]);
+      }
+
+      release() {
+        var _this$_materialBuffer2;
+
+        (_this$_materialBuffer2 = this._materialBuffer) === null || _this$_materialBuffer2 === void 0 ? void 0 : _this$_materialBuffer2.release();
+        this._materialBuffer = null;
+      }
+
+    }
+
+    class Camera {
+      _pos;
+      _forward;
+      _top;
+      _right;
+      _dist;
+
+      constructor(viewAngle) {
+        this._pos = new Vector3(0.0, 0.0, 0.0);
+        this._forward = new Vector3(1.0, 0.0, 0.0);
+        this._top = new Vector3(0.0, 1.0, 0.0);
+        this._right = new Vector3(0.0, 0.0, 1.0);
+        this._dist = 0.5 / Math.tan(viewAngle / 2);
+      }
+
+      get pos() {
+        return this._pos;
+      }
+
+      set pos(pos) {
+        this._pos = pos;
+      }
+
+      get forward() {
+        return this._forward;
+      }
+
+      set forward(forward) {
+        this._forward = forward.normalize();
+
+        const right = this._forward.cross(this._top);
+
+        this._top = right.cross(this._forward).normalize();
+      }
+
+      get top() {
+        return this._top;
+      }
+
+      set top(top) {
+        this._top = top.normalize();
+
+        const right = this._forward.cross(this._top);
+
+        this._forward = this._top.cross(right).normalize();
+      }
+
+      get dist() {
+        return this._dist;
+      }
+
+      set dist(dist) {
+        this._dist = dist;
+      }
+
+      get viewAngle() {
+        return 2 * Math.atan(0.5 / this._dist);
+      }
+
+      set viewAngle(viewAngle) {
+        this._dist = 0.5 / Math.tan(viewAngle / 2);
+      }
+
+      lookAt(to) {
+        if (to.equal(this._pos)) {
+          this._forward = new Vector3(1, 0, 0);
+        } else {
+          this._forward = to.subtract(this._pos).normalize();
+        }
+
+        this._right = this._forward.cross(new Vector3(0, 1, 0)).normalize();
+
+        if (this._right.length() === 0) {
+          this._right = new Vector3(0, 0, 1);
+        }
+
+        this._top = this._right.cross(this._forward).normalize();
+      }
+
+      dumpAsArray() {
+        return [this._pos.x, this._pos.y, this._pos.z, this._forward.x, this._forward.y, this._forward.z, this._top.x, this._top.y, this._top.z, this._right.x, this._right.y, this._right.z, this._dist];
+      }
+
+    }
+
+    const IMAGE_SIZE = 1024;
+    class Texture {
+      image;
+      imageArray = null;
+      valid = false;
+      _buffer = null;
+      id = -1;
+
+      get buffer() {
+        return this._buffer;
+      }
+
+      constructor(image) {
+        this.image = image;
+        this.setTexture(image);
+      }
+
+      setTexture(image) {
+        this.image = image;
+        const cnv = document.createElement('canvas');
+        cnv.width = IMAGE_SIZE;
+        cnv.height = IMAGE_SIZE;
+        const ctx = cnv.getContext('2d');
+
+        if (!ctx) {
+          console.error('cannot create texture.');
+          return;
+        }
+
+        ctx.drawImage(image, 0, 0, IMAGE_SIZE, IMAGE_SIZE);
+        this.imageArray = ctx.getImageData(0, 0, IMAGE_SIZE, IMAGE_SIZE).data;
+        this.valid = true;
+      }
+
+      createBuffer(wasm) {
+        if (this._buffer) return;
+        this._buffer = wasm.createBuffer('i32', IMAGE_SIZE * IMAGE_SIZE);
+
+        this._buffer.setArray(this.imageArray);
+      }
+
+      isValid() {
+        return this.valid;
+      }
+
+      release() {
+        var _this$_buffer;
+
+        (_this$_buffer = this._buffer) === null || _this$_buffer === void 0 ? void 0 : _this$_buffer.release();
       }
 
     }
@@ -2305,97 +2522,14 @@
 
     }
 
-    class Camera {
-      _pos;
-      _forward;
-      _top;
-      _right;
-      _dist;
-
-      constructor(viewAngle) {
-        this._pos = new Vector3(0.0, 0.0, 0.0);
-        this._forward = new Vector3(1.0, 0.0, 0.0);
-        this._top = new Vector3(0.0, 1.0, 0.0);
-        this._right = new Vector3(0.0, 0.0, 1.0);
-        this._dist = 0.5 / Math.tan(viewAngle / 2);
-      }
-
-      get pos() {
-        return this._pos;
-      }
-
-      set pos(pos) {
-        this._pos = pos;
-      }
-
-      get forward() {
-        return this._forward;
-      }
-
-      set forward(forward) {
-        this._forward = forward.normalize();
-
-        const right = this._forward.cross(this._top);
-
-        this._top = right.cross(this._forward).normalize();
-      }
-
-      get top() {
-        return this._top;
-      }
-
-      set top(top) {
-        this._top = top.normalize();
-
-        const right = this._forward.cross(this._top);
-
-        this._forward = this._top.cross(right).normalize();
-      }
-
-      get dist() {
-        return this._dist;
-      }
-
-      set dist(dist) {
-        this._dist = dist;
-      }
-
-      get viewAngle() {
-        return 2 * Math.atan(0.5 / this._dist);
-      }
-
-      set viewAngle(viewAngle) {
-        this._dist = 0.5 / Math.tan(viewAngle / 2);
-      }
-
-      lookAt(to) {
-        if (to.equal(this._pos)) {
-          this._forward = new Vector3(1, 0, 0);
-        } else {
-          this._forward = to.subtract(this._pos).normalize();
-        }
-
-        this._right = this._forward.cross(new Vector3(0, 1, 0)).normalize();
-
-        if (this._right.length() === 0) {
-          this._right = new Vector3(0, 0, 1);
-        }
-
-        this._top = this._right.cross(this._forward).normalize();
-      }
-
-      dumpAsArray() {
-        return [this._pos.x, this._pos.y, this._pos.z, this._forward.x, this._forward.y, this._forward.z, this._top.x, this._top.y, this._top.z, this._right.x, this._right.y, this._right.z, this._dist];
-      }
-
-    }
-
     exports.Camera = Camera;
     exports.GLTFLoader = GLTFLoader;
+    exports.Material = Material;
     exports.Matrix4 = Matrix4;
     exports.Model = Model;
     exports.Quaternion = Quaternion;
     exports.Renderer = Renderer;
+    exports.Texture = Texture;
     exports.Transform = Transform;
     exports.Vector2 = Vector2;
     exports.Vector3 = Vector3;
