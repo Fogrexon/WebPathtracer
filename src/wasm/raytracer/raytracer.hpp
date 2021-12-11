@@ -9,7 +9,7 @@
 #define ROULETTE 0.999
 #define DELTA 0.000001
 
-//#define RAYTRACER_DEBUG
+// #define RAYTRACER_DEBUG
 
 
 namespace Raytracer {
@@ -62,7 +62,7 @@ namespace Raytracer {
     Vec3 throughput(1, 1, 1);
 
     //Diffuse mat(Vec3(0.4, 0.4, 0.7),-1);
-    PlaneLight light(Vec3(0, 3, 0), 7, Vec3(3.0, 10.0, 8.0));
+    PlaneLight light(Vec3(0, 3, 0), 7, Vec3(10.0, 10.0, 10.0));
 
     Color result{Vec3(0, 0, 0), 1.0};
     

@@ -21,12 +21,12 @@ namespace Raytracer {
       }
 
       Vec3 get(int id, Vec3& uv) {
-        assert(id < textures.size()/*, "texture id is invalid."*/);
+        assert(id < (int)textures.size()/*, "texture id is invalid."*/);
         if (id < 0) return Vec3(1.0);
         int* texture = textures[id];
 
         double ux = uv.x;
-        double uy = 1.0 - uv.y;
+        double uy = uv.y;
         int fx = (int)std::floor(ux * TEXTURE_SIZE);
         int fy = (int)std::floor(uy * TEXTURE_SIZE);
         int cx = (int)std::ceil(ux * TEXTURE_SIZE);

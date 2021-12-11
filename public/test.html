@@ -8,18 +8,27 @@
 <body>
   <canvas id="cnv" width=500 height=500></canvas>
   <img src="./uv.png" id="img" />
+  <img src="./human.png" id="human" />
   <script src="../build/umd/pathtracer.js"></script>
   <script>
     const wasmManager = new PathTracer.WasmManager('../build/wasm/main.wasm');
     const image = document.getElementById('img');
-    const texture = new PathTracer.Texture(image);
+    const image2 = document.getElementById('human');
+    const humanTexture = new PathTracer.Texture(image2);
     wasmManager.addEventListener('initialized', async () => {
       const gltfModel = new PathTracer.GLTFLoader(
-        new PathTracer.Material(new PathTracer.Vector3(1, 1, 1), texture),
+        new PathTracer.Material(new PathTracer.Vector3(0.5,0.5,0.5)),
       );
+      const humanModel = new PathTracer.GLTFLoader(
+        new PathTracer.Material(new PathTracer.Vector3(1, 1, 1), humanTexture),
+      );
+
+      humanModel.transform.position = humanModel.transform.position.add(new PathTracer.Vector3(0.8, 0, 0));
+      humanModel.transform.scale.set(0.5, 0.5, 0.5);
       
-      gltfModel.load('bunnyinboxuv.gltf').then(() => {
+      Promise.all([gltfModel.load('bunnyinboxuv.gltf'), humanModel.load('human.gltf')]).then(() => {
         const renderer = new PathTracer.Renderer(wasmManager, gltfModel);
+        renderer.createBound(humanModel);
         renderer.createBound(gltfModel);
 
         const cam = new PathTracer.Camera(Math.PI * 0.5);
@@ -29,15 +38,21 @@
           rotate += Math.PI * Math.random() * 2;
           // rotate += Math.PI * 0.1;
 
-          cam.pos = new PathTracer.Vector3(2.0 * Math.cos(rotate), 1.0, 2.0 * Math.sin(rotate));
-          cam.lookAt(new PathTracer.Vector3(0.0, 0.0, 0.0))
+          cam.pos = new PathTracer.Vector3(1.5 * Math.cos(rotate), 0.3, 1.5 * Math.sin(rotate));
+          cam.lookAt(new PathTracer.Vector3(0.8, 1.0, 0.0))
 
-          renderer.render(document.getElementById('cnv'), cam);
+          renderer.render(document.getElementById('cnv'), cam)
+          .then(() => {
+            gltfModel.release();
+            humanModel.release();
+            // texture.release();
+            humanTexture.release();
+
+            renderer.release();
+          });
         //  }, 1000);
   
   
-        gltfModel.release();
-        renderer.release();
       });
     });
   </script>

@@ -93,7 +93,9 @@
 
         const renderfunc = async () => {
           if (!this.pixelData) return;
-          const pixelData = this.pixelData;
+          const {
+            pixelData
+          } = this;
           const timer = setInterval(() => {
             result2 = this.wasmManager.callReadStream(pixelData);
 
@@ -104,13 +106,13 @@
             ctx.putImageData(imagedata, 0, 0);
 
             if (result2 === 0) {
+              console.log('end calc');
               clearInterval(timer);
               return;
             }
 
             console.log("waiting");
           }, 100);
-          console.log('end calc');
 
           for (let i = 0; i < pixels.length; i += 1) {
             imagedata.data[i] = this.pixelData.get(i);
@@ -1083,7 +1085,14 @@
         } = this.rawJson;
         if (!Array.isArray(nodes) || !Array.isArray(meshes) || !Array.isArray(accessors) || !Array.isArray(bufferViews) || !Array.isArray(buffers)) throw new Error('gltf file with array type only');
         const [node] = nodes;
-        const [bufPos, bufNorm, bufTex, bufInd] = bufferViews;
+        const {
+          primitives: [primitive]
+        } = meshes[0];
+        const bufPos = bufferViews[primitive.attributes.POSITION];
+        const bufNorm = bufferViews[primitive.attributes.NORMAL];
+        const bufTex = bufferViews[primitive.attributes.TEXCOORD_0];
+        const bufInd = bufferViews[primitive.indices]; // const [bufPos, bufNorm, bufTex, bufInd] = bufferViews;
+
         const [{
           uri
         }] = buffers; // make default transform matrix

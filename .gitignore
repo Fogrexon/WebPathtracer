@@ -106,7 +106,6 @@ dist
 # Rollup Build files
 build/commonjs/
 build/es/
-build/wasm/
 
 # Emscripten build files
 src/wasm/build/

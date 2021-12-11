@@ -102,7 +102,7 @@ int EMSCRIPTEN_KEEPALIVE readStream(int* a){
       int j;
       for(j = stream.progress.j; j < height && j < stream.progress.j + lineperupdate; j++){
           for(int i = 0; i < width; i++){
-              const int spp = 3;
+              const int spp = 10;
               Raytracer::Vec3 resultRgb{};
               for(int s = 0; s < spp; s++) {
                   // heightを1とした正規化

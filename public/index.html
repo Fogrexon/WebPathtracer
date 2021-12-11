@@ -3,50 +3,60 @@
 <head>
   <meta charset=utf-8>
   <meta content="text/html; charset=utf-8" http-equiv=Content-Type>
-  <title>Hello WASM World!</title>
+  <title>PathTracerTest</title>
 </head>
 <body>
-  <button class=mybutton>Run raytrace test</button><br>
-  <canvas id="cnv" width=1980 height=1080>canvas</canvas>
-  <script src="../build/wasm/main.js"></script>
+  <canvas id="cnv" width=500 height=500></canvas>
+  <div style="display:none;">
+    <img src="./uv.png" id="img" />
+    <img src="./human.png" id="human" />
+  </div>
+  <script src="../build/umd/pathtracer.js"></script>
   <script>
-    const canvas = document.getElementById('cnv');
-    const ctx = canvas.getContext('2d');
+    const wasmManager = new PathTracer.WasmManager('../build/wasm/main.wasm');
+    const image = document.getElementById('img');
+    const image2 = document.getElementById('human');
+    const humanTexture = new PathTracer.Texture(image2);
+    wasmManager.addEventListener('initialized', async () => {
+      const gltfModel = new PathTracer.GLTFLoader(
+        new PathTracer.Material(new PathTracer.Vector3(0.5,0.5,0.5)),
+      );
+      const humanModel = new PathTracer.GLTFLoader(
+        new PathTracer.Material(new PathTracer.Vector3(1, 1, 1), humanTexture),
+      );
 
-    const imagedata = ctx.createImageData(canvas.width, canvas.height);
+      humanModel.transform.position = humanModel.transform.position.add(new PathTracer.Vector3(0.8, 0, 0));
+      humanModel.transform.scale.set(0.5, 0.5, 0.5);
+      
+      Promise.all([gltfModel.load('bunnyinboxuv.gltf'), humanModel.load('human.gltf')]).then(() => {
+        const renderer = new PathTracer.Renderer(wasmManager, gltfModel);
+        renderer.createBound(humanModel);
+        renderer.createBound(gltfModel);
 
-    document.querySelector(".mybutton").addEventListener("click", (function () {
-      // 配列のメモリを用意
-      var nByte = 4;
-      var length = imagedata.data.length;
-      var buffer = Module._malloc(length * nByte);
-  
-      // 配列の値を設定 (array=0,1,2...,19)
-      for (var i = 0; i < length; i++) {
-        Module.setValue(buffer + i*nByte, imagedata.data[i], 'i32');
-      }
-  
-      // C言語の関数の呼び出し (各要素2倍)
-      Module._pathTracing(buffer, canvas.width, canvas.height);
-  
-      // 配列の値を取得 (array=0,2,4...,38)
-      for (var i = 0; i < length; i++) {
-        imagedata.data[i] = Module.getValue(buffer + i*nByte, 'i32');
-      }
+        const cam = new PathTracer.Camera(Math.PI * 0.5);
 
-      ctx.putImageData(imagedata, 0, 0);
-  
-      // 配列のメモリ解放
-      Module._free(buffer);
+        let rotate = 0;
+        //  setInterval(() => {
+          rotate += Math.PI * Math.random() * 2;
+          // rotate += Math.PI * 0.1;
 
-      fetch("./testmodel.gltf").then((data) => {
-        console.log(data.headers.get('Content-Type'));
-        return data.json();
-      }).then((data) => {
-        console.log(data);
+          cam.pos = new PathTracer.Vector3(1 * Math.cos(rotate), 1, 1 * Math.sin(rotate));
+          cam.lookAt(new PathTracer.Vector3(0.3, 0.0, 0.0))
+
+          renderer.render(document.getElementById('cnv'), cam)
+          .then(() => {
+            gltfModel.release();
+            humanModel.release();
+            // texture.release();
+            humanTexture.release();
+
+            renderer.release();
+          });
+        //  }, 1000);
+  
+  
       });
-
-    }));
+    });
   </script>
 </body>
 </html>
