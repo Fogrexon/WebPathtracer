@@ -6,55 +6,68 @@
   <title>PathTracerTest</title>
 </head>
 <body>
+  <h1>パストレーサー　ライブラリ</h1>
   <canvas id="cnv" width=500 height=500></canvas>
+  <div>
+    制作者: Fogrex, kegra, 0214sh7<br>
+    モデル提供元: d_etteiu8383<br>
+    リロードする度違う方面からレンダリングします。女の子の脚が見えないのはバグなのかファイルがミスってるのか分かりません。<br>
+    <a href="https://github.com/Fogrexon/WebPathtracer">このライブラリのリポジトリ(でっていうさんのモデルは無いです)</a>
+  </div>
   <div style="display:none;">
     <img src="./uv.png" id="img" />
     <img src="./human.png" id="human" />
   </div>
   <script src="../build/umd/pathtracer.js"></script>
   <script>
+    // Wasmロード
     const wasmManager = new PathTracer.WasmManager('../build/wasm/main.wasm');
-    const image = document.getElementById('img');
-    const image2 = document.getElementById('human');
-    const humanTexture = new PathTracer.Texture(image2);
+
+    // テクスチャ作成
+    const image = document.getElementById('human');
+    const humanTexture = new PathTracer.Texture(image);
+
+    // Wasmのロードが終わり次第
     wasmManager.addEventListener('initialized', async () => {
+      // うさちゃん+壁
       const gltfModel = new PathTracer.GLTFLoader(
         new PathTracer.Material(new PathTracer.Vector3(0.5,0.5,0.5)),
       );
+      // 人型
       const humanModel = new PathTracer.GLTFLoader(
         new PathTracer.Material(new PathTracer.Vector3(1, 1, 1), humanTexture),
       );
-
+      // 人型を中心から移動させてちょっと縮小
       humanModel.transform.position = humanModel.transform.position.add(new PathTracer.Vector3(0.8, 0, 0));
       humanModel.transform.scale.set(0.5, 0.5, 0.5);
       
+      // モデルのロード
       Promise.all([gltfModel.load('bunnyinboxuv.gltf'), humanModel.load('human.gltf')]).then(() => {
-        const renderer = new PathTracer.Renderer(wasmManager, gltfModel);
+        
+        // レンダラを用意
+        const renderer = new PathTracer.Renderer(wasmManager);
+
+        // BVH(衝突判定用のデータ構造)
         renderer.createBound(humanModel);
         renderer.createBound(gltfModel);
 
+        // カメラ
         const cam = new PathTracer.Camera(Math.PI * 0.5);
+        
+        // カメラを回転
+        const rotate = Math.PI * Math.random() * 2;
+        cam.pos = new PathTracer.Vector3(1 * Math.cos(rotate), 1, 1 * Math.sin(rotate));
+        cam.lookAt(new PathTracer.Vector3(0.3, 0.0, 0.0))
 
-        let rotate = 0;
-        //  setInterval(() => {
-          rotate += Math.PI * Math.random() * 2;
-          // rotate += Math.PI * 0.1;
-
-          cam.pos = new PathTracer.Vector3(1 * Math.cos(rotate), 1, 1 * Math.sin(rotate));
-          cam.lookAt(new PathTracer.Vector3(0.3, 0.0, 0.0))
-
+        // レンダリング(時間がかかる)
           renderer.render(document.getElementById('cnv'), cam)
           .then(() => {
+            // バッファの開放
             gltfModel.release();
             humanModel.release();
-            // texture.release();
             humanTexture.release();
-
             renderer.release();
           });
-        //  }, 1000);
-  
-  
       });
     });
   </script>
