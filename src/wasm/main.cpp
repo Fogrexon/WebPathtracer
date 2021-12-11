@@ -57,32 +57,36 @@ int EMSCRIPTEN_KEEPALIVE setCamera(float* camData) {
 }
 
 int EMSCRIPTEN_KEEPALIVE pathTracer(int* a, int width, int height){
-    
-    Raytracer::Vec3 C(0,-3,0);
-    Raytracer::Vec3 d(0,1,0);
+    std::vector<std::vector<Raytracer::Vec3>> rawPixels(height, std::vector<Raytracer::Vec3>(width));
 
     int index = 0;
 
-    // cam.pos = C;
-    // cam.forward = Raytracer::Vec3{0, 1, 0};
-    // cam.camUp = Raytracer::Vec3{-1.0, 0, 0};
-    // cam.camRight = Raytracer::Vec3{0, 0, 1.0};
+    for(int j = 0; j < height; j++){
+        for(int i = 0; i < width; i++){
+            const int spp = 3;
+            Raytracer::Vec3 resultRgb{};
+            for(int s = 0; s < spp; s++) {
+                // heightを1とした正規化
+                Raytracer::Ray ray = cam.getRay((double(i) - width / 2) / height, -(double(j) - height / 2) / height);
+                resultRgb += Raytracer::raytrace(ray, bvh).rgb;
+            }
+            resultRgb *= (double(1.0) / spp);
 
-    for(int j=-height/2;j<height - height/2;j++){
-        for(int i=-width/2;i<width - width/2;i++){
-            // heightを1とした正規化
-            Raytracer::Ray ray = cam.getRay(double(i) / height, -double(j) / height);
-
-            Raytracer::Color result = Raytracer::raytrace(ray, bvh);
-
-              a[index * 4 + 0] = result.rgb.x * 255;
-              a[index * 4 + 1] = result.rgb.y * 255;
-              a[index * 4 + 2] = result.rgb.z * 255;
-              a[index * 4 + 3] = 255;
-            index ++;
+            rawPixels[j][i] = resultRgb;
         }
     }
     
+    for(int j = 0; j < height; j++){
+      for(int i = 0; i < width; i++){
+        auto resultRgb = rawPixels[j][i];
+        a[index * 4 + 0] = resultRgb.x * 255;
+        a[index * 4 + 1] = resultRgb.y * 255;
+        a[index * 4 + 2] = resultRgb.z * 255;
+        a[index * 4 + 3] = 255;
+        index++;
+      }
+    }
+
     return 0;
 }
 
