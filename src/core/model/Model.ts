@@ -1,6 +1,9 @@
 import { Matrix4 } from '../../math/Matrix4';
 import { Vector3 } from '../../math/Vector3';
 import { Vector4 } from '../../math/Vector4';
+import { WasmBuffer } from '../wasm/WasmBuffer';
+import { WasmManager } from '../wasm/WasmManager';
+import { Material } from './Material';
 import { Transform } from './Transform';
 
 /**
@@ -42,17 +45,33 @@ export interface BoundingBox {
 export abstract class Model {
   protected _position: Float32Array = new Float32Array();
 
+  protected _positionBuffer: WasmBuffer | null = null;
+
   protected _normal: Float32Array = new Float32Array();
+
+  protected _normalBuffer: WasmBuffer | null = null;
 
   protected _texcoord: Float32Array = new Float32Array();
 
+  protected _texcoordBuffer: WasmBuffer | null = null;
+
   protected _indicies: Int32Array = new Int32Array();
+
+  protected _indiciesBuffer: WasmBuffer | null = null;
 
   protected _boundingBox: BoundingBox = { min: new Vector3(), max: new Vector3() };
 
   protected _matrix: Matrix4 = new Matrix4();
 
+  protected _matrixBuffer: WasmBuffer | null = null;
+
   protected _transform: Transform = new Transform();
+
+  protected _material: Material;
+
+  constructor(material: Material) {
+    this._material = material;
+  }
 
   /**
    * create bounding box from default vertex and matrix
@@ -71,10 +90,8 @@ export abstract class Model {
         1.0
       );
 
-      const newPos = this._matrix.multiply(pos) as Vector4;
-
-      max.set(Math.max(max.x, newPos.x), Math.max(max.y, newPos.y), Math.max(max.z, newPos.z));
-      min.set(Math.min(min.x, newPos.x), Math.min(min.y, newPos.y), Math.min(min.z, newPos.z));
+      max.set(Math.max(max.x, pos.x), Math.max(max.y, pos.y), Math.max(max.z, pos.z));
+      min.set(Math.min(min.x, pos.x), Math.min(min.y, pos.y), Math.min(min.z, pos.z));
     }
     this._boundingBox.min = min;
     this._boundingBox.max = max;
@@ -98,23 +115,7 @@ export abstract class Model {
    * @memberof Model
    */
   get position(): Float32Array {
-    const position = new Float32Array(this._position.length);
-    const { matrix } = this;
-    for (let i = 0; i < this._position.length; i += 3) {
-      const pos = new Vector4(
-        this._position[i + 0],
-        this._position[i + 1],
-        this._position[i + 2],
-        1.0
-      );
-
-      const newPos = matrix.multiply(pos) as Vector4;
-
-      position[i + 0] = newPos.x;
-      position[i + 1] = newPos.y;
-      position[i + 2] = newPos.z;
-    }
-    return position;
+    return this._position;
   }
 
   /**
@@ -125,18 +126,7 @@ export abstract class Model {
    * @memberof Model
    */
   get normal(): Float32Array {
-    const rot = this.matrix.getScaleRotationMatrix();
-    const normal = new Float32Array(this._normal.length);
-    for (let i = 0; i < this._normal.length; i += 3) {
-      const pos = new Vector4(this._normal[i + 0], this._normal[i + 1], this._normal[i + 2], 1.0);
-
-      const newPos = (rot.multiply(pos) as Vector4).normalize();
-
-      normal[i + 0] = newPos.x;
-      normal[i + 1] = newPos.y;
-      normal[i + 2] = newPos.z;
-    }
-    return normal;
+    return this._normal;
   }
 
   /**
@@ -170,6 +160,61 @@ export abstract class Model {
    */
   get matrix(): Matrix4 {
     return this._transform.matrix.multiply(this._matrix) as Matrix4;
+  }
+
+  get material(): Material {
+    return this._material;
+  }
+
+  // buffers
+
+  get positionBuffer() { return this._positionBuffer };
+
+  get normalBuffer() { return this._positionBuffer };
+
+  get texcoordBuffer() { return this._normalBuffer };
+
+  get indiciesBuffer() { return this._indiciesBuffer };
+
+  get matrixBuffer() { return this._matrixBuffer };
+
+  createBuffers(manager: WasmManager) {
+    if(!this._positionBuffer) this._positionBuffer = manager.createBuffer('float', this._position.length);
+    if(!this._normalBuffer) this._normalBuffer = manager.createBuffer('float', this._normal.length);
+    if(!this._texcoordBuffer) this._texcoordBuffer = manager.createBuffer('float', this._texcoord.length);
+    if(!this._indiciesBuffer) this._indiciesBuffer = manager.createBuffer('i32', this._indicies.length);
+    if(!this._matrixBuffer) this._matrixBuffer = manager.createBuffer('float', this._matrix.matrix.length * 2);
+
+    this._positionBuffer.setArray(this._position);
+    this._normalBuffer.setArray(this._normal);
+    this._texcoordBuffer.setArray(this._texcoord);
+    this._indiciesBuffer.setArray(this._indicies);
+
+    const {matrix} = this;
+    this._matrixBuffer.setArray(matrix.matrix.concat(matrix.inverse().matrix));
+
+    this._material.createBuffers(manager);
+  }
+
+  release() {
+    if(this._positionBuffer) {
+      this._positionBuffer.release();
+      this._positionBuffer = null;
+    }
+    if(this._normalBuffer)  {
+      this._normalBuffer.release();
+      this._normalBuffer = null;
+    }
+    if(this._texcoordBuffer)  {
+      this._texcoordBuffer.release();
+      this._texcoordBuffer = null;
+    }
+    if(this._indiciesBuffer)  {
+      this._indiciesBuffer.release();
+      this._indiciesBuffer = null;
+    }
+
+    this._material.release();
   }
 
   /**

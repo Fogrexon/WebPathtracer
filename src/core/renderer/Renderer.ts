@@ -12,16 +12,6 @@ import { Camera } from '../camera/Camera';
 export class Renderer {
   private wasmManager: WasmManager;
 
-  private model: Model;
-
-  private position: WasmBuffer | null = null;
-
-  private indicies: WasmBuffer | null = null;
-
-  private normal: WasmBuffer | null = null;
-
-  private texcoord: WasmBuffer | null = null;
-
   private pixelData: WasmBuffer | null = null;
 
   private cameraBuf: WasmBuffer | null = null;
@@ -32,8 +22,7 @@ export class Renderer {
    * @param {Model} model
    * @memberof Renderer
    */
-  constructor(wasmManager: WasmManager, model: Model) {
-    this.model = model;
+  constructor(wasmManager: WasmManager) {
     this.wasmManager = wasmManager;
   }
 
@@ -43,32 +32,32 @@ export class Renderer {
    * @return {*}
    * @memberof Renderer
    */
-  public createBound() {
-    if (!this.position)
-      this.position = this.wasmManager.createBuffer('float', this.model.position.length);
-    if (!this.indicies)
-      this.indicies = this.wasmManager.createBuffer('i32', this.model.indicies.length);
-    if (!this.normal)
-      this.normal = this.wasmManager.createBuffer('float', this.model.normal.length);
-    if (!this.texcoord)
-      this.texcoord = this.wasmManager.createBuffer('float', this.model.texcoord.length);
+  public createBound(model: Model) {
+    model.createBuffers(this.wasmManager);
 
-    this.position.setArray(this.model.position);
-    this.indicies.setArray(this.model.indicies);
-    this.normal.setArray(this.model.normal);
-    this.texcoord.setArray(this.model.texcoord);
+    const {texture} = model.material;
+
+    if(texture && texture.isValid() && texture.id < 0 && texture.buffer ) {
+      const id = this.wasmManager.callFunction('createTexture', texture.buffer);
+      texture.id = id;
+      model.material.createBuffers(this.wasmManager);
+    }
 
     return this.wasmManager.callCreateBounding(
-      this.position,
-      this.model.position.length / 3,
-      this.indicies,
-      this.model.indicies.length / 3,
-      this.normal,
-      this.model.normal.length / 3,
-      this.texcoord,
-      this.model.texcoord.length / 2
+      model.positionBuffer as WasmBuffer,
+      (model.positionBuffer as WasmBuffer).length / 3,
+      model.indiciesBuffer as WasmBuffer,
+      (model.indiciesBuffer as WasmBuffer).length / 3,
+      model.normalBuffer as WasmBuffer,
+      (model.normalBuffer as WasmBuffer).length / 3,
+      model.texcoordBuffer as WasmBuffer,
+      (model.texcoordBuffer as WasmBuffer).length / 2,
+      model.matrixBuffer as  WasmBuffer,
+      model.material.buffer as WasmBuffer
     );
   }
+
+  
 
   /**
    * Render image to canvas
@@ -125,14 +114,6 @@ export class Renderer {
    * @memberof Renderer
    */
   public release() {
-    if (this.position) {
-      this.position.release();
-      this.position = null;
-    }
-    if (this.indicies) {
-      this.indicies.release();
-      this.indicies = null;
-    }
     if (this.pixelData) {
       this.pixelData.release();
       this.pixelData = null;
