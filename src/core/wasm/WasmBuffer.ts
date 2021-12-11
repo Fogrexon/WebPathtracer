@@ -44,6 +44,8 @@ export class WasmBuffer {
 
     this._module = module;
 
+    this._length = size;
+
     this._base = this._module._malloc(this._stride * size);
   }
 
