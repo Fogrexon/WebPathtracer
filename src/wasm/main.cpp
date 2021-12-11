@@ -8,6 +8,7 @@
 #include "raytracer/color.hpp"
 #include "raytracer/ray.hpp"
 #include "camera.hpp"
+#include <algorithm>
 
 int main(int argc, char **argv) {
   printf("Hello WASM World\n");
@@ -78,9 +79,28 @@ int EMSCRIPTEN_KEEPALIVE pathTracer(int* a, int width, int height){
         }
     }
     
+    // 3x3 gaussian
+    // constexpr int kernelW = 3, kernelH = 3;
+    // double filterKernel[kernelW][kernelH] = {
+    //   {1.0/16, 2.0/16, 1.0/16},
+    //   {2.0/16, 4.0/16, 2.0/16},
+    //   {1.0/16, 2.0/16, 1.0/16}
+    // };
+    constexpr int kernelW = 1, kernelH = 1;
+    double filterKernel[kernelW][kernelH] = {
+      {1.0}
+    };
     for(int j = 0; j < height; j++){
       for(int i = 0; i < width; i++){
-        auto resultRgb = rawPixels[j][i];
+        Raytracer::Vec3 resultRgb{};
+
+        for(int dx = 0; dx < kernelW; dx++){
+          for(int dy = 0; dy < kernelH; dy++){
+            int sx = std::clamp(i + dx - kernelW / 2, 0, width - 1);
+            int sy = std::clamp(j + dy - kernelH / 2, 0, height - 1);
+            resultRgb += filterKernel[dx][dy] * rawPixels[sy][sx];
+          }
+        }
         a[index * 4 + 0] = resultRgb.x * 255;
         a[index * 4 + 1] = resultRgb.y * 255;
         a[index * 4 + 2] = resultRgb.z * 255;
