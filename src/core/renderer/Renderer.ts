@@ -109,21 +109,19 @@ export class Renderer {
     const renderfunc = async () => {
       if(!this.pixelData) return;
       
-      while(result2 === 1){
-        result2 = this.wasmManager.callReadStream(this.pixelData);
-        
-        // eslint-disable-next-line no-await-in-loop
-        await new Promise((resolve) => {
-          setTimeout(() => {
-            resolve(0);
-          }, 10);
-        });
+      const pixelData = this.pixelData;
+      const timer = setInterval(()=>{
+        result2 = this.wasmManager.callReadStream(pixelData);
         for (let i = 0; i < pixels.length; i += 1) {
-          imagedata.data[i] = this.pixelData.get(i);
+          imagedata.data[i] = pixelData.get(i);
         }
         ctx.putImageData(imagedata, 0, 0);
+        if(result2 === 0){
+          clearInterval(timer);
+          return;
+        }
         console.log("waiting");
-      }
+      }, 100);
   
       console.log('end calc');
   

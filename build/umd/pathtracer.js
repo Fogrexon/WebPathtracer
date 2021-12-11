@@ -13,7 +13,9 @@
     class Renderer {
       wasmManager;
       pixelData = null;
-      cameraBuf = null;
+      cameraBuf = null; // partial rendering context
+
+      renderCtx = null;
       /**
        * Creates an instance of Renderer.
        * @param {WasmManager} wasmManager
@@ -64,7 +66,7 @@
 
         if (!ctx) {
           console.error('canvas is failed');
-          return -1;
+          return;
         }
 
         const imagedata = ctx.createImageData(width, height);
@@ -83,22 +85,114 @@
 
         if (result < 0) {
           console.error('Path trace failed.');
-          return -1;
+          return;
         }
 
         console.log('start calc');
+        let result2 = this.wasmManager.callReadStream(this.pixelData);
 
-        while ((this.wasmManager.callReadStream(this.pixelData)) == 1) {}
+        const renderfunc = async () => {
+          if (!this.pixelData) return;
+          const pixelData = this.pixelData;
+          const timer = setInterval(() => {
+            result2 = this.wasmManager.callReadStream(pixelData);
 
-        console.log('end calc');
+            for (let i = 0; i < pixels.length; i += 1) {
+              imagedata.data[i] = pixelData.get(i);
+            }
 
-        for (let i = 0; i < pixels.length; i += 1) {
-          imagedata.data[i] = this.pixelData.get(i);
+            ctx.putImageData(imagedata, 0, 0);
+
+            if (result2 === 0) {
+              clearInterval(timer);
+              return;
+            }
+
+            console.log("waiting");
+          }, 100);
+          console.log('end calc');
+
+          for (let i = 0; i < pixels.length; i += 1) {
+            imagedata.data[i] = this.pixelData.get(i);
+          }
+
+          this.pixelData.release();
+          ctx.putImageData(imagedata, 0, 0);
+        }; // eslint-disable-next-line consistent-return
+
+
+        return renderfunc();
+      }
+
+      preparePartialRendering(canvas, camera) {
+        if (this.renderCtx !== null) {
+          return -1;
         }
 
-        this.pixelData.release();
-        ctx.putImageData(imagedata, 0, 0);
+        const {
+          width,
+          height
+        } = canvas;
+        const ctx = canvas.getContext('2d');
+
+        if (!ctx) {
+          console.error('canvas is failed');
+          return -1;
+        }
+
+        const imageData = ctx.createImageData(width, height);
+        const pixelData = this.wasmManager.createBuffer('i32', imageData.data.length);
+        this.renderCtx = {
+          width,
+          height,
+          ctx,
+          pixelData,
+          imageData
+        };
+        if (!this.cameraBuf) this.cameraBuf = this.wasmManager.createBuffer('float', 13);
+        this.cameraBuf.setArray(camera.dumpAsArray());
+        this.wasmManager.callSetCamera(this.cameraBuf);
+        const result = this.wasmManager.callPathTracer(pixelData, width, height);
+
+        if (result < 0) {
+          console.error('Path trace failed.');
+          return -1;
+        }
+
         return 1;
+      }
+
+      partialRendering(update = true) {
+        if (this.renderCtx == null) {
+          return -1;
+        }
+
+        const {
+          ctx,
+          pixelData,
+          imageData
+        } = this.renderCtx;
+        const pixels = imageData.data;
+        const result = this.wasmManager.callReadStream(pixelData);
+
+        if (result < 0) {
+          console.error('Path trace failed.');
+          return -1;
+        }
+
+        for (let i = 0; i < pixels.length; i += 1) {
+          imageData.data[i] = pixelData.get(i);
+        }
+
+        if (result === 0) {
+          pixelData.release();
+        }
+
+        if (update || result === 0) {
+          ctx.putImageData(imageData, 0, 0);
+        }
+
+        return result;
       }
       /**
        * Release buffers.
@@ -866,11 +960,11 @@
       }
 
       get normalBuffer() {
-        return this._positionBuffer;
+        return this._normalBuffer;
       }
 
       get texcoordBuffer() {
-        return this._normalBuffer;
+        return this._texcoordBuffer;
       }
 
       get indiciesBuffer() {
@@ -1030,8 +1124,9 @@
       }
 
       createBuffers(manager) {
-        var _this$_materialBuffer;
+        var _this$texture, _this$_materialBuffer;
 
+        (_this$texture = this.texture) === null || _this$texture === void 0 ? void 0 : _this$texture.createBuffer(manager);
         if (!this._materialBuffer) this._materialBuffer = manager.createBuffer('float', MATERIAL_UNIFORM_LENGTH);
         (_this$_materialBuffer = this._materialBuffer) === null || _this$_materialBuffer === void 0 ? void 0 : _this$_materialBuffer.setArray([0, this.texture ? this.texture.id : -1, this.color.x, this.color.y, this.color.z]);
       }
@@ -1166,7 +1261,7 @@
 
       createBuffer(wasm) {
         if (this._buffer) return;
-        this._buffer = wasm.createBuffer('i32', IMAGE_SIZE * IMAGE_SIZE);
+        this._buffer = wasm.createBuffer('i32', IMAGE_SIZE * IMAGE_SIZE * 4);
 
         this._buffer.setArray(this.imageArray);
       }
@@ -1216,6 +1311,7 @@
         if (type === 'i32') this._stride = 4;else if (type === 'i64') this._stride = 8;else if (type === 'float') this._stride = 4;else if (type === 'double') this._stride = 8;else throw Error('Invalid buffer type');
         this._type = type;
         this._module = module;
+        this._length = size;
         this._base = this._module._malloc(this._stride * size);
       }
       /**
