@@ -5,8 +5,8 @@
 #include "material.hpp"
 #include "light.hpp"
 
-#define MAX_REFLECT 100
-#define ROULETTE 0.9
+#define MAX_REFLECT 10
+#define ROULETTE 0.999
 #define DELTA 0.000001
 
 // #define RAYTRACER_DEBUG
@@ -23,7 +23,7 @@ namespace Raytracer {
 
     Vec3 throughput(1, 1, 1);
 
-    Diffuse mat(Vec3(0.4, 0.4, 0.9));
+    Diffuse mat(Vec3(0.4, 0.4, 0.7));
     PlaneLight light(Vec3(0, 2, 0), 2, Vec3(1, 1, 1));
 
     Color result{Vec3(0, 0, 0), 1.0};
@@ -52,8 +52,8 @@ namespace Raytracer {
 
     Vec3 throughput(1, 1, 1);
 
-    Diffuse mat(Vec3(0.4, 0.4, 0.9));
-    PlaneLight light(Vec3(0, 3, 0), 5, Vec3(10.0));
+    Diffuse mat(Vec3(0.4, 0.4, 0.7));
+    PlaneLight light(Vec3(0, 3, 0), 7, Vec3(3.0, 10.0, 8.0));
 
     Color result{Vec3(0, 0, 0), 1.0};
     
@@ -86,8 +86,6 @@ namespace Raytracer {
         Vec3 toLightPos(0);
         Vec3 toLightDir(0);
         Vec3 le = light.NEE(point, normal, toLightPos, toLightDir);
-
-        printf("message");
 
         rayHit toLightHit = bvh.intersectModel(rayStart.toPoint3(), toLightDir.toVec3());
         Vec3 toLightHitPos = Vec3(toLightHit.point.x, toLightHit.point.y, toLightHit.point.z);
