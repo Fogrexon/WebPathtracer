@@ -2,6 +2,7 @@
 #define RAYTRACER_TEXTURE_HPP
 
 #include <cmath>
+#include "vec3.hpp"
 
 #define TEXTURE_SIZE 1024
 

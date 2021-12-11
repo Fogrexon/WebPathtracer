@@ -56,12 +56,18 @@ int EMSCRIPTEN_KEEPALIVE createBounding(
     texcoord.push_back(t);
   }
 
-  //bvh.construct(vertex, polygon, texcoord);
-  stage.add(vertex, polygon, texcoord,{1,0,0,0,0,1,0,0,0,0,1,0,0,0,0,1},{1,0,0,0,0,1,0,0,0,0,1,0,0,0,0,1});
-  stage.add(vertex, polygon, texcoord,{0,1,0,0,0,0,1,0,1,0,0,0,0,0,0,1},{0,0,1,0,1,0,0,0,0,1,0,0,0,0,0,1});
-  stage.add(vertex, polygon, texcoord,{0,0,1,0,1,0,0,0,0,1,0,0,0,0,0,1},{0,1,0,0,0,0,1,0,1,0,0,0,0,0,0,1});
+  std::array<double,16> matr,matrinv;
+  for (int i=0;i < 16;i++) {
+    matr[i] = matrixs[i];
+    matrinv[i] = matrixs[16+i];
+  }
+
+  //stage.add(vertex, polygon, texcoord,{1,0,0,0,0,1,0,0,0,0,1,0,0,0,0,1},{1,0,0,0,0,1,0,0,0,0,1,0,0,0,0,1});
+  //stage.add(vertex, polygon, texcoord,{0,1,0,0,0,0,1,0,1,0,0,0,0,0,0,1},{0,0,1,0,1,0,0,0,0,1,0,0,0,0,0,1});
+  //stage.add(vertex, polygon, texcoord,{0,0,1,0,1,0,0,0,0,1,0,0,0,0,0,1},{0,1,0,0,0,0,1,0,1,0,0,0,0,0,0,1});
 
   Raytracer::Diffuse mat = Raytracer::createMaterial(material);
+  stage.add(vertex, polygon, texcoord,matr,matrinv,mat);
 
   // TODO matをどうにかする
 

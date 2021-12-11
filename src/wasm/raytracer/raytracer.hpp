@@ -23,25 +23,26 @@ namespace Raytracer {
 
     Vec3 throughput(1, 1, 1);
 
-    Diffuse mat(Vec3(0.4, 0.4, 0.7),-1);
+    //Diffuse mat(Vec3(0.4, 0.4, 0.7),-1);
     PlaneLight light(Vec3(0, 2, 0), 2, Vec3(1, 1, 1));
 
     Color result{Vec3(0, 0, 0), 1.0};
-    rayHit hit = stage.intersectStage(ray.pos.toPoint3(), ray.dir.toVec3());
+    rayHitMat hitMat = stage.intersectStage(ray.pos.toPoint3(), ray.dir.toVec3());
+    rayHit hit = hitMat.rayhit;
 
     if (hit.isHit) {
       Vec3 point = Vec3(hit.point.x, hit.point.y, hit.point.z);
       Vec3 normal = normalize(Vec3(hit.normal.x, hit.normal.y, hit.normal.z));
       Vec3 uv = Vec3(hit.texcoord.x, hit.texcoord.y, 0.0);
 
-      // TODO material 受け取り
-     
+      // material 受け取り
+      Diffuse mat = hitMat.mat;
       // normal
       result.rgb = normal * 0.5 + 0.5;
       // uv
-      //result.rgb = uv;
+      result.rgb = uv;
       // texture
-      //result.rgb = textures.get(mat.texId, uv);
+      result.rgb = textures.get(mat.texId, uv);
 
     } else {
       result.rgb += throughput * Vec3(0);
@@ -60,21 +61,22 @@ namespace Raytracer {
 
     Vec3 throughput(1, 1, 1);
 
-    Diffuse mat(Vec3(0.4, 0.4, 0.7),-1);
+    //Diffuse mat(Vec3(0.4, 0.4, 0.7),-1);
     PlaneLight light(Vec3(0, 3, 0), 7, Vec3(3.0, 10.0, 8.0));
 
     Color result{Vec3(0, 0, 0), 1.0};
     
     for(int i=0;i<MAX_REFLECT;i++) {
-      rayHit hit = stage.intersectStage(ray.pos.toPoint3(), ray.dir.toVec3());
+      rayHitMat hitMat = stage.intersectStage(ray.pos.toPoint3(), ray.dir.toVec3());
+      rayHit hit = hitMat.rayhit;
 
       if (hit.isHit) {
         Vec3 point = Vec3(hit.point.x, hit.point.y, hit.point.z);
         Vec3 normal = Vec3(hit.normal.x, hit.normal.y, hit.normal.z);
         Vec3 uv = Vec3(hit.texcoord.x, hit.texcoord.y, 0.0);
 
-        // TODO material 受け取り
-
+        // material 受け取り
+        Diffuse mat = hitMat.mat;
 
         Vec3 rayStart = point + DELTA * normal;
         Vec3 s, t;
