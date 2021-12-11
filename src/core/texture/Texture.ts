@@ -41,7 +41,7 @@ export class Texture {
 
   createBuffer(wasm: WasmManager) {
     if (this._buffer) return;
-    this._buffer = wasm.createBuffer('i32', IMAGE_SIZE * IMAGE_SIZE);
+    this._buffer = wasm.createBuffer('i32', IMAGE_SIZE * IMAGE_SIZE * 4);
 
     this._buffer.setArray(this.imageArray as Uint8ClampedArray);
   }

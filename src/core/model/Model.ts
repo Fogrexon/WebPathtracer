@@ -170,9 +170,9 @@ export abstract class Model {
 
   get positionBuffer() { return this._positionBuffer };
 
-  get normalBuffer() { return this._positionBuffer };
+  get normalBuffer() { return this._normalBuffer };
 
-  get texcoordBuffer() { return this._normalBuffer };
+  get texcoordBuffer() { return this._texcoordBuffer };
 
   get indiciesBuffer() { return this._indiciesBuffer };
 

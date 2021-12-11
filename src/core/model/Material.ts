@@ -30,6 +30,7 @@ export class Material {
   }
 
   createBuffers(manager: WasmManager) {
+    this.texture?.createBuffer(manager);
     if(!this._materialBuffer) this._materialBuffer = manager.createBuffer('float', MATERIAL_UNIFORM_LENGTH);
 
     this._materialBuffer?.setArray(

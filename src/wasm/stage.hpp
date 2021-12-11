@@ -1,9 +1,16 @@
 #include "BVH.hpp"
+#include "raytracer/material.hpp"
 
 struct Models{
     ModelBVH bvh;
-    std::array<int,16> dir;
-    std::array<int,16> dirinv;
+    std::array<double,16> dir;
+    std::array<double,16> dirinv;
+    Raytracer::Diffuse mat;
+};
+
+struct rayHitMat{
+    rayHit rayhit;
+    Raytracer::Diffuse mat;
 };
 
 //複数のモデルとレイの当たり判定をする関数のクラス
@@ -20,14 +27,16 @@ class Stage{
     }*/
 
     //頂点情報をv、ポリゴン情報をp、テクスチャ情報をt、モデルの回転拡大平行移動をd(の逆行列)としてステージに追加し、インデックスを返す
-    int add(std::vector<vert> v,std::vector<std::array<int,3>> p,std::vector<tri3> t,std::array<int,16> d,std::array<int,16> di){
+    int add(std::vector<vert> v,std::vector<std::array<int,3>> p,std::array<double,16> d,std::array<double,16> di,Raytracer::Diffuse m){
         int n = models.size();
-        models.resize(n+1);
-        active.resize(n+1);
+        
+        ModelBVH bvh;
+        bvh.construct(v,p);
 
-        models[n].bvh.construct(v,p,t);
-        models[n].dir = d;
-        models[n].dirinv = di;
+        Models newModel = {bvh,d,di,m};
+        models.push_back(newModel);
+        
+        active.resize(n+1);
         active[n] = true;
 
         return n;
@@ -44,8 +53,9 @@ class Stage{
     }
 
     //与えられた光線とモデルたちの当たり判定をする
-    rayHit intersectStage(point3 o,vec3 d){
-        rayHit ret = {false,{INFF,INFF,INFF},-1,{0,0,0},-1,-1,{INFF,INFF,INFF}};
+    rayHitMat intersectStage(point3 o,vec3 d){
+        rayHit retr = {false,{INFF,INFF,INFF},-1,{0,0,0},-1,-1,{INFF,INFF}};
+        rayHitMat ret = {retr,models[0].mat};
         double length = INFF;
 
         for(int i=0;i<(int)models.size();i++){
@@ -69,8 +79,8 @@ class Stage{
             if(!r.isHit)continue;
             double dx = r.point.x-ot.x,dy = r.point.y-ot.y,dz = r.point.z-ot.z;
             double rleng = sqrt(dx*dx+dy*dy+dz*dz);
-            if(!ret.isHit || rleng < length){
-                ret = {
+            if(!ret.rayhit.isHit || rleng < length){
+                ret.rayhit = {
                     r.isHit,
                     {
                         models[i].dir[0]*r.point.x + models[i].dir[4]*r.point.y + models[i].dir[8]*r.point.z + models[i].dir[12],
@@ -87,6 +97,7 @@ class Stage{
                     r.v,
                     r.texcoord
                 };
+                ret.mat = models[i].mat;
                 length = rleng;
             }
 

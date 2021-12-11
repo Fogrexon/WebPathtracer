@@ -2,7 +2,7 @@
 #define RAYTRACER_VEC3_HPP
 
 #include <cmath>
-#include "../BVH.hpp"
+#include "../simpleIntersect.hpp"
 
 namespace Raytracer {
   class Vec3 {

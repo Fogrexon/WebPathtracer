@@ -3,21 +3,13 @@
 
 #include "random.hpp"
 #include "texture.hpp"
+#include <cassert>
 
 namespace Raytracer {
   class Material {
     public:
-      virtual Vec3 sample(const Vec3& wo, Vec3& wi, double &pdf) const = 0;
+      virtual Vec3 sample(const Vec3& wo, Vec3& wi, double &pdf, Vec3& uv, Texture &textures) const = 0;
   };
-
-  Diffuse createMaterial(float* params) {
-    int type = (int)params[0];
-    assert(type == 0, "material type is invalid");
-    int texId = (int)params[1];
-    Vec3 rho(params[2], params[3], params[4]);
-
-    return Diffuse(rho, texId);
-  }
 
   class Diffuse : public Material {
     public:
@@ -44,6 +36,17 @@ namespace Raytracer {
         return rho * textures.get(texId, uv) / M_PI;
       };
   };
+
+  
+  Diffuse createMaterial(float* params) {
+    int type = (int)params[0];
+    assert(type == 0/*, "material type is invalid"*/);
+    int texId = (int)params[1];
+    Vec3 rho(params[2], params[3], params[4]);
+
+    return Diffuse(rho, texId);
+  }
+
 }
 
 #endif

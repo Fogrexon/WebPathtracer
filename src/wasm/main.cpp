@@ -18,7 +18,7 @@ extern "C" {
 
 Stage stage;
 camera cam;
-Raytracer::Texture textureManager();
+Raytracer::Texture textureManager;
 
 int EMSCRIPTEN_KEEPALIVE createTexture(int* texture) {
   return textureManager.set(texture);
@@ -34,14 +34,15 @@ int EMSCRIPTEN_KEEPALIVE createBounding(
   float* texCoord,
   int texCoordCount,
   float* matrixs,
-  float* material,
+  float* material
 ) {
   std::vector<vert> vertex;
   assert(posCount==normCount);
-  for (int i=0;i<posCount * 3;i += 3) {
-    point3 p{(double)position[i+0], (double)position[i+1], (double)position[i+2]};
-    vec3 n{(double)normal[i+0], (double)normal[i+1], (double)normal[i+2]};
-    vertex.push_back({p,n});
+  for (int i=0;i<posCount;i += 1) {
+    point3 p{(double)position[3*i+0], (double)position[3*i+1], (double)position[3*i+2]};
+    vec3 n{(double)normal[3*i+0], (double)normal[3*i+1], (double)normal[3*i+2]};
+    texpoint t{(double)texCoord[2*i+0], (double)texCoord[2*i+1]};
+    vertex.push_back({p,n,t});
   }
   
   std::vector<std::array<int,3>> polygon;
@@ -50,20 +51,18 @@ int EMSCRIPTEN_KEEPALIVE createBounding(
     polygon.push_back(p);
   }
 
-  std::vector<tri3> texcoord;
-  for (int i=0;i<texCoordCount * 3;i += 3) {
-    tri3 t{texCoord[i+0], texCoord[i+1], texCoord[i+2]};
-    texcoord.push_back(t);
+  std::array<double,16> matr,matrinv;
+  for (int i=0;i < 16;i++) {
+    matr[i] = matrixs[i];
+    matrinv[i] = matrixs[16+i];
   }
 
-  //bvh.construct(vertex, polygon, texcoord);
-  stage.add(vertex, polygon, texcoord,{1,0,0,0,0,1,0,0,0,0,1,0,0,0,0,1},{1,0,0,0,0,1,0,0,0,0,1,0,0,0,0,1});
-  stage.add(vertex, polygon, texcoord,{0,1,0,0,0,0,1,0,1,0,0,0,0,0,0,1},{0,0,1,0,1,0,0,0,0,1,0,0,0,0,0,1});
-  stage.add(vertex, polygon, texcoord,{0,0,1,0,1,0,0,0,0,1,0,0,0,0,0,1},{0,1,0,0,0,0,1,0,1,0,0,0,0,0,0,1});
+  //stage.add(vertex, polygon, texcoord,{1,0,0,0,0,1,0,0,0,0,1,0,0,0,0,1},{1,0,0,0,0,1,0,0,0,0,1,0,0,0,0,1});
+  //stage.add(vertex, polygon, texcoord,{0,1,0,0,0,0,1,0,1,0,0,0,0,0,0,1},{0,0,1,0,1,0,0,0,0,1,0,0,0,0,0,1});
+  //stage.add(vertex, polygon, texcoord,{0,0,1,0,1,0,0,0,0,1,0,0,0,0,0,1},{0,1,0,0,0,0,1,0,1,0,0,0,0,0,0,1});
 
-  Raytrace::Material mat = Raytrace::createMaterial(material);
-
-  // TODO matをどうにかする
+  Raytracer::Diffuse mat = Raytracer::createMaterial(material);
+  stage.add(vertex, polygon,matr,matrinv,mat);
 
 
   return 0;
