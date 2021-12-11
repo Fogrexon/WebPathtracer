@@ -4,9 +4,6 @@
 #include <emscripten/emscripten.h>
 #include "BVH.hpp"
 #include "raytracer/raytracer.hpp"
-#include "raytracer/vec3.hpp"
-#include "raytracer/color.hpp"
-#include "raytracer/ray.hpp"
 #include "camera.hpp"
 #include <algorithm>
 
