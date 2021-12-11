@@ -109,7 +109,7 @@ export class Renderer {
     const renderfunc = async () => {
       if(!this.pixelData) return;
       
-      const pixelData = this.pixelData;
+      const {pixelData} = this;
       const timer = setInterval(()=>{
         result2 = this.wasmManager.callReadStream(pixelData);
         for (let i = 0; i < pixels.length; i += 1) {
@@ -117,13 +117,13 @@ export class Renderer {
         }
         ctx.putImageData(imagedata, 0, 0);
         if(result2 === 0){
+          console.log('end calc');
           clearInterval(timer);
           return;
         }
         console.log("waiting");
       }, 100);
   
-      console.log('end calc');
   
       for (let i = 0; i < pixels.length; i += 1) {
         imagedata.data[i] = this.pixelData.get(i);

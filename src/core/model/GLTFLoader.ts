@@ -49,7 +49,13 @@ export class GLTFLoader extends Model {
       throw new Error('gltf file with array type only');
 
     const [node] = nodes;
-    const [bufPos, bufNorm, bufTex, bufInd] = bufferViews;
+    const {primitives: [primitive]} = meshes[0];
+    const bufPos = bufferViews[primitive.attributes.POSITION as number];
+    const bufNorm = bufferViews[primitive.attributes.NORMAL as number];
+    const bufTex = bufferViews[primitive.attributes.TEXCOORD_0 as number];
+    const bufInd = bufferViews[primitive.indices as number];
+    // const [bufPos, bufNorm, bufTex, bufInd] = bufferViews;
+
     const [{ uri }] = buffers;
 
     // make default transform matrix

@@ -16,13 +16,14 @@ export interface GLTFJsonNode {
 export interface GLTFJsonMesh {
   name: string;
   primitives: {
-    attibutes: {
+    attributes: {
       NORMAL: number | string;
       POSITION: number | string;
+      TEXCOORD_0: number | string;
       [key: string]: number | string;
     };
     indices: number | string;
-  };
+  }[];
 }
 
 export interface GLTFJsonAccessor {
