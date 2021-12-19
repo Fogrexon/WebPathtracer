@@ -23,9 +23,6 @@ namespace Raytracer {
 
     Vec3 throughput(1, 1, 1);
 
-    //Diffuse mat(Vec3(0.4, 0.4, 0.7),-1);
-    PlaneLight light(Vec3(0, 2, 0), 2, Vec3(1, 1, 1));
-
     Color result{Vec3(0, 0, 0), 1.0};
     rayHitMat hitMat = stage.intersectStage(ray.pos.toPoint3(), ray.dir.toVec3());
     rayHit hit = hitMat.rayhit;
@@ -62,7 +59,7 @@ namespace Raytracer {
     Vec3 throughput(1, 1, 1);
 
     //Diffuse mat(Vec3(0.4, 0.4, 0.7),-1);
-    PlaneLight light(Vec3(0, 3, 0), 7, Vec3(10.0, 10.0, 10.0));
+    PlaneLight light(Vec3(0, 3, 0), 1, Vec3(10.0, 10.0, 10.0));
 
     Color result{Vec3(0, 0, 0), 1.0};
     

@@ -16,18 +16,6 @@ namespace Raytracer {
       };
   };
 
-  // class SphereLight {
-  //   public:
-  //     Vec3 pos;
-  //     Vec3 color;
-  //     Light(const Vec3& _pos, const Vec3& _color): pos(_pos), color(_color) {};
-
-  //     // next event estimation
-  //     NEE(const Vec3& objpos) {
-
-  //     }
-  // }
-
   struct LightHit {
     bool isHit;
     Vec3& pos;
@@ -45,7 +33,7 @@ namespace Raytracer {
         // const double pa = 1/(size * size);
         const Vec3 xl = pos + Vec3(rnd() - 0.5, 0, rnd() - 0.5) * size;
         const Vec3 nl = Vec3(0, -1, 0);
-        const Vec3 omega = normalize(pos - hitPos);
+        const Vec3 omega = normalize(xl - hitPos);
 
         const double G = std::abs(dot(omega, hitNorm)) * std::abs(dot(-omega, nl)) / (xl - hitPos).length2();
 
