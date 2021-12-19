@@ -68,7 +68,7 @@ int EMSCRIPTEN_KEEPALIVE createBounding(
     matrinv[i] = matrixs[16+i];
   }
 
-  Raytracer::Diffuse mat = Raytracer::createMaterial(material);
+  Raytracer::Material *mat = Raytracer::createMaterial(material);
   stream.settings.stage.add(vertex, polygon,matr,matrinv,mat);
 
 

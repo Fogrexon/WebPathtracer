@@ -39,7 +39,7 @@ namespace Raytracer {
       // uv
       // result.rgb = uv;
       // texture
-      result.rgb = textures.get(mat.texId, uv);
+      result.rgb = textures.get(mat->texId, uv);
 
     } else {
       result.rgb += throughput * Vec3(0);
@@ -73,7 +73,7 @@ namespace Raytracer {
         Vec3 uv = Vec3(hit.texcoord.x, hit.texcoord.y, 0.0);
 
         // material 受け取り
-        Diffuse mat = hitMat.mat;
+        Material *mat = hitMat.mat;
 
         Vec3 rayStart = point + DELTA * normal;
         Vec3 s, t;
@@ -85,9 +85,9 @@ namespace Raytracer {
         Vec3 brdf;
         Vec3 wi_local;
         double pdf;
-        brdf = mat.sample(wo_local, wi_local, pdf, uv, textures);
+        brdf = mat->sample(wo_local, wi_local, pdf, uv, textures);
 
-        double cos = cosTheta(wi_local);
+        double cos = absCosTheta(wi_local);
 
         Vec3 wi = localToWorld(wi_local, s, normal, t);
 

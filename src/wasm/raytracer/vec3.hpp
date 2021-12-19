@@ -163,6 +163,10 @@ namespace Raytracer {
   double cosTheta(const Vec3& localv) {
     return localv.y;
   }
+
+  double cosTheta(const Vec3& localv) {
+    return std::abs(localv.y);
+  }
 }
 
 
