@@ -7,7 +7,6 @@
 
 #define MAX_REFLECT 10
 #define ROULETTE 0.999
-#define DELTA 0.000001
 
 // #define RAYTRACER_DEBUG
 
@@ -59,7 +58,7 @@ namespace Raytracer {
     Vec3 throughput(1, 1, 1);
 
     //Diffuse mat(Vec3(0.4, 0.4, 0.7),-1);
-    PlaneLight light(Vec3(0, 3, 0), 1, Vec3(10.0, 10.0, 10.0));
+    PlaneLight light(Vec3(0, 3, 0), 1, Vec3(3.0, 3.0, 3.0));
 
     Color result{Vec3(0, 0, 0), 1.0};
     
@@ -75,7 +74,7 @@ namespace Raytracer {
         // material 受け取り
         Material *mat = hitMat.mat;
 
-        Vec3 rayStart = point + DELTA * normal;
+        Vec3 rayStart = point;
         Vec3 s, t;
         orthonormalBasis(normal, s, t);
 
@@ -110,7 +109,7 @@ namespace Raytracer {
         ray = Ray(rayStart, wi);
 
       } else {
-        result.rgb += throughput * Vec3(0);
+        result.rgb += throughput * Vec3(abs(dot(Vec3(0, 1, 0), ray.dir)));
         break;
       }
 

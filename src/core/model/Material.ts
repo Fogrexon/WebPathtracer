@@ -11,6 +11,9 @@ export type MaterialUniformsArray = [
   color_r: number,
   color_g: number,
   color_b: number,
+] | [
+  materialType: number,
+  reflectRate: number,
 ]
 
 export class Material {
@@ -34,12 +37,16 @@ export class Material {
     if(!this._materialBuffer) this._materialBuffer = manager.createBuffer('float', MATERIAL_UNIFORM_LENGTH);
 
     this._materialBuffer?.setArray(
+      // [
+      //   0,
+      //   this.texture ? this.texture.id : -1,
+      //   this.color.x,
+      //   this.color.y,
+      //   this.color.z,
+      // ] as MaterialUniformsArray
       [
-        0,
-        this.texture ? this.texture.id : -1,
-        this.color.x,
-        this.color.y,
-        this.color.z,
+        1,
+        1.5,
       ] as MaterialUniformsArray
     );
   }
