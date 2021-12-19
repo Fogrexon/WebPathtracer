@@ -1,9 +1,21 @@
 import babel from '@rollup/plugin-babel';
 import postcss from 'rollup-plugin-postcss';
 import typescript from '@rollup/plugin-typescript';
-import nodeResolve from 'rollup-plugin-node-resolve';
+import { nodeResolve } from '@rollup/plugin-node-resolve';
+import { base64 } from 'rollup-plugin-base64';
+import { terser } from 'rollup-plugin-terser';
+
+import packageJson from './package.json';
 
 const extensions = ['.ts', '.js'];
+
+const banner = `
+  /**
+   * @license
+   * ${packageJson.moduleName}.js v${packageJson.version}
+   * Released under the ${packageJson.license} License.
+   */
+`;
 
 export default [
 
@@ -16,6 +28,7 @@ export default [
       dir: 'build/commonjs',
       format: 'cjs',
       exports: 'named',
+      banner,
       sourcemap: true,
     },
 
@@ -32,6 +45,7 @@ export default [
         rootDir: 'src',
         declarationDir: 'build/commonjs/src',
       }),
+      base64({ include: "src/**/*.wasm" }),
     ],
   },
 
@@ -42,6 +56,7 @@ export default [
       dir: 'build/es',
       format: 'es',
       exports: 'named',
+      banner,
       sourcemap: true,
     },
 
@@ -58,20 +73,35 @@ export default [
         rootDir: 'src',
         declarationDir: 'build/es/src',
       }),
+      base64({ include: "src/**/*.wasm" }),
     ],
   },
 
   {
     input: 'src/index.ts',
-    output: {
-      file: 'build/umd/pathtracer.js',
-      // dir: 'build/umd',
-      format: 'umd',
-      name: 'PathTracer',
-      sourcemap: true,
-    },
+    output: [
+      {
+        file: `build/umd/${packageJson.name}.js`,
+        // dir: 'build/umd',
+        format: 'umd',
+        name: packageJson.moduleName,
+        banner,
+        sourcemap: 'inline',
+      },
+      {
+        file: `build/umd/${packageJson.name}.min.js`,
+        // dir: 'build/umd',
+        format: 'umd',
+        name: packageJson.moduleName,
+        banner,
+        sourcemap: false,
+        plugins: [
+          terser(),
+        ]
+      },
+    ],
     plugins: [
-      nodeResolve({browser: true}),
+      nodeResolve({browser: true, extensions: ['.js', '.ts', '.wasm']}),
       postcss({
         extract: true,
       }),

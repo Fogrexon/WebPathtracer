@@ -1,6 +1,7 @@
 import { WasmValueType } from '../../types/wasm';
 import { WasmBuffer } from './WasmBuffer';
 import { WasmModuleGenerator } from './WasmModule';
+import wasmURL from './main.wasm';
 
 /**
  * Wasm module wrapper
@@ -16,9 +17,9 @@ export class WasmManager extends EventTarget {
    * @param {string} url wasm file url
    * @memberof WasmManager
    */
-  constructor(url: string) {
+  constructor() {
     super();
-    this.module = WasmModuleGenerator(url);
+    this.module = WasmModuleGenerator(wasmURL);
     this.module.onRuntimeInitialized = () => {
       this.dispatchEvent(new Event('initialized'));
     };
