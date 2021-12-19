@@ -45,7 +45,7 @@ export default [
         rootDir: 'src',
         declarationDir: 'build/commonjs/src',
       }),
-      base64({ include: "src/**/*.wasm" }),
+      base64({ include: "**/*.wasm" }),
     ],
   },
 
@@ -73,7 +73,7 @@ export default [
         rootDir: 'src',
         declarationDir: 'build/es/src',
       }),
-      base64({ include: "src/**/*.wasm" }),
+      base64({ include: "**/*.wasm" }),
     ],
   },
 
@@ -113,6 +113,7 @@ export default [
         rootDir: 'src',
         declarationDir: 'build/umd',
       }),
+      base64({ include: "**/*.wasm" }),
     ],
   },
 ];

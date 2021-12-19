@@ -73,4 +73,4 @@ export interface WasmModule {
   onRuntimeInitialized(): void;
 }
 
-export const WasmModuleGenerator: (url: string) => WasmModule;
+export const WasmModuleGenerator: () => WasmModule;
