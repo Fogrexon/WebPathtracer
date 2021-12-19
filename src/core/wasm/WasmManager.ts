@@ -16,9 +16,9 @@ export class WasmManager extends EventTarget {
    * @param {string} url wasm file url
    * @memberof WasmManager
    */
-  constructor(url: string) {
+  constructor() {
     super();
-    this.module = WasmModuleGenerator(url);
+    this.module = WasmModuleGenerator();
     this.module.onRuntimeInitialized = () => {
       this.dispatchEvent(new Event('initialized'));
     };

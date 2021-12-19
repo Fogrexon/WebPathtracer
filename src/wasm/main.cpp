@@ -124,7 +124,8 @@ int EMSCRIPTEN_KEEPALIVE readStream(int* a){
       stream.progress.j = j;
       return 1;
   }
-  
+
+
   // 3x3 gaussian
   // constexpr int kernelW = 3, kernelH = 3;
   // double filterKernel[kernelW][kernelH] = {
