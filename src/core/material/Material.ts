@@ -1,3 +1,4 @@
+import { Texture } from "../texture/Texture";
 import { WasmBuffer } from "../wasm/WasmBuffer";
 import { WasmManager } from "../wasm/WasmManager";
 
@@ -6,6 +7,8 @@ export const MATERIAL_UNIFORM_LENGTH = 10;
 export abstract class Material {
 
   private _materialBuffer: WasmBuffer | null = null;
+
+  public texture: Texture | null = null;
 
   get buffer() {
     return this._materialBuffer;

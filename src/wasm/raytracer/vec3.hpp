@@ -141,14 +141,14 @@ namespace Raytracer {
   }
 
   Vec3 reflect(const Vec3 &iv, const Vec3 &n) {
-    return iv - 2.0 * dot(iv, n) * n;
+    return - iv + 2.0 * dot(iv, n) * n;
   }
 
-  Vec3 worldToLocal(const Vec3& v, const Vec3& s, const Vec3& t, const Vec3& n) {
-    return Vec3(dot(v, s), dot(v, t), dot(v, n));
+  Vec3 worldToLocal(const Vec3& v, const Vec3& s, const Vec3& n, const Vec3& t) {
+    return Vec3(dot(v, s), dot(v, n), dot(v, t));
   }
 
-  Vec3 localToWorld(const Vec3& v, const Vec3& s, const Vec3& t, const Vec3& n) {
+  Vec3 localToWorld(const Vec3& v, const Vec3& s, const Vec3& n, const Vec3& t) {
     Vec3 a = Vec3(s.x, n.x, t.x);
     Vec3 b = Vec3(s.y, n.y, t.y);
     Vec3 c = Vec3(s.z, n.z, t.z);

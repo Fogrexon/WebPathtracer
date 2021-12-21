@@ -58,7 +58,7 @@ namespace Raytracer {
     Vec3 throughput(1, 1, 1);
 
     //Diffuse mat(Vec3(0.4, 0.4, 0.7),-1);
-    PlaneLight light(Vec3(0, 3, 0), 1, Vec3(3.0, 3.0, 3.0));
+    PlaneLight light(Vec3(0, 3, 0), 1, Vec3(5.0, 5.0, 5.0));
 
     Color result{Vec3(0, 0, 0), 1.0};
     
@@ -109,7 +109,7 @@ namespace Raytracer {
         ray = Ray(rayStart, wi);
 
       } else {
-        result.rgb += throughput * Vec3(abs(dot(Vec3(0, 1, 0), ray.dir)));
+        result.rgb += throughput * Vec3(1.0);
         break;
       }
 

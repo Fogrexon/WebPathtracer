@@ -97,14 +97,12 @@ int EMSCRIPTEN_KEEPALIVE readStream(int* a){
 
   int width = stream.settings.width, height = stream.settings.height;
   const int lineperupdate = 10;
-  printf("! this program is for test. sampling count is now 1!\n");
 
   if(stream.progress.j < stream.settings.height){
       int j;
       for(j = stream.progress.j; j < height && j < stream.progress.j + lineperupdate; j++){
           for(int i = 0; i < width; i++){
-              // const int spp = 10;
-              const int spp = 1;
+              const int spp = 10;
               Raytracer::Vec3 resultRgb{};
               for(int s = 0; s < spp; s++) {
                   // heightを1とした正規化

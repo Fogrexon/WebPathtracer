@@ -11,11 +11,8 @@ export type MaterialUniformsArray = [
   color_b: number,
 ]
 
-
 export class Diffuse extends Material {
   private color: Vector3;
-
-  public texture: Texture | null = null;
 
   constructor(color: Vector3 = new Vector3(1.0), texture: Texture | null = null) {
     super();

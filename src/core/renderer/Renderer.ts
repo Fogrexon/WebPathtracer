@@ -129,7 +129,7 @@ export class Renderer {
         imagedata.data[i] = this.pixelData.get(i);
       }
   
-      this.pixelData.release();
+      // this.pixelData.release();
       ctx.putImageData(imagedata, 0, 0);
     }
 

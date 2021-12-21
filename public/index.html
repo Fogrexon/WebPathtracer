@@ -29,35 +29,43 @@
     // Wasmのロードが終わり次第
     wasmManager.addEventListener('initialized', async () => {
       // うさちゃん+壁
-      const gltfModel = new PathTracer.GLTFLoader(
+      const boxModel = new PathTracer.GLTFLoader(
         new PathTracer.Diffuse(new PathTracer.Vector3(0.5,0.5,0.5), texture),
+        // new PathTracer.Glass(1.5),
       );
+
+      const rabbitModel = new PathTracer.GLTFLoader(
+        new PathTracer.Glass(1.5),
+      )
       
       // モデルのロード
-      Promise.all([gltfModel.load('bunnyinboxuv.gltf')]).then(() => {
+      Promise.all([boxModel.load('box.gltf'), rabbitModel.load('rabbit.gltf')]).then(() => {
         
         // レンダラを用意
         const renderer = new PathTracer.Renderer(wasmManager);
 
         // BVH(衝突判定用のデータ構造)
-        renderer.createBound(gltfModel);
+        renderer.createBound(boxModel);
+        renderer.createBound(rabbitModel);
 
         // カメラ
         const cam = new PathTracer.Camera(Math.PI * 0.5);
         
         // カメラを回転
-        const rotate = Math.PI * Math.random() * 2;
+        const rotate = Math.PI * 2 * Math.random();
         cam.pos = new PathTracer.Vector3(1 * Math.cos(rotate), 1, 1 * Math.sin(rotate));
-        cam.lookAt(new PathTracer.Vector3(0.0, 0.0, 0.0))
-
+        cam.lookAt(new PathTracer.Vector3(0.0, 0.0, 0.0));
         // レンダリング(時間がかかる)
-          renderer.render(document.getElementById('cnv'), cam)
-          .then(() => {
-            // バッファの開放
-            gltfModel.release();
-            texture.release();
-            renderer.release();
-          });
+        renderer.render(document.getElementById('cnv'), cam)
+        .then(() => {
+          // バッファの開放
+          renderer.release();
+          boxModel.release();
+          rabbitModel.release();
+          texture.release();
+          renderer.release();
+        });
+
       });
     });
   </script>

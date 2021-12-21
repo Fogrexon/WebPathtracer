@@ -74,6 +74,10 @@ namespace Raytracer {
         if(isEntering) {
           n1 = 1.0;
           n2 = ior;
+          normal = Vec3(0, 1, 0);
+        } else {
+          n1 = ior;
+          n2 = 1.0;
           normal = Vec3(0, -1, 0);
         }
 
@@ -90,7 +94,7 @@ namespace Raytracer {
           } else {
             wi = reflect(wo, normal);
             pdf = 1 - fr;
-            return (1 - fr) / absCosTheta(wi) * Vec3(1);
+            return (1 - fr) / absCosTheta(wi) * Vec3(1.0);
           }
         }
       };
