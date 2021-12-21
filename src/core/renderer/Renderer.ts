@@ -103,7 +103,6 @@ export class Renderer {
       console.error('Path trace failed.');
       return;
     }
-    console.log('start calc');
     
     let result2 = this.wasmManager.callReadStream(this.pixelData);
     const renderfunc = async () => {
@@ -117,11 +116,9 @@ export class Renderer {
         }
         ctx.putImageData(imagedata, 0, 0);
         if(result2 === 0){
-          console.log('end calc');
           clearInterval(timer);
           return;
         }
-        console.log("waiting");
       }, 100);
   
   
