@@ -20,25 +20,18 @@
   <script src="../build/umd/pathtracer.js"></script>
   <script>
     // Wasmロード
-    const wasmManager = new PathTracer.WasmManager('../build/wasm/main.wasm');
+    const wasmManager = new PathTracer.WasmManager();
 
     // テクスチャ作成
-    // const image = document.getElementById('human');
-    // const humanTexture = new PathTracer.Texture(image);
+    const image = document.getElementById('img');
+    const texture = new PathTracer.Texture(image);
 
     // Wasmのロードが終わり次第
     wasmManager.addEventListener('initialized', async () => {
       // うさちゃん+壁
       const gltfModel = new PathTracer.GLTFLoader(
-        new PathTracer.Material(new PathTracer.Vector3(0.5,0.5,0.5)),
+        new PathTracer.Diffuse(new PathTracer.Vector3(0.5,0.5,0.5), texture),
       );
-      // 人型
-      // const humanModel = new PathTracer.GLTFLoader(
-      //   new PathTracer.Material(new PathTracer.Vector3(1, 1, 1), humanTexture),
-      // );
-      // 人型を中心から移動させてちょっと縮小
-      // humanModel.transform.position = humanModel.transform.position.add(new PathTracer.Vector3(0.8, 0, 0));
-      // humanModel.transform.scale.set(0.5, 0.5, 0.5);
       
       // モデルのロード
       Promise.all([gltfModel.load('bunnyinboxuv.gltf')]).then(() => {
@@ -47,7 +40,6 @@
         const renderer = new PathTracer.Renderer(wasmManager);
 
         // BVH(衝突判定用のデータ構造)
-        // renderer.createBound(humanModel);
         renderer.createBound(gltfModel);
 
         // カメラ
@@ -63,8 +55,7 @@
           .then(() => {
             // バッファの開放
             gltfModel.release();
-            // humanModel.release();
-            // humanTexture.release();
+            texture.release();
             renderer.release();
           });
       });
