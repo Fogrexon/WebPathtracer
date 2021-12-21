@@ -117,7 +117,7 @@ export class Renderer {
         ctx.putImageData(imagedata, 0, 0);
         if(result2 === 0){
           clearInterval(timer);
-          return;
+          
         }
       }, 100);
   
