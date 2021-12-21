@@ -3,7 +3,7 @@ import { Vector3 } from '../../math/Vector3';
 import { Vector4 } from '../../math/Vector4';
 import { WasmBuffer } from '../wasm/WasmBuffer';
 import { WasmManager } from '../wasm/WasmManager';
-import { Material } from './Material';
+import { Material } from '../material/Material';
 import { Transform } from './Transform';
 
 /**
@@ -167,7 +167,6 @@ export abstract class Model {
   }
 
   // buffers
-
   get positionBuffer() { return this._positionBuffer };
 
   get normalBuffer() { return this._normalBuffer };

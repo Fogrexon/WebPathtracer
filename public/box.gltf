@@ -1,0 +1,106 @@
+{
+    "asset" : {
+        "generator" : "Khronos glTF Blender I/O v1.7.33",
+        "version" : "2.0"
+    },
+    "scene" : 0,
+    "scenes" : [
+        {
+            "name" : "Scene",
+            "nodes" : [
+                0
+            ]
+        }
+    ],
+    "nodes" : [
+        {
+            "mesh" : 0,
+            "name" : "Stanford Bunny",
+            "rotation" : [
+                0.7071068286895752,
+                0,
+                0,
+                0.7071067094802856
+            ]
+        }
+    ],
+    "meshes" : [
+        {
+            "name" : "Stanford Bunny-mesh.001",
+            "primitives" : [
+                {
+                    "attributes" : {
+                        "POSITION" : 0,
+                        "NORMAL" : 1,
+                        "TEXCOORD_0" : 2
+                    },
+                    "indices" : 3
+                }
+            ]
+        }
+    ],
+    "accessors" : [
+        {
+            "bufferView" : 0,
+            "componentType" : 5126,
+            "count" : 32,
+            "max" : [
+                2.7461936473846436,
+                2.7461934089660645,
+                0.059569165110588074
+            ],
+            "min" : [
+                -2.7461936473846436,
+                -2.7461941242218018,
+                -4.445625305175781
+            ],
+            "type" : "VEC3"
+        },
+        {
+            "bufferView" : 1,
+            "componentType" : 5126,
+            "count" : 32,
+            "type" : "VEC3"
+        },
+        {
+            "bufferView" : 2,
+            "componentType" : 5126,
+            "count" : 32,
+            "type" : "VEC2"
+        },
+        {
+            "bufferView" : 3,
+            "componentType" : 5123,
+            "count" : 36,
+            "type" : "SCALAR"
+        }
+    ],
+    "bufferViews" : [
+        {
+            "buffer" : 0,
+            "byteLength" : 384,
+            "byteOffset" : 0
+        },
+        {
+            "buffer" : 0,
+            "byteLength" : 384,
+            "byteOffset" : 384
+        },
+        {
+            "buffer" : 0,
+            "byteLength" : 256,
+            "byteOffset" : 768
+        },
+        {
+            "buffer" : 0,
+            "byteLength" : 72,
+            "byteOffset" : 1024
+        }
+    ],
+    "buffers" : [
+        {
+            "byteLength" : 1096,
+            "uri" : "data:application/octet-stream;base64,o8EvwKLBL0AD/nM9o8EvwKLBL0AD/nM9o8EvwKLBL0AD/nM9o8EvwKLBL0AD/nM9o8EvwKDBL0CQQo7Ao8EvwKDBL0CQQo7Ao8EvwKDBL0CQQo7Ao8EvwKDBL0CQQo7Ao8EvwKDBL0CQQo7Ao8EvwKPBL8DM/nM9o8EvwKPBL8DM/nM9o8EvwKPBL8DM/nM9o8EvwKXBL8CPQo7Ao8EvwKXBL8CPQo7Ao8EvwKXBL8CPQo7Ao8EvwKXBL8CPQo7Ao8EvQKLBL0AD/nM9o8EvQKLBL0AD/nM9o8EvQKLBL0AD/nM9o8EvQKLBL0AD/nM9o8EvQKDBL0CQQo7Ao8EvQKDBL0CQQo7Ao8EvQKDBL0CQQo7Ao8EvQKDBL0CQQo7Ao8EvQKPBL8DM/nM9o8EvQKPBL8DM/nM9o8EvQKPBL8DM/nM9o8EvQKPBL8DM/nM9o8EvQKXBL8CPQo7Ao8EvQKXBL8CPQo7Ao8EvQKXBL8CPQo7Ao8EvQKXBL8CPQo7AAAAAAP//f78PS+MzAAAAAHJjErQAAIC///9/PwAAAAA+pwa0AACAPwAAAACFiCU0AAAAAAAAgL8SS+MzAAAAAP//f78PS+MzAAAAAAAAAAAAAIA/AAAAANXHBzQAAIA/AACAPwAAAACFiCU0AAAAAHJjErQAAIC/AAAAAP//fz8PS+Oz//9/PwAAAAA+pwa0AAAAANXHBzQAAIA/AAAAAP//fz8PS+Oz//9/PwAAAAA+pwa0AACAPwAAAACFiCU0AACAvwAAAAAQS+OzAAAAAAAAgL8SS+MzAAAAAP//f78PS+MzAAAAAHJjErQAAIC/AACAvwAAAAAQS+Oz//9/vwAAAACEiKUzAAAAAAAAgL8SS+MzAAAAAAAAAAAAAIA/AACAvwAAAAAQS+Oz//9/vwAAAACEiKUzAAAAAHJjErQAAIC/AAAAAP//fz8PS+Oz//9/vwAAAACEiKUzAAAAAAAAAAAAAIA/AAAAANXHBzQAAIA/AAAAAP//fz8PS+OzAADAPgAAAAAAAAA+AACAPgAAwD4AAIA/AADAPgAAgD8AACA/AAAAAAAAID8AAAAAAABgPwAAgD4AAGA/AACAPgAAID8AAIA/AAAAPgAAAD8AAMA+AABAPwAAwD4AAEA/AABgPwAAAD8AACA/AABAPwAAID8AAEA/AAAgPwAAQD8AAMA+AACAPgAAwD4AAIA+AADAPgAAgD4AAMA+AACAPgAAID8AAIA+AAAgPwAAgD4AACA/AACAPgAAID8AAIA+AADAPgAAAD8AAMA+AAAAPwAAwD4AAAA/AADAPgAAAD8AACA/AAAAPwAAID8AAAA/AAAgPwAAAD8AACA/AAAAPwIACwAOAAMADwAIAAoAGwAfAAoAHwANABgAEAAUABkAFQAcABIAAAAFABEABAAWAAkAAQATAAkAEwAaAB0AFwAGAB4ABwAMAA=="
+        }
+    ]
+}

@@ -7,7 +7,6 @@
 
 #define MAX_REFLECT 10
 #define ROULETTE 0.999
-#define DELTA 0.000001
 
 // #define RAYTRACER_DEBUG
 
@@ -39,7 +38,7 @@ namespace Raytracer {
       // uv
       // result.rgb = uv;
       // texture
-      result.rgb = textures.get(mat.texId, uv);
+      result.rgb = textures.get(mat->texId, uv);
 
     } else {
       result.rgb += throughput * Vec3(0);
@@ -59,7 +58,7 @@ namespace Raytracer {
     Vec3 throughput(1, 1, 1);
 
     //Diffuse mat(Vec3(0.4, 0.4, 0.7),-1);
-    PlaneLight light(Vec3(0, 3, 0), 1, Vec3(10.0, 10.0, 10.0));
+    PlaneLight light(Vec3(0, 3, 0), 1, Vec3(5.0, 5.0, 5.0));
 
     Color result{Vec3(0, 0, 0), 1.0};
     
@@ -73,9 +72,9 @@ namespace Raytracer {
         Vec3 uv = Vec3(hit.texcoord.x, hit.texcoord.y, 0.0);
 
         // material 受け取り
-        Diffuse mat = hitMat.mat;
+        Material *mat = hitMat.mat;
 
-        Vec3 rayStart = point + DELTA * normal;
+        Vec3 rayStart = point;
         Vec3 s, t;
         orthonormalBasis(normal, s, t);
 
@@ -85,9 +84,9 @@ namespace Raytracer {
         Vec3 brdf;
         Vec3 wi_local;
         double pdf;
-        brdf = mat.sample(wo_local, wi_local, pdf, uv, textures);
+        brdf = mat->sample(wo_local, wi_local, pdf, uv, textures);
 
-        double cos = cosTheta(wi_local);
+        double cos = absCosTheta(wi_local);
 
         Vec3 wi = localToWorld(wi_local, s, normal, t);
 
@@ -110,7 +109,7 @@ namespace Raytracer {
         ray = Ray(rayStart, wi);
 
       } else {
-        result.rgb += throughput * Vec3(0);
+        result.rgb += throughput * Vec3(1.0);
         break;
       }
 

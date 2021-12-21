@@ -13,7 +13,6 @@ export class WasmManager extends EventTarget {
 
   /**
    * Creates an instance of WasmManager.
-   * @param {string} url wasm file url
    * @memberof WasmManager
    */
   constructor() {

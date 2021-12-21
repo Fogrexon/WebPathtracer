@@ -3,6 +3,8 @@
 
 #include "simpleIntersect.hpp"
 
+#define MINIMUM_INTERSECT_DISTANCE_2 0.0000001
+
 struct vert{
     point3 point;
     vec3 norm;
@@ -287,18 +289,24 @@ class ModelBVH {
         rayHit col1 = intersectModel_internal(o,d,child1);
         rayHit col2 = intersectModel_internal(o,d,child2);
 
-        if(!col1.isHit && !col2.isHit){
+        double dx1 = col1.point.x-o.x,dy1 = col1.point.y-o.y,dz1 = col1.point.z-o.z;
+        double dist21 = dx1*dx1+dy1*dy1+dz1*dz1;
+        double dx2 = col2.point.x-o.x,dy2 = col2.point.y-o.y,dz2 = col2.point.z-o.z;
+        double dist22 = dx2*dx2+dy2*dy2+dz2*dz2;
+
+        double col1hit = col1.isHit && dist21 > MINIMUM_INTERSECT_DISTANCE_2;
+        double col2hit = col2.isHit && dist22 > MINIMUM_INTERSECT_DISTANCE_2;
+
+        if(!col1hit && !col2hit){
             return {false,{INFF,INFF,INFF},-1,{0,0,0},-1,-1,{INFF,INFF}};
         }
-        if(!col1.isHit){
+        if(!col1hit){
             return col2;
         }
-        if(!col2.isHit){
+        if(!col2hit){
             return col1;
         }
-        double dx1 = col1.point.x-o.x,dy1 = col1.point.y-o.y,dz1 = col1.point.z-o.z;
-        double dx2 = col2.point.x-o.x,dy2 = col2.point.y-o.y,dz2 = col2.point.z-o.z; 
-        if(dx1*dx1+dy1*dy1+dz1*dz1 <= dx2*dx2+dy2*dy2+dz2*dz2){
+        if(dist21 <= dist22){
             return col1;
         }else{
             return col2;
