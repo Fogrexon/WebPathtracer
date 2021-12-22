@@ -6,7 +6,7 @@
 #include "light.hpp"
 
 #define MAX_REFLECT 10
-#define ROULETTE 0.999
+#define ROULETTE 0.99
 
 // #define RAYTRACER_DEBUG
 
@@ -27,18 +27,30 @@ namespace Raytracer {
     rayHit hit = hitMat.rayhit;
 
     if (hit.isHit) {
-      Vec3 point = Vec3(hit.point.x, hit.point.y, hit.point.z);
-      Vec3 normal = normalize(Vec3(hit.normal.x, hit.normal.y, hit.normal.z));
-      Vec3 uv = Vec3(hit.texcoord.x, hit.texcoord.y, 0.0);
+        Vec3 point = Vec3(hit.point.x, hit.point.y, hit.point.z);
+        Vec3 normal = normalize(Vec3(hit.normal.x, hit.normal.y, hit.normal.z));
+        Vec3 uv = Vec3(hit.texcoord.x, hit.texcoord.y, 0.0);
+
+        Vec3 rayStart = point;
+        Vec3 s, t;
+        orthonormalBasis(normal, s, t);
+
+        Vec3 wo_local = worldToLocal(-ray.dir, s, normal, t);
 
       // material 受け取り
-      Diffuse mat = hitMat.mat;
+      Material *mat = hitMat.mat;
       // normal
-      // result.rgb = normal * 0.5 + 0.5;
+      result.rgb = s * 0.5 + 0.5;
       // uv
       // result.rgb = uv;
       // texture
-      result.rgb = textures.get(mat->texId, uv);
+      // result.rgb = textures.get(mat->texId, uv);
+      // isNEE
+      // if(mat->isNEE) {
+      //   result.rgb = Vec3(1.0, 0.0, 0.0);
+      // } else {
+      //   result.rgb = Vec3(0.0, 1.0, 0.0);
+      // }
 
     } else {
       result.rgb += throughput * Vec3(0);
@@ -58,7 +70,7 @@ namespace Raytracer {
     Vec3 throughput(1, 1, 1);
 
     //Diffuse mat(Vec3(0.4, 0.4, 0.7),-1);
-    PlaneLight light(Vec3(0, 3, 0), 1, Vec3(5.0, 5.0, 5.0));
+    PlaneLight light(Vec3(0, 3, 0), 1, Vec3(1.0, 1.0, 1.0) * 10.0);
 
     Color result{Vec3(0, 0, 0), 1.0};
     
@@ -88,34 +100,40 @@ namespace Raytracer {
 
         double cos = absCosTheta(wi_local);
 
-        Vec3 wi = localToWorld(wi_local, s, normal, t);
+        Vec3 wi = normalize(localToWorld(wi_local, s, normal, t));
 
         throughput *= brdf * cos / pdf;
 
-        // NEE
-        Vec3 toLightPos(0);
-        Vec3 toLightDir(0);
-        Vec3 le = light.NEE(point, normal, toLightPos, toLightDir);
+        if (mat->isNEE) {
+          // NEE
+          Vec3 toLightPos(0);
+          Vec3 toLightDir(0);
+          Vec3 le = light.NEE(point, normal, toLightPos, toLightDir);
 
-        rayHit toLightHit = stage.intersectStage(rayStart.toPoint3(), toLightDir.toVec3()).rayhit;
-        Vec3 toLightHitPos = Vec3(toLightHit.point.x, toLightHit.point.y, toLightHit.point.z);
-        double lightDist2 = (toLightPos - rayStart).length2();
-        double hitDist2 = (toLightHitPos - rayStart).length2();
-        if (!toLightHit.isHit || lightDist2 < hitDist2) {
-          result.rgb += le * throughput;
+          rayHit toLightHit = stage.intersectStage(rayStart.toPoint3(), toLightDir.toVec3()).rayhit;
+          Vec3 toLightHitPos = Vec3(toLightHit.point.x, toLightHit.point.y, toLightHit.point.z);
+          double lightDist2 = (toLightPos - rayStart).length2();
+          double hitDist2 = (toLightHitPos - rayStart).length2();
+          if (!toLightHit.isHit || lightDist2 < hitDist2) {
+            result.rgb += le * throughput;
+          }
         }
-
 
         ray = Ray(rayStart, wi);
 
       } else {
         result.rgb += throughput * Vec3(1.0);
-        break;
+        return result;
       }
 
-      if (rnd() >= ROULETTE) break;
-      else throughput /= ROULETTE;
+      // if (rnd() >= ROULETTE) {
+      //   break;
+      // } else 
+      throughput /= ROULETTE;
     }
+
+    
+    result.rgb += throughput * Vec3(1.0);
 
     return result;
   };

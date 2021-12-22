@@ -133,7 +133,7 @@ namespace Raytracer {
   }
 
   void orthonormalBasis(const Vec3& v1, Vec3& v2, Vec3& v3) {
-    if(std::abs(v1.x) > 0.9) v2 = Vec3(0, 1, 0);
+    if(std::abs(v1.x) > 0.99) v2 = Vec3(0, 1, 0);
     else v2 = Vec3(1, 0, 0);
 
     v2 = normalize(v2 - dot(v1, v2) * v1);
@@ -152,7 +152,6 @@ namespace Raytracer {
     Vec3 a = Vec3(s.x, n.x, t.x);
     Vec3 b = Vec3(s.y, n.y, t.y);
     Vec3 c = Vec3(s.z, n.z, t.z);
-
     return Vec3(dot(v, a), dot(v, b), dot(v, c));
   }
 
