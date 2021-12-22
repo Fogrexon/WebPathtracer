@@ -3,7 +3,7 @@
 
 #include "simpleIntersect.hpp"
 
-#define MINIMUM_INTERSECT_DISTANCE_2 0.0000001
+#define MINIMUM_INTERSECT_DISTANCE_2 0.000001
 
 struct vert{
     point3 point;
@@ -244,9 +244,14 @@ class ModelBVH {
             tri3 tri;
             tri.vertex[0] = Vertex[Node[index].triangle[0]].point,tri.vertex[1] = Vertex[Node[index].triangle[1]].point,tri.vertex[2] = Vertex[Node[index].triangle[2]].point;
             rayHit P = intersectTriangle(o,d,tri);
-            if(!P.isHit){
+            // 最小衝突距離
+            point3 diff = point3{P.point.x - o.x, P.point.y - o.y, P.point.z - o.z};
+            double dist = diff.x * diff.x + diff.y * diff.y + diff.z * diff.z;
+
+            if(!P.isHit || dist < MINIMUM_INTERSECT_DISTANCE_2){
                 return {false,{INFF,INFF,INFF},-1,{0,0,0},-1,-1,{INFF,INFF}};
             }
+            
             vec3 n0 = Vertex[Node[index].triangle[0]].norm, n1 = Vertex[Node[index].triangle[1]].norm, n2 = Vertex[Node[index].triangle[2]].norm;
             texpoint tex0 = Vertex[Node[index].triangle[0]].texcoord, tex1 = Vertex[Node[index].triangle[1]].texcoord, tex2 = Vertex[Node[index].triangle[2]].texcoord;
 
@@ -294,16 +299,13 @@ class ModelBVH {
         double dx2 = col2.point.x-o.x,dy2 = col2.point.y-o.y,dz2 = col2.point.z-o.z;
         double dist22 = dx2*dx2+dy2*dy2+dz2*dz2;
 
-        double col1hit = col1.isHit && dist21 > MINIMUM_INTERSECT_DISTANCE_2;
-        double col2hit = col2.isHit && dist22 > MINIMUM_INTERSECT_DISTANCE_2;
-
-        if(!col1hit && !col2hit){
+        if(!col1.isHit && !col2.isHit){
             return {false,{INFF,INFF,INFF},-1,{0,0,0},-1,-1,{INFF,INFF}};
         }
-        if(!col1hit){
+        if(!col1.isHit){
             return col2;
         }
-        if(!col2hit){
+        if(!col2.isHit){
             return col1;
         }
         if(dist21 <= dist22){

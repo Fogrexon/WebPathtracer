@@ -7,6 +7,7 @@
 
 namespace Raytracer {
   struct Material {
+    bool isNEE = true;
     virtual Vec3 sample(const Vec3& wo, Vec3& wi, double &pdf, Vec3& uv, Texture &textures) = 0;
   };
 
@@ -44,23 +45,25 @@ namespace Raytracer {
       double ior;
       
       // Glass(const Vec3& _rho, int _texId): rho(_rho), texId(_texId) {};
-      Glass(double _ior): ior(_ior) {};
+      Glass(double _ior): ior(_ior) {
+        isNEE = false;
+      };
 
       double fresnel(const Vec3& v, const Vec3& n, double n1, double n2) {
-        double f0 = std::pow((n1 - n2) / (n1 + n2), 2.0);
+        double f0 = std::pow((n1 - n2)/(n1 + n2), 2.0);
         double cos = absCosTheta(v);
-        return f0 + (1 - f0) * std::pow(1 - cos, 5.0);
+        return f0 + (1 - f0)*std::pow(1 - cos, 5.0);
       }
 
       bool refract(const Vec3& v, Vec3& r, const Vec3& n, double n1, double n2) {
         double cos = absCosTheta(v);
-        double sin = std::sqrt(std::max(1 - cos * cos, 0.0));
-        double alpha = n1 / n2 * sin;
+        double sin = std::sqrt(std::max(1 - cos*cos, 0.0));
+        double alpha = n1/n2 * sin;
 
-        if(alpha * alpha > 1.0) return false;
+        if(alpha*alpha > 1.0) return false;
 
-        r = n1 / n2 * (-v + dot(v, n) * n) - std::sqrt(1 - alpha * alpha) * n;
-        
+        r = n1/n2 * (-v + dot(v, n)*n) - std::sqrt(1 - alpha*alpha)*n;
+
         return true;
       }
 
@@ -86,15 +89,17 @@ namespace Raytracer {
         if(rnd() < fr) {
           wi = reflect(wo, normal);
           pdf = fr;
-          return fr / absCosTheta(wi) * Vec3(1);
+          return fr / absCosTheta(wi) * Vec3(1.0);
         } else {
           if(refract(wo, wi, normal, n1, n2)) {
             pdf = 1 - fr;
             return std::pow(n1 / n2, 2.0) * (1 - fr) / absCosTheta(wi) * Vec3(1.0);
+            // return Vec3(1.0, 0.0, 0.0);
           } else {
             wi = reflect(wo, normal);
             pdf = 1 - fr;
             return (1 - fr) / absCosTheta(wi) * Vec3(1.0);
+            // return Vec3(0.0, 1.0, 0.0);
           }
         }
       };
