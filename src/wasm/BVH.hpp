@@ -3,7 +3,7 @@
 
 #include "simpleIntersect.hpp"
 
-#define MINIMUM_INTERSECT_DISTANCE_2 0.000001
+#define MINIMUM_INTERSECT_DISTANCE_2 0.0000001
 
 struct vert{
     point3 point;

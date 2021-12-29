@@ -4,6 +4,7 @@
 #include "../BVH.hpp"
 #include "material.hpp"
 #include "light.hpp"
+#include <stdio.h>
 
 #define MAX_REFLECT 10
 #define ROULETTE 0.99
@@ -38,7 +39,7 @@ namespace Raytracer {
         Vec3 wo_local = worldToLocal(-ray.dir, s, normal, t);
 
       // material 受け取り
-      Material *mat = hitMat.mat;
+      Material::BaseMaterial *mat = hitMat.mat;
       // normal
       result.rgb = s * 0.5 + 0.5;
       // uv
@@ -62,7 +63,6 @@ namespace Raytracer {
   #else
 
   Color raytrace(Ray& init_ray, Stage& stage, Texture& textures) {
-
     Ray ray = init_ray;
     ray.pos = init_ray.pos;
     ray.dir = init_ray.dir;
@@ -84,9 +84,9 @@ namespace Raytracer {
         Vec3 uv = Vec3(hit.texcoord.x, hit.texcoord.y, 0.0);
 
         // material 受け取り
-        Material *mat = hitMat.mat;
+        Material::BaseMaterial *mat = hitMat.mat;
 
-        Vec3 rayStart = point;
+        // transform to local cood
         Vec3 s, t;
         orthonormalBasis(normal, s, t);
 
@@ -104,6 +104,9 @@ namespace Raytracer {
 
         throughput *= brdf * cos / pdf;
 
+        // raystart
+        Vec3 rayStart = point;
+
         if (mat->isNEE) {
           // NEE
           Vec3 toLightPos(0);
@@ -119,11 +122,13 @@ namespace Raytracer {
           }
         }
 
+
         ray = Ray(rayStart, wi);
 
       } else {
-        result.rgb += throughput * Vec3(1.0);
-        return result;
+        result.rgb += throughput * Vec3(1.0, 0.0, 0.0);
+        break;
+        // return result;
       }
 
       // if (rnd() >= ROULETTE) {
@@ -132,8 +137,9 @@ namespace Raytracer {
       throughput /= ROULETTE;
     }
 
-    
-    result.rgb += throughput * Vec3(1.0);
+
+    // if(result.rgb.x > 1.0 || result.rgb.y > 1.0 || result.rgb.z > 1.0) result.rgb = Vec3(1.0, 0.0, 0.0);
+    // if(result.rgb.x < 0.0 || result.rgb.y < 0.0 || result.rgb.z < 0.0) result.rgb = Vec3(0.0, 1.0, 0.0);
 
     return result;
   };

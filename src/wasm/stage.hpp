@@ -5,12 +5,12 @@ struct Models{
     ModelBVH bvh;
     std::array<double,16> dir;
     std::array<double,16> dirinv;
-    Raytracer::Material *mat;
+    Raytracer::Material::BaseMaterial *mat;
 };
 
 struct rayHitMat{
     rayHit rayhit;
-    Raytracer::Material *mat;
+    Raytracer::Material::BaseMaterial *mat;
 };
 
 //複数のモデルとレイの当たり判定をする関数のクラス
@@ -27,7 +27,7 @@ class Stage{
     }*/
 
     //頂点情報をv、ポリゴン情報をp、テクスチャ情報をt、モデルの回転拡大平行移動をd(の逆行列)としてステージに追加し、インデックスを返す
-    int add(std::vector<vert> v,std::vector<std::array<int,3>> p,std::array<double,16> d,std::array<double,16> di,Raytracer::Material *m){
+    int add(std::vector<vert> v,std::vector<std::array<int,3>> p,std::array<double,16> d,std::array<double,16> di,Raytracer::Material::BaseMaterial *m){
         int n = models.size();
         
         ModelBVH bvh;
