@@ -3,7 +3,7 @@
 
 #include "simpleIntersect.hpp"
 
-#define MINIMUM_INTERSECT_DISTANCE_2 0.000001
+#define MINIMUM_INTERSECT_DISTANCE_2 0.001
 
 struct vert{
     point3 point;
@@ -245,10 +245,10 @@ class ModelBVH {
             tri.vertex[0] = Vertex[Node[index].triangle[0]].point,tri.vertex[1] = Vertex[Node[index].triangle[1]].point,tri.vertex[2] = Vertex[Node[index].triangle[2]].point;
             rayHit P = intersectTriangle(o,d,tri);
             // 最小衝突距離
-            point3 diff = point3{P.point.x - o.x, P.point.y - o.y, P.point.z - o.z};
-            double dist = diff.x * diff.x + diff.y * diff.y + diff.z * diff.z;
+            // point3 diff = point3{P.point.x - o.x, P.point.y - o.y, P.point.z - o.z};
+            // double dist = diff.x * diff.x + diff.y * diff.y + diff.z * diff.z;
 
-            if(!P.isHit || dist < MINIMUM_INTERSECT_DISTANCE_2){
+            if(!P.isHit/* || dist < MINIMUM_INTERSECT_DISTANCE_2*/){
                 return {false,{INFF,INFF,INFF},-1,{0,0,0},-1,-1,{INFF,INFF}};
             }
             
