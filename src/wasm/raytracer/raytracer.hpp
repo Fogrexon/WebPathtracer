@@ -70,7 +70,7 @@ namespace Raytracer {
     Vec3 throughput(1, 1, 1);
 
     //Diffuse mat(Vec3(0.4, 0.4, 0.7),-1);
-    PlaneLight light(Vec3(0, 3, 0), 1, Vec3(1.0, 1.0, 1.0) * 5.0);
+    PlaneLight light(Vec3(0, 3, 0), 1, Vec3(1.0, 1.0, 1.0) * 10.0);
 
     Color result{Vec3(0, 0, 0), 1.0};
     
@@ -104,14 +104,8 @@ namespace Raytracer {
 
         throughput *= brdf * cos / pdf;
 
-        // calc raystart
-        Vec3 rayStart;
-
-        if(dot(normal, wi) > 0) {
-          rayStart = point + normal * 0.001;
-        } else {
-          rayStart = point - normal * 0.00001;
-        }
+        // raystart
+        Vec3 rayStart = point;
 
         if (mat->isNEE) {
           // NEE
@@ -125,7 +119,6 @@ namespace Raytracer {
           double hitDist2 = (toLightHitPos - rayStart).length2();
           if (!toLightHit.isHit || lightDist2 < hitDist2) {
             result.rgb += le * throughput;
-            // result.rgb += Vec3(1.0, 0.0, 0.0) * throughput;
           }
         }
 
@@ -133,7 +126,7 @@ namespace Raytracer {
         ray = Ray(rayStart, wi);
 
       } else {
-        // result.rgb += throughput * Vec3(1.0);
+        result.rgb += throughput * Vec3(1.0, 0.0, 0.0);
         break;
         // return result;
       }

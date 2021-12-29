@@ -27,10 +27,10 @@ namespace Raytracer {
 
         double ux = uv.x;
         double uy = uv.y;
-        int fx = (int)std::floor(ux * TEXTURE_SIZE);
-        int fy = (int)std::floor(uy * TEXTURE_SIZE);
-        int cx = (int)std::ceil(ux * TEXTURE_SIZE);
-        int cy = (int)std::ceil(uy * TEXTURE_SIZE);
+        int fx = std::max(0, (int)std::floor(ux * TEXTURE_SIZE));
+        int fy = std::max(0, (int)std::floor(uy * TEXTURE_SIZE));
+        int cx = std::min((int)std::ceil(ux * TEXTURE_SIZE), TEXTURE_SIZE - 1);
+        int cy = std::min((int)std::ceil(uy * TEXTURE_SIZE), TEXTURE_SIZE - 1);
 
         int ltindex = fy * TEXTURE_SIZE + fx;
         int lbindex = cy * TEXTURE_SIZE + fx;
