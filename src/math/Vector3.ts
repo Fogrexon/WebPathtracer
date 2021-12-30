@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 export class Vector3 {
   public x: number;
 

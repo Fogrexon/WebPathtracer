@@ -167,48 +167,63 @@ export abstract class Model {
   }
 
   // buffers
-  get positionBuffer() { return this._positionBuffer };
+  get positionBuffer() {
+    return this._positionBuffer;
+  }
 
-  get normalBuffer() { return this._normalBuffer };
+  get normalBuffer() {
+    return this._normalBuffer;
+  }
 
-  get texcoordBuffer() { return this._texcoordBuffer };
+  get texcoordBuffer() {
+    return this._texcoordBuffer;
+  }
 
-  get indiciesBuffer() { return this._indiciesBuffer };
+  get indiciesBuffer() {
+    return this._indiciesBuffer;
+  }
 
-  get matrixBuffer() { return this._matrixBuffer };
+  get matrixBuffer() {
+    return this._matrixBuffer;
+  }
 
   createBuffers(manager: WasmManager, canvas: HTMLCanvasElement | OffscreenCanvas) {
-    if(!this._positionBuffer) this._positionBuffer = manager.createBuffer('float', this._position.length);
-    if(!this._normalBuffer) this._normalBuffer = manager.createBuffer('float', this._normal.length);
-    if(!this._texcoordBuffer) this._texcoordBuffer = manager.createBuffer('float', this._texcoord.length);
-    if(!this._indiciesBuffer) this._indiciesBuffer = manager.createBuffer('i32', this._indicies.length);
-    if(!this._matrixBuffer) this._matrixBuffer = manager.createBuffer('float', this._matrix.matrix.length * 2);
+    if (!this._positionBuffer)
+      this._positionBuffer = manager.createBuffer('float', this._position.length);
+    if (!this._normalBuffer)
+      this._normalBuffer = manager.createBuffer('float', this._normal.length);
+    if (!this._texcoordBuffer)
+      this._texcoordBuffer = manager.createBuffer('float', this._texcoord.length);
+    if (!this._indiciesBuffer)
+      this._indiciesBuffer = manager.createBuffer('i32', this._indicies.length);
+    if (!this._matrixBuffer)
+      this._matrixBuffer = manager.createBuffer('float', this._matrix.matrix.length * 2);
 
     this._positionBuffer.setArray(this._position);
     this._normalBuffer.setArray(this._normal);
     this._texcoordBuffer.setArray(this._texcoord);
     this._indiciesBuffer.setArray(this._indicies);
 
-    const {matrix} = this;
+    const { matrix } = this;
     this._matrixBuffer.setArray(matrix.matrix.concat(matrix.inverse().matrix));
 
     this._material.createBuffers(manager, canvas);
   }
 
   release() {
-    if(this._positionBuffer) {
+    if (this._positionBuffer) {
       this._positionBuffer.release();
       this._positionBuffer = null;
     }
-    if(this._normalBuffer)  {
+    if (this._normalBuffer) {
       this._normalBuffer.release();
       this._normalBuffer = null;
     }
-    if(this._texcoordBuffer)  {
+    if (this._texcoordBuffer) {
       this._texcoordBuffer.release();
       this._texcoordBuffer = null;
     }
-    if(this._indiciesBuffer)  {
+    if (this._indiciesBuffer) {
       this._indiciesBuffer.release();
       this._indiciesBuffer = null;
     }

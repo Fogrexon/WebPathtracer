@@ -49,7 +49,9 @@ export class GLTFLoader extends Model {
       throw new Error('gltf file with array type only');
 
     const [node] = nodes;
-    const {primitives: [primitive]} = meshes[0];
+    const {
+      primitives: [primitive],
+    } = meshes[0];
     const bufPos = bufferViews[primitive.attributes.POSITION as number];
     const bufNorm = bufferViews[primitive.attributes.NORMAL as number];
     const bufTex = bufferViews[primitive.attributes.TEXCOORD_0 as number];
@@ -89,7 +91,7 @@ export class GLTFLoader extends Model {
     this._texcoord = new Float32Array(buffer, bufTex.byteOffset, bufTex.byteLength / 4);
 
     this._indicies = Int32Array.from(
-      new Int16Array(buffer, bufInd.byteOffset,bufInd.byteLength / 2)
+      new Int16Array(buffer, bufInd.byteOffset, bufInd.byteLength / 2)
     );
   }
 }

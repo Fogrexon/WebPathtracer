@@ -52,7 +52,7 @@ export class WasmManager extends EventTarget {
   public callSetCamera(...args: (number | WasmBuffer)[]) {
     return this.callFunction('setCamera', ...args);
   }
-  
+
   public callReadStream(...args: (number | WasmBuffer)[]) {
     return this.callFunction('readStream', ...args);
   }

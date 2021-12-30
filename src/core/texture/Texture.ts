@@ -1,15 +1,16 @@
-import { WasmBuffer } from "../wasm/WasmBuffer";
-import { WasmManager } from "../wasm/WasmManager";
+/* eslint-disable no-console */
+import { WasmBuffer } from '../wasm/WasmBuffer';
+import { WasmManager } from '../wasm/WasmManager';
 
 const IMAGE_SIZE = 1024;
 
 export class Texture {
   private image: HTMLImageElement | null;
-  
+
   private needsUpdate: boolean;
 
   private imageArray: Uint8ClampedArray | null = null;
-  
+
   private valid: boolean = false;
 
   private _buffer: WasmBuffer | null = null;
@@ -27,18 +28,18 @@ export class Texture {
 
   private createPixelArray(canvas: HTMLCanvasElement | OffscreenCanvas) {
     const ctx = canvas.getContext('2d');
-    if(!ctx) {
+    if (!ctx) {
       console.error('cannot create texture.');
       return;
     }
 
-    if(this.image) ctx.drawImage(this.image, 0, 0, IMAGE_SIZE, IMAGE_SIZE);
+    if (this.image) ctx.drawImage(this.image, 0, 0, IMAGE_SIZE, IMAGE_SIZE);
     this.imageArray = ctx.getImageData(0, 0, IMAGE_SIZE, IMAGE_SIZE).data;
     this.valid = true;
   }
 
   createBuffer(wasm: WasmManager, canvas: HTMLCanvasElement | OffscreenCanvas) {
-    if(this.needsUpdate) this.createPixelArray(canvas)
+    if (this.needsUpdate) this.createPixelArray(canvas);
     if (this._buffer) return;
     this._buffer = wasm.createBuffer('i32', IMAGE_SIZE * IMAGE_SIZE * 4);
 
