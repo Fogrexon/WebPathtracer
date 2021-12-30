@@ -131,9 +131,9 @@ namespace Raytracer {
         // return result;
       }
 
-      // if (rnd() >= ROULETTE) {
-      //   break;
-      // } else 
+      if (rnd() >= ROULETTE) {
+        break;
+      }
       throughput /= ROULETTE;
     }
 
