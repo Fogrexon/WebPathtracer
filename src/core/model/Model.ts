@@ -177,7 +177,7 @@ export abstract class Model {
 
   get matrixBuffer() { return this._matrixBuffer };
 
-  createBuffers(manager: WasmManager) {
+  createBuffers(manager: WasmManager, canvas: HTMLCanvasElement | OffscreenCanvas) {
     if(!this._positionBuffer) this._positionBuffer = manager.createBuffer('float', this._position.length);
     if(!this._normalBuffer) this._normalBuffer = manager.createBuffer('float', this._normal.length);
     if(!this._texcoordBuffer) this._texcoordBuffer = manager.createBuffer('float', this._texcoord.length);
@@ -192,7 +192,7 @@ export abstract class Model {
     const {matrix} = this;
     this._matrixBuffer.setArray(matrix.matrix.concat(matrix.inverse().matrix));
 
-    this._material.createBuffers(manager);
+    this._material.createBuffers(manager, canvas);
   }
 
   release() {
