@@ -7,6 +7,7 @@ export * from './core/material/Glass';
 export * from './core/material/Diffuse';
 export * from './core/camera/Camera';
 export * from './core/texture/Texture';
+export * from './core/texture/WorkerImage';
 export * from './core/wasm/WasmManager';
 export * from './core/wasm/WasmBuffer';
 export * from './math/Quaternion';

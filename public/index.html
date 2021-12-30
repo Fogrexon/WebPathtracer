@@ -3,85 +3,27 @@
 <head>
   <meta charset=utf-8>
   <meta content="text/html; charset=utf-8" http-equiv=Content-Type>
-  <title>PathTracerTest</title>
+  <title>WebPathTracer デモ</title>
 </head>
 <body>
-  <h1>パストレーサー　ライブラリ</h1>
+  <h1>WebPathTracer デモ</h1>
   <canvas id="cnv" width=500 height=500></canvas>
   <div>
-    制作者: Fogrex, kegra, 0214sh7<br>
-    モデル提供元: d_etteiu8383 のはずだった、githubにあげるの良くないかと思ってけしちゃった<br>
-    リロードする度違う方面からレンダリングします。女の子の脚が見えないのはバグなのかファイルがミスってるのか分かりません。<br>
-    <a href="https://github.com/Fogrexon/WebPathtracer">このライブラリのリポジトリ(でっていうさんのモデルは無いです)</a>
+    WebWorker上で動作
+    画像生成までに30秒以上かかるので注意
   </div>
   <div style="display:none;">
     <img src="./uv.png" id="img" />
   </div>
-  <script src="../build/umd/pathtracer.js"></script>
+  <script src=""></script>
   <script>
-    // Wasmロード
-    const wasmManager = new PathTracer.WasmManager();
-
-    const image = new Image();
-    image.onload = () => {
-      // テクスチャ作成
-      const texture = new PathTracer.Texture(image);
-
-      // Wasmのロードが終わり次第
-      wasmManager.addEventListener('initialized', async () => {
-        // 壁
-        const boxModel = new PathTracer.GLTFLoader(
-          new PathTracer.Diffuse(new PathTracer.Vector3(1.0, 1.0, 1.0), texture),
-          // new PathTracer.Glass(1.5),
-        );
-        // boxModel.transform.rotation.angleAxis(Math.PI * 0.25, new PathTracer.Vector3(0, 1, 0));
-  
-        const rabbitModel = new PathTracer.GLTFLoader(
-          new PathTracer.Diffuse(new PathTracer.Vector3(1.0, 1.0, 1.0)),
-          // new PathTracer.Glass(1.5),
-        );
-        rabbitModel.transform.position.set(0.5, 0, 0);
-
-        const glassModel = new PathTracer.GLTFLoader(
-          new PathTracer.Glass(1.1),
-        )
-        glassModel.transform.position.set(-0.5, 0, 0);
-        
-        // モデルのロード
-        Promise.all([boxModel.load('box.gltf'), rabbitModel.load('rabbit.gltf'), glassModel.load('sphere.gltf')]).then(() => {
-          
-          // レンダラを用意
-          const renderer = new PathTracer.Renderer(wasmManager);
-  
-          // BVH(衝突判定用のデータ構造)
-          renderer.createBound(boxModel);
-          renderer.createBound(rabbitModel);
-          renderer.createBound(glassModel);
-  
-          // カメラ
-          const cam = new PathTracer.Camera(Math.PI * 0.5);
-          
-          // カメラを回転
-          const rotate = Math.PI * 2 * Math.random();
-          cam.pos = new PathTracer.Vector3(2 * Math.cos(rotate), 1, 2 * Math.sin(rotate));
-          cam.lookAt(new PathTracer.Vector3(0.0, 0.0, 0.0));
-          // レンダリング(時間がかかる)
-          renderer.render(document.getElementById('cnv'), cam)
-          .then(() => {
-            // バッファの開放
-            renderer.release();
-            boxModel.release();
-            rabbitModel.release();
-            texture.release();
-            renderer.release();
-          });
-  
-        });
-      });
-
-    }
-
-    image.src = "./uv.png";
+    const worker = new Worker('worker.js');
+    const canvas = document.getElementById('cnv');
+    const offscreenCanvas = canvas.transferControlToOffscreen();
+    worker.postMessage({canvas: offscreenCanvas}, [offscreenCanvas]);
+    worker.addEventListener('message', () => {
+      console.log('worker end');
+    });
 
   </script>
 </body>

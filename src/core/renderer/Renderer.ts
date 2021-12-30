@@ -39,7 +39,7 @@ export class Renderer {
    */
   constructor(wasmManager: WasmManager) {
     this.wasmManager = wasmManager;
-    this.isWorker = !window
+    this.isWorker = typeof window === 'undefined';
     this.textureCanvas = this.isWorker ? new OffscreenCanvas(TEXTURE_SIZE, TEXTURE_SIZE) : document.createElement('canvas');
     this.textureCanvas.width = TEXTURE_SIZE;
     this.textureCanvas.height = TEXTURE_SIZE;

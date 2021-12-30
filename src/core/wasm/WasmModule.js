@@ -23,7 +23,7 @@ export /**
  *
  * @return {*} 
  */
-const WasmModuleGenerator = (workerGlobalScope = null) => {
+const WasmModuleGenerator = () => {
     const Module = {};
     let arguments_ = [];
     let thisProgram = "./this.program";
@@ -34,6 +34,9 @@ const WasmModuleGenerator = (workerGlobalScope = null) => {
     const ENVIRONMENT_IS_WORKER = typeof importScripts === "function";
     const ENVIRONMENT_IS_NODE = typeof process === "object" && typeof process.versions === "object" && typeof process.versions.node === "string";
     let scriptDirectory = "";
+
+    // eslint-disable-next-line no-restricted-globals
+    const workerGlobalScope = ENVIRONMENT_IS_WORKER ? self : null;
 
     function locateFile(path) {
         if (Module.locateFile) {
