@@ -1,10 +1,6 @@
-import { Material } from "./Material";
+import { Material } from './Material';
 
-export type GlassUniformArray = [
-  materialType: number,
-  reflectRate: number,
-]
-
+export type GlassUniformArray = [materialType: number, reflectRate: number];
 
 export class Glass extends Material {
   private _rho: number;
@@ -15,9 +11,6 @@ export class Glass extends Material {
   }
 
   createOptionArray(): number[] {
-    return [
-      1,
-      this._rho,
-    ] as GlassUniformArray;
+    return [1, this._rho] as GlassUniformArray;
   }
 }

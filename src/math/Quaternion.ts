@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 import { Matrix4 } from './Matrix4';
 import { Vector3 } from './Vector3';
 import { Vector4 } from './Vector4';

@@ -1,15 +1,15 @@
-import { Vector3 } from "../../math/Vector3";
-import { Texture } from "../texture/Texture";
-import { WasmManager } from "../wasm/WasmManager";
-import { Material } from "./Material";
+import { Vector3 } from '../../math/Vector3';
+import { Texture } from '../texture/Texture';
+import { WasmManager } from '../wasm/WasmManager';
+import { Material } from './Material';
 
 export type MaterialUniformsArray = [
   materialType: number,
   textureID: number,
   color_r: number,
   color_g: number,
-  color_b: number,
-]
+  color_b: number
+];
 
 export class Diffuse extends Material {
   private color: Vector3;
@@ -27,7 +27,7 @@ export class Diffuse extends Material {
       this.color.x,
       this.color.y,
       this.color.z,
-    ] as MaterialUniformsArray
+    ] as MaterialUniformsArray;
   }
 
   createBuffers(manager: WasmManager, canvas: HTMLCanvasElement | OffscreenCanvas) {

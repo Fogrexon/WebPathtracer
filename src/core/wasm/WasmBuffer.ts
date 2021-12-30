@@ -1,4 +1,5 @@
 import { WasmArrayType, WasmValueType } from '../../types/wasm';
+// eslint-disable-next-line import/named
 import { WasmModule } from './WasmModule';
 
 /**
