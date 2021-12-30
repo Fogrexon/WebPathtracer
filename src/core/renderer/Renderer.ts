@@ -3,6 +3,8 @@ import { WasmBuffer } from '../wasm/WasmBuffer';
 import { WasmManager } from '../wasm/WasmManager';
 import { Camera } from '../camera/Camera';
 
+const TEXTURE_SIZE = 1024;
+
 /**
  * Image renderer. pass model and render image.
  *
@@ -11,6 +13,10 @@ import { Camera } from '../camera/Camera';
  */
 export class Renderer {
   private wasmManager: WasmManager;
+
+  private textureCanvas: HTMLCanvasElement | OffscreenCanvas;
+
+  private isWorker: boolean;
 
   private pixelData: WasmBuffer | null = null;
 
@@ -33,6 +39,10 @@ export class Renderer {
    */
   constructor(wasmManager: WasmManager) {
     this.wasmManager = wasmManager;
+    this.isWorker = typeof window === 'undefined';
+    this.textureCanvas = this.isWorker ? new OffscreenCanvas(TEXTURE_SIZE, TEXTURE_SIZE) : document.createElement('canvas');
+    this.textureCanvas.width = TEXTURE_SIZE;
+    this.textureCanvas.height = TEXTURE_SIZE;
   }
 
   /**
@@ -42,14 +52,14 @@ export class Renderer {
    * @memberof Renderer
    */
   public createBound(model: Model) {
-    model.createBuffers(this.wasmManager);
+    model.createBuffers(this.wasmManager, this.textureCanvas);
 
     const {texture} = model.material;
 
     if(texture && texture.isValid() && texture.id < 0 && texture.buffer ) {
       const id = this.wasmManager.callFunction('createTexture', texture.buffer);
       texture.id = id;
-      model.material.createBuffers(this.wasmManager);
+      model.material.createBuffers(this.wasmManager, this.textureCanvas);
     }
 
     return this.wasmManager.callCreateBounding(
@@ -73,7 +83,7 @@ export class Renderer {
    * @return {*}  {number}
    * @memberof Renderer
    */
-  public render(canvas: HTMLCanvasElement, camera: Camera): Promise<void> | void {
+  public render(canvas: HTMLCanvasElement | OffscreenCanvas, camera: Camera): Promise<void> | void {
     const { width, height } = canvas;
 
     const ctx = canvas.getContext('2d');
@@ -109,7 +119,7 @@ export class Renderer {
       if(!this.pixelData) return;
       
       const {pixelData} = this;
-      const timer = setInterval(()=>{
+      const timer = setInterval(() => {
         result2 = this.wasmManager.callReadStream(pixelData);
         for (let i = 0; i < pixels.length; i += 1) {
           imagedata.data[i] = pixelData.get(i);

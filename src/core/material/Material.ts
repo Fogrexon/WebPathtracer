@@ -16,7 +16,8 @@ export abstract class Material {
 
   abstract createOptionArray(): number[];
 
-  createBuffers(manager: WasmManager) {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  createBuffers(manager: WasmManager, canvas: HTMLCanvasElement | OffscreenCanvas) {
     if(!this._materialBuffer) this._materialBuffer = manager.createBuffer('float', MATERIAL_UNIFORM_LENGTH);
 
     this._materialBuffer?.setArray(

@@ -30,8 +30,8 @@ export class Diffuse extends Material {
     ] as MaterialUniformsArray
   }
 
-  createBuffers(manager: WasmManager) {
-    this.texture?.createBuffer(manager);
-    super.createBuffers(manager);
+  createBuffers(manager: WasmManager, canvas: HTMLCanvasElement | OffscreenCanvas) {
+    this.texture?.createBuffer(manager, canvas);
+    super.createBuffers(manager, canvas);
   }
 }
