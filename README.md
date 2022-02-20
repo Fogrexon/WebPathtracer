@@ -33,7 +33,7 @@ npm docs
 npm run start:example
 ```
 
-[testpage](http://localhost:8080/public/)
+[testpage](https://fogrexon.github.io/WebPathtracer/public/)
 
 ## Demos
 
